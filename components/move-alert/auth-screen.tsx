@@ -1,15 +1,9 @@
-import { Ionicons } from '@expo/vector-icons';
 import { useState } from 'react';
-import {
-  ActivityIndicator,
-  KeyboardAvoidingView,
-  Platform,
-  Pressable,
-  TextInput,
-  View,
-} from 'react-native';
+import { KeyboardAvoidingView, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { AuthFormCard } from '@/components/move-alert/auth/auth-form-card';
+import { AuthHero } from '@/components/move-alert/auth/auth-hero';
 import { useAuth } from '@/components/move-alert/auth-state';
 import {
   authEmailSchema,
@@ -17,9 +11,6 @@ import {
   getValidationMessage,
 } from '@/components/move-alert/auth-validation';
 import { t } from '@/components/move-alert/i18n';
-import { Box } from '@/components/ui/box';
-import { Heading } from '@/components/ui/heading';
-import { Text } from '@/components/ui/text';
 
 type AuthMode = 'sign-in' | 'sign-up';
 
@@ -80,96 +71,36 @@ export function AuthScreen() {
         behavior={Platform.select({ ios: 'padding', default: undefined })}
         className="flex-1 justify-center px-5"
       >
-        <View className="mb-8 items-center">
-          <View className="h-16 w-16 items-center justify-center rounded-2xl bg-success-100">
-            <Ionicons color="#166534" name="walk-outline" size={34} />
-          </View>
-          <Heading size="2xl" style={{ lineHeight: 36 }}>
-            {title}
-          </Heading>
-          <Text className="mt-2 text-center text-base leading-6 text-typography-600">
-            {t('auth.screen.subtitle')}
-          </Text>
-        </View>
+        <AuthHero subtitle={t('auth.screen.subtitle')} title={title} />
 
-        <Box className="rounded-3xl bg-background-0 p-5 shadow-soft-1">
-          <Text className="text-sm font-bold uppercase text-info-600">
-            {t('auth.screen.providerLabel')}
-          </Text>
-
-          <View className="mt-4 gap-3">
-            <TextInput
-              autoCapitalize="none"
-              autoComplete="email"
-              autoCorrect={false}
-              className="rounded-2xl border border-outline-200 bg-background-0 px-4 py-4 text-base text-typography-900"
-              inputMode="email"
-              onChangeText={setEmail}
-              placeholder="you@example.com"
-              placeholderTextColor="#8a8a8a"
-              textContentType="emailAddress"
-              value={email}
-            />
-            <TextInput
-              autoCapitalize="none"
-              className="rounded-2xl border border-outline-200 bg-background-0 px-4 py-4 text-base text-typography-900"
-              onChangeText={setPassword}
-              placeholder={t('auth.screen.passwordPlaceholder')}
-              placeholderTextColor="#8a8a8a"
-              secureTextEntry
-              textContentType="password"
-              value={password}
-            />
-          </View>
-
-          {formMessage || errorMessage ? (
-            <Text className="mt-4 rounded-2xl bg-warning-50 px-4 py-3 text-sm font-semibold leading-5 text-warning-800">
-              {formMessage ?? errorMessage}
-            </Text>
-          ) : null}
-
-          <Pressable
-            className="mt-5 flex-row items-center justify-center gap-2 rounded-2xl bg-primary-500 px-4 py-4"
-            disabled={isLoading}
-            onPress={() => {
-              void submitAuthForm();
-            }}
-          >
-            {isLoading ? (
-              <ActivityIndicator color="#ffffff" size="small" />
-            ) : (
-              <Ionicons color="#ffffff" name="log-in-outline" size={20} />
-            )}
-            <Text className="font-bold text-typography-0">{submitLabel}</Text>
-          </Pressable>
-
-          <Pressable
-            className="mt-3 items-center px-4 py-3"
-            disabled={isLoading}
-            onPress={() => {
-              setFormMessage(null);
-              setMode(isSignIn ? 'sign-up' : 'sign-in');
-            }}
-          >
-            <Text className="font-bold text-info-700">
-              {isSignIn
-                ? t('auth.screen.switchToSignUp')
-                : t('auth.screen.switchToSignIn')}
-            </Text>
-          </Pressable>
-
-          <Pressable
-            className="items-center px-4 py-3"
-            disabled={isLoading}
-            onPress={() => {
-              void resendVerificationEmail();
-            }}
-          >
-            <Text className="font-bold text-typography-600">
-              {t('auth.screen.resendVerificationEmail')}
-            </Text>
-          </Pressable>
-        </Box>
+        <AuthFormCard
+          email={email}
+          isLoading={isLoading}
+          isSignIn={isSignIn}
+          message={formMessage ?? errorMessage}
+          onChangeEmail={setEmail}
+          onChangePassword={setPassword}
+          onResendVerification={() => {
+            void resendVerificationEmail();
+          }}
+          onSubmit={() => {
+            void submitAuthForm();
+          }}
+          onToggleMode={() => {
+            setFormMessage(null);
+            setMode(isSignIn ? 'sign-up' : 'sign-in');
+          }}
+          password={password}
+          passwordPlaceholder={t('auth.screen.passwordPlaceholder')}
+          providerLabel={t('auth.screen.providerLabel')}
+          resendLabel={t('auth.screen.resendVerificationEmail')}
+          submitLabel={submitLabel}
+          switchModeLabel={
+            isSignIn
+              ? t('auth.screen.switchToSignUp')
+              : t('auth.screen.switchToSignIn')
+          }
+        />
       </KeyboardAvoidingView>
     </SafeAreaView>
   );

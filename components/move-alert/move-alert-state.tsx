@@ -20,12 +20,15 @@ import {
   activityTemplateTitleKeys,
   activityTemplateTones,
   defaultActivityTemplates,
+  defaultQuietHoursDays,
   initialTimeline,
   reminderIntervals,
   timelineLabelKeys,
   timelineStatuses,
+  weekDays,
   type StretchItem,
   type TimelineItem,
+  type WeekDay,
 } from './move-alert-data';
 
 type MoveAlertState = {
@@ -35,6 +38,10 @@ type MoveAlertState = {
   intervalMinutes: number;
   reminderEnabled: boolean;
   quietHoursEnabled: boolean;
+  quietHoursStartTime: string;
+  quietHoursEndTime: string;
+  quietHoursDays: WeekDay[];
+  completedStretchCounts: Record<string, number>;
   completedStretchIds: string[];
   timeline: TimelineItem[];
 };
@@ -56,8 +63,11 @@ type MoveAlertContextValue = {
   isSyncing: boolean;
   skipBreak: () => void;
   setIntervalMinutes: (intervalMinutes: number) => void;
+  setQuietHoursEndTime: (time: string) => void;
+  setQuietHoursStartTime: (time: string) => void;
   stretchCooldown: StretchCooldown | null;
   syncStatus: SyncStatus;
+  toggleQuietHoursDay: (day: WeekDay) => void;
   toggleReminder: () => void;
   toggleQuietHours: () => void;
 };
@@ -69,6 +79,10 @@ const initialState: MoveAlertState = {
   intervalMinutes: 45,
   reminderEnabled: true,
   quietHoursEnabled: true,
+  quietHoursStartTime: '22:00',
+  quietHoursEndTime: '07:00',
+  quietHoursDays: defaultQuietHoursDays,
+  completedStretchCounts: {},
   completedStretchIds: [],
   timeline: initialTimeline,
 };
@@ -80,6 +94,11 @@ const moveAlertSettingsRowSchema = z.object({
     .refine((value) => reminderIntervals.includes(value))
     .catch(initialState.intervalMinutes),
   quiet_hours_enabled: z.boolean().catch(initialState.quietHoursEnabled),
+  quiet_hours_end_time: z.string().catch(initialState.quietHoursEndTime),
+  quiet_hours_start_time: z.string().catch(initialState.quietHoursStartTime),
+  quiet_hours_days: z
+    .array(z.number().int())
+    .catch(initialState.quietHoursDays),
   reminder_enabled: z.boolean().catch(initialState.reminderEnabled),
 });
 
@@ -90,6 +109,7 @@ const moveAlertDailySummaryRowSchema = z.object({
 });
 
 const completedStretchRowSchema = z.object({
+  completed_count: z.number().int().positive().catch(1),
   stretch_id: z.string(),
 });
 
@@ -117,6 +137,7 @@ const timelineItemRowSchema = z.object({
 });
 
 const MoveAlertContext = createContext<MoveAlertContextValue | null>(null);
+const SAVE_DEBOUNCE_MS = 400;
 
 function tapFeedback() {
   Haptics.selectionAsync().catch(() => {});
@@ -243,7 +264,10 @@ function getLocalDateKey(date = new Date()) {
 function toSettingsRow(userId: string, state: MoveAlertState) {
   return {
     interval_minutes: state.intervalMinutes,
+    quiet_hours_days: state.quietHoursDays,
+    quiet_hours_end_time: state.quietHoursEndTime,
     quiet_hours_enabled: state.quietHoursEnabled,
+    quiet_hours_start_time: state.quietHoursStartTime,
     reminder_enabled: state.reminderEnabled,
     user_id: userId,
   };
@@ -268,11 +292,14 @@ function toCompletedStretchRows(
   summaryDate: string,
   state: MoveAlertState,
 ) {
-  return state.completedStretchIds.map((stretchId) => ({
-    stretch_id: stretchId,
-    summary_date: summaryDate,
-    user_id: userId,
-  }));
+  return Object.entries(state.completedStretchCounts)
+    .filter(([, completedCount]) => completedCount > 0)
+    .map(([stretchId, completedCount]) => ({
+      completed_count: completedCount,
+      stretch_id: stretchId,
+      summary_date: summaryDate,
+      user_id: userId,
+    }));
 }
 
 function toTimelineItemRows(
@@ -294,6 +321,27 @@ function normalizeDatabaseTime(time: string) {
   const parsedTime = /^([01]\d|2[0-3]):([0-5]\d)(?::[0-5]\d)?$/.exec(time);
 
   return parsedTime ? `${parsedTime[1]}:${parsedTime[2]}` : null;
+}
+
+function normalizeQuietHoursDays(days: number[]) {
+  const validDays = days.filter((day): day is WeekDay =>
+    weekDays.includes(day as WeekDay),
+  );
+  const uniqueDays = Array.from(new Set(validDays));
+
+  return uniqueDays.length > 0 ? uniqueDays : initialState.quietHoursDays;
+}
+
+function getCompletedStretchCounts(
+  rows: z.infer<typeof completedStretchRowSchema>[],
+) {
+  return rows.reduce<Record<string, number>>(
+    (counts, row) => ({
+      ...counts,
+      [row.stretch_id]: row.completed_count,
+    }),
+    {},
+  );
 }
 
 function fromDatabaseRows({
@@ -334,17 +382,31 @@ function fromDatabaseRows({
         : null;
     })
     .filter((item): item is TimelineItem => item !== null);
+  const completedStretchCounts = getCompletedStretchCounts(
+    parsedCompletedStretchRows,
+  );
 
   return {
     completedToday:
       parsedDailySummary?.completed_count ?? initialState.completedToday,
-    completedStretchIds: parsedCompletedStretchRows.map(
-      (row) => row.stretch_id,
-    ),
+    completedStretchCounts,
+    completedStretchIds: Object.keys(completedStretchCounts),
     intervalMinutes:
       parsedSettings?.interval_minutes ?? initialState.intervalMinutes,
+    quietHoursDays: normalizeQuietHoursDays(
+      parsedSettings?.quiet_hours_days ?? initialState.quietHoursDays,
+    ),
+    quietHoursEndTime:
+      normalizeDatabaseTime(
+        parsedSettings?.quiet_hours_end_time ?? initialState.quietHoursEndTime,
+      ) ?? initialState.quietHoursEndTime,
     quietHoursEnabled:
       parsedSettings?.quiet_hours_enabled ?? initialState.quietHoursEnabled,
+    quietHoursStartTime:
+      normalizeDatabaseTime(
+        parsedSettings?.quiet_hours_start_time ??
+          initialState.quietHoursStartTime,
+      ) ?? initialState.quietHoursStartTime,
     reminderEnabled:
       parsedSettings?.reminder_enabled ?? initialState.reminderEnabled,
     skippedToday:
@@ -410,7 +472,16 @@ async function loadMoveAlertState(userId: string, summaryDate: string) {
       .order('position', { ascending: true }),
     supabase
       .from('move_alert_settings')
-      .select('interval_minutes, reminder_enabled, quiet_hours_enabled')
+      .select(
+        [
+          'interval_minutes',
+          'reminder_enabled',
+          'quiet_hours_enabled',
+          'quiet_hours_start_time',
+          'quiet_hours_end_time',
+          'quiet_hours_days',
+        ].join(', '),
+      )
       .eq('user_id', userId)
       .maybeSingle(),
     supabase
@@ -421,7 +492,7 @@ async function loadMoveAlertState(userId: string, summaryDate: string) {
       .maybeSingle(),
     supabase
       .from('move_alert_completed_stretches')
-      .select('stretch_id')
+      .select('stretch_id, completed_count')
       .eq('user_id', userId)
       .eq('summary_date', summaryDate)
       .order('created_at', { ascending: true }),
@@ -533,6 +604,11 @@ export function MoveAlertProvider({ children }: PropsWithChildren) {
   const loadedUserIdRef = useRef<string | null>(null);
   const loadedDateKeyRef = useRef<string | null>(null);
   const lastSyncedStateRef = useRef<string | null>(null);
+  const currentStateRef = useRef(initialState);
+  const currentSerializedStateRef = useRef(serializeValue(initialState));
+  const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const queuedSaveRef = useRef(false);
+  const isSavingRef = useRef(false);
   const stretchCooldownRef = useRef<StretchCooldown | null>(null);
   const dailyGoal = activityTemplates.length;
 
@@ -548,6 +624,69 @@ export function MoveAlertProvider({ children }: PropsWithChildren) {
     },
     [],
   );
+
+  const clearScheduledSave = useCallback(() => {
+    if (saveTimeoutRef.current) {
+      clearTimeout(saveTimeoutRef.current);
+      saveTimeoutRef.current = null;
+    }
+  }, []);
+
+  const hasPendingLocalChanges = useCallback(() => {
+    return (
+      saveTimeoutRef.current !== null ||
+      queuedSaveRef.current ||
+      isSavingRef.current ||
+      (lastSyncedStateRef.current !== null &&
+        currentSerializedStateRef.current !== lastSyncedStateRef.current)
+    );
+  }, []);
+
+  const flushStateToDatabase = useCallback(async () => {
+    const userId = loadedUserIdRef.current;
+    const summaryDate = loadedDateKeyRef.current;
+
+    if (!userId || !summaryDate) return;
+    if (isSavingRef.current) {
+      queuedSaveRef.current = true;
+      return;
+    }
+
+    const serializedSnapshot = currentSerializedStateRef.current;
+
+    if (lastSyncedStateRef.current === serializedSnapshot) return;
+
+    const stateSnapshot = currentStateRef.current;
+
+    isSavingRef.current = true;
+    queuedSaveRef.current = false;
+    setSyncStatus('saving');
+    setErrorMessage(null);
+
+    try {
+      await saveMoveAlertState(userId, summaryDate, stateSnapshot);
+
+      if (currentSerializedStateRef.current === serializedSnapshot) {
+        lastSyncedStateRef.current = serializedSnapshot;
+        setSyncStatus('synced');
+      }
+    } catch (error) {
+      if (currentSerializedStateRef.current === serializedSnapshot) {
+        setErrorMessage(getErrorMessage(error));
+        setSyncStatus('error');
+      }
+    } finally {
+      isSavingRef.current = false;
+
+      if (
+        queuedSaveRef.current ||
+        currentSerializedStateRef.current !== lastSyncedStateRef.current
+      ) {
+        queuedSaveRef.current = false;
+        void flushStateToDatabase();
+      }
+    }
+  }, []);
 
   useEffect(() => {
     if (!stretchCooldown) return;
@@ -573,6 +712,9 @@ export function MoveAlertProvider({ children }: PropsWithChildren) {
     let reloadTimeout: ReturnType<typeof setTimeout> | null = null;
     const userId = user?.id ?? null;
 
+    clearScheduledSave();
+    queuedSaveRef.current = false;
+    isSavingRef.current = false;
     loadedUserIdRef.current = null;
     loadedDateKeyRef.current = null;
     lastSyncedStateRef.current = null;
@@ -583,6 +725,8 @@ export function MoveAlertProvider({ children }: PropsWithChildren) {
       setActivityTemplates(defaultActivityTemplates);
       setSyncStatus('idle');
       setErrorMessage(null);
+      currentStateRef.current = initialState;
+      currentSerializedStateRef.current = serializeValue(initialState);
       return;
     }
 
@@ -608,15 +752,26 @@ export function MoveAlertProvider({ children }: PropsWithChildren) {
         const nextActivityTemplates = result.activityTemplates;
         const nextState = result.exists ? result.state : initialState;
         const nextSerializedState = serializeValue(nextState);
+        const currentSerializedState = currentSerializedStateRef.current;
+        const shouldAdoptRemoteState =
+          lastSyncedStateRef.current === null ||
+          !hasPendingLocalChanges() ||
+          currentSerializedState === nextSerializedState;
 
         setActivityTemplates((current) =>
           serializeValue(current) === serializeValue(nextActivityTemplates)
             ? current
             : nextActivityTemplates,
         );
-        setState((current) =>
-          serializeValue(current) === nextSerializedState ? current : nextState,
-        );
+        if (shouldAdoptRemoteState) {
+          currentStateRef.current = nextState;
+          currentSerializedStateRef.current = nextSerializedState;
+          setState((current) =>
+            serializeValue(current) === nextSerializedState
+              ? current
+              : nextState,
+          );
+        }
         loadedUserIdRef.current = activeUserId;
         loadedDateKeyRef.current = activeSummaryDate;
 
@@ -628,7 +783,9 @@ export function MoveAlertProvider({ children }: PropsWithChildren) {
 
         lastSyncedStateRef.current = nextSerializedState;
         setErrorMessage(null);
-        setSyncStatus('synced');
+        if (!hasPendingLocalChanges()) {
+          setSyncStatus('synced');
+        }
         return;
       } catch (error) {
         if (!isMounted) return;
@@ -708,11 +865,15 @@ export function MoveAlertProvider({ children }: PropsWithChildren) {
       if (reloadTimeout) {
         clearTimeout(reloadTimeout);
       }
+      clearScheduledSave();
       void supabase.removeChannel(channel);
     };
-  }, [updateStretchCooldown, user?.id]);
+  }, [clearScheduledSave, hasPendingLocalChanges, updateStretchCooldown, user?.id]);
 
   useEffect(() => {
+    currentStateRef.current = state;
+    currentSerializedStateRef.current = serializeValue(state);
+
     const userId = user?.id ?? null;
 
     if (
@@ -723,39 +884,20 @@ export function MoveAlertProvider({ children }: PropsWithChildren) {
       return;
     }
 
-    const activeUserId = userId;
-    const activeSummaryDate = loadedDateKeyRef.current;
-    const serializedState = serializeValue(state);
+    const serializedState = currentSerializedStateRef.current;
 
     if (lastSyncedStateRef.current === serializedState) return;
 
-    let isMounted = true;
-
-    async function saveState() {
-      setSyncStatus('saving');
-      setErrorMessage(null);
-
-      try {
-        await saveMoveAlertState(activeUserId, activeSummaryDate, state);
-
-        if (!isMounted) return;
-
-        lastSyncedStateRef.current = serializedState;
-        setSyncStatus('synced');
-      } catch (error) {
-        if (!isMounted) return;
-
-        setErrorMessage(getErrorMessage(error));
-        setSyncStatus('error');
-      }
-    }
-
-    void saveState();
+    clearScheduledSave();
+    saveTimeoutRef.current = setTimeout(() => {
+      saveTimeoutRef.current = null;
+      void flushStateToDatabase();
+    }, SAVE_DEBOUNCE_MS);
 
     return () => {
-      isMounted = false;
+      clearScheduledSave();
     };
-  }, [state, user?.id]);
+  }, [clearScheduledSave, flushStateToDatabase, state, user?.id]);
 
   const value = useMemo<MoveAlertContextValue>(
     () => ({
@@ -770,15 +912,9 @@ export function MoveAlertProvider({ children }: PropsWithChildren) {
 
         if (!cooldownMs) return;
 
-        if (
-          activeCooldown &&
-          activeCooldown.endsAt > date.getTime() &&
-          activeCooldown.activeStretchId !== stretchId
-        ) {
+        if (activeCooldown && activeCooldown.endsAt > date.getTime()) {
           return;
         }
-
-        if (state.completedStretchIds.includes(stretchId)) return;
 
         tapFeedback();
         updateStretchCooldown({
@@ -792,25 +928,25 @@ export function MoveAlertProvider({ children }: PropsWithChildren) {
 
           return {
             ...current,
-            completedToday: alreadyCompleted
-              ? current.completedToday
-              : Math.min(current.completedToday + 1, dailyGoal),
+            completedToday: current.completedToday + 1,
+            completedStretchCounts: {
+              ...current.completedStretchCounts,
+              [stretchId]: (current.completedStretchCounts[stretchId] ?? 0) + 1,
+            },
             completedStretchIds: alreadyCompleted
               ? current.completedStretchIds
               : [...current.completedStretchIds, stretchId],
-            timeline: alreadyCompleted
-              ? current.timeline
-              : withTimelineEvent(
-                  current,
-                  {
-                    labelKey: getCompletedTimelineLabelKey(
-                      stretchId,
-                      activityTemplates,
-                    ),
-                    status: 'done',
-                  },
-                  date,
+            timeline: withTimelineEvent(
+              current,
+              {
+                labelKey: getCompletedTimelineLabelKey(
+                  stretchId,
+                  activityTemplates,
                 ),
+                status: 'done',
+              },
+              date,
+            ),
           };
         });
       },
@@ -857,6 +993,28 @@ export function MoveAlertProvider({ children }: PropsWithChildren) {
           ),
         }));
       },
+      setQuietHoursEndTime: (time) => {
+        const normalizedTime = normalizeDatabaseTime(time);
+
+        if (!normalizedTime) return;
+
+        tapFeedback();
+        setState((current) => ({
+          ...current,
+          quietHoursEndTime: normalizedTime,
+        }));
+      },
+      setQuietHoursStartTime: (time) => {
+        const normalizedTime = normalizeDatabaseTime(time);
+
+        if (!normalizedTime) return;
+
+        tapFeedback();
+        setState((current) => ({
+          ...current,
+          quietHoursStartTime: normalizedTime,
+        }));
+      },
       toggleReminder: () => {
         tapFeedback();
         setState((current) => ({
@@ -866,6 +1024,23 @@ export function MoveAlertProvider({ children }: PropsWithChildren) {
       },
       stretchCooldown,
       syncStatus,
+      toggleQuietHoursDay: (day) => {
+        if (!weekDays.includes(day)) return;
+
+        tapFeedback();
+        setState((current) => {
+          const hasDay = current.quietHoursDays.includes(day);
+          const nextDays = hasDay
+            ? current.quietHoursDays.filter((quietDay) => quietDay !== day)
+            : [...current.quietHoursDays, day].sort((a, b) => a - b);
+
+          return {
+            ...current,
+            quietHoursDays:
+              nextDays.length > 0 ? nextDays : current.quietHoursDays,
+          };
+        });
+      },
       toggleQuietHours: () => {
         tapFeedback();
         setState((current) => ({

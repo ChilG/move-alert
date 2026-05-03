@@ -141,7 +141,10 @@ The app stores reusable movement activities in
 normalized tables: `move_alert_settings`, `move_alert_daily_summaries`,
 `move_alert_completed_stretches`, and `move_alert_timeline_items`. Row Level
 Security is enabled so authenticated users can read active activity templates
-and can only read or update their own movement data.
+and can only read or update their own movement data. `move_alert_settings`
+also stores each user's quiet-hours time window and selected quiet days, while
+`move_alert_completed_stretches` stores per-activity completion counts for the
+day.
 
 ## Gluestack UI
 

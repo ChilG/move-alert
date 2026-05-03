@@ -1,13 +1,13 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
+import { fileURLToPath } from "url";
 import fs from "fs";
 import path from "path";
 import { z } from "zod";
 
-const COMPONENTS_DIR = path.join(
-  path.dirname(new URL(import.meta.url).pathname),
-  "src/components/"
-);
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const COMPONENTS_DIR = path.join(__dirname, "src/components");
 
 const latestPrompt = `You are a React and React Native expert. Generate COMPLETE and RUNNABLE code using only my design system components and tools sequentially: get_all_components_metadata, select_components, get_selected_components_docs. Requirements: no external component libraries, no HTML tags (<div>, <button>, <input>, etc), no StyleSheet, use TailwindCSS classes via className prop. Images must be from unsplash.com only. Import all components individually. Prefer VStack/HStack over Box component. Ensure screens are scrollable, responsive, and mobile-friendly.`;
 
@@ -20,35 +20,16 @@ const server = new McpServer({
 
 function getAvailableComponents() {
   try {
-    // Get all markdown files in the components directory
     const componentFiles = fs
       .readdirSync(COMPONENTS_DIR)
       .filter((file) => file.endsWith(".md"))
       .map((file) => file.replace(".md", ""));
 
     return componentFiles;
-
-    return {
-      content: [
-        {
-          type: "text",
-          text: JSON.stringify(componentFiles),
-        },
-      ],
-    };
   } catch (error) {
     console.error(`Error reading components directory: ${error.message}`);
 
     return [];
-
-    return {
-      content: [
-        {
-          type: "text",
-          text: JSON.stringify([]),
-        },
-      ],
-    };
   }
 }
 
@@ -91,15 +72,6 @@ function getComponentMetadata(componentName) {
     }
 
     return metadata;
-
-    return {
-      content: [
-        {
-          type: "text",
-          text: JSON.stringify(metadata),
-        },
-      ],
-    };
   } catch (error) {
     console.error(
       `Error reading metadata for ${componentName}: ${error.message}`
@@ -108,18 +80,6 @@ function getComponentMetadata(componentName) {
     return {
       title: componentName,
       description: "Error reading metadata",
-    };
-
-    return {
-      content: [
-        {
-          type: "text",
-          text: JSON.stringify({
-            title: componentName,
-            description: "Error reading metadata",
-          }),
-        },
-      ],
     };
   }
 }
@@ -152,28 +112,15 @@ function getComponentDocs(componentName) {
       `${componentName.toLowerCase()}.md`
     );
 
-    // Check if the file exists
     if (!fs.existsSync(docPath)) {
       return `Documentation not found for component: ${componentName}`;
     }
 
-    // Read the markdown file
     const docsContent = fs.readFileSync(docPath, "utf-8");
 
     return (
       docsContent || `Empty documentation file for component: ${componentName}`
     );
-
-    return {
-      content: [
-        {
-          type: "text",
-          text:
-            docsContent ||
-            `Empty documentation file for component: ${componentName}`,
-        },
-      ],
-    };
   } catch (error) {
     return `Error retrieving documentation for ${componentName}: ${error.message}`;
   }
@@ -181,9 +128,6 @@ function getComponentDocs(componentName) {
 
 function getSelectedComponentsDocs(componentNames) {
   const docsObject = {};
-  console.log(
-    `✅ Getting documentation for components: ${componentNames.join(", ")}`
-  );
 
   for (const componentName of componentNames) {
     docsObject[componentName] = getComponentDocs(componentName);
@@ -215,10 +159,6 @@ server.tool(
       .describe("The names of the components"),
   },
   (input) => {
-    console.log(
-      `✅ Selected components: ${input.selectedComponents.join(", ")}`
-    );
-
     return {
       content: [
         {
@@ -247,7 +187,6 @@ server.tool(
 async function main() {
   const transport = new StdioServerTransport();
   await server.connect(transport);
-  console.log("Use Gluestack Components MCP Server running on stdio");
 }
 
 main().catch((error) => {

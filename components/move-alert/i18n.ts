@@ -1,13 +1,25 @@
 import { getLocales } from 'expo-localization';
 import { z } from 'zod';
 
+export type LanguageMode = 'en' | 'system' | 'th';
+let languageModeOverride: LanguageMode = 'system';
+
 const th = {
   common: {
     appName: 'Move Alert',
     active: 'เปิดใช้งาน',
-    paused: 'พักไว้',
+    paused: 'พัก',
     minutesShort: 'นาที',
     percent: '%',
+  },
+  weekdays: {
+    sunday: 'อา',
+    monday: 'จ',
+    tuesday: 'อ',
+    wednesday: 'พ',
+    thursday: 'พฤ',
+    friday: 'ศ',
+    saturday: 'ส',
   },
   tabs: {
     today: 'วันนี้',
@@ -21,6 +33,8 @@ const th = {
     reminderInterval: 'รอบการแจ้งเตือน',
     nextReminderAt: 'ครั้งถัดไป {{time}}',
     remindersPaused: 'การแจ้งเตือนหยุดอยู่',
+    remindersPausedValue: 'พักอยู่',
+    quietHoursActive: 'อยู่ในช่วงเวลางดแจ้งเตือน',
     suggestedStretch: 'กิจกรรมที่แนะนำ',
     suggestedStretchDone: 'ทำครบทุกกิจกรรมแล้ว',
     startSuggestedStretch: 'ทำกิจกรรมนี้',
@@ -43,7 +57,9 @@ const th = {
     cooldown: 'รอ {{seconds}} วิ',
     doingCountdown: 'กำลังทำ {{seconds}} วิ',
     completed: 'ทำแล้ว',
+    completedCount: 'ทำแล้ว {{count}} ครั้ง',
     markDone: 'ทำเสร็จ',
+    repeatDone: 'ทำอีกครั้ง',
   },
   settings: {
     eyebrow: 'ตั้งค่า',
@@ -54,11 +70,26 @@ const th = {
     syncing: 'กำลังซิงก์กับบัญชี...',
     syncError: 'ซิงก์ข้อมูลไม่สำเร็จ',
     signOut: 'ออกจากระบบ',
+    themeTitle: 'ธีมของแอป',
+    themeDescription: 'เลือกรูปแบบสีของแอป หรือให้ตามค่าระบบของเครื่อง',
+    themeSystem: 'ระบบ',
+    themeLight: 'สว่าง',
+    themeDark: 'มืด',
+    languageTitle: 'ภาษาของแอป',
+    languageDescription: 'เลือกภาษาของแอป หรือให้ตามค่าภาษาของเครื่อง',
+    languageSystem: 'ระบบ',
+    languageThai: 'ไทย',
+    languageEnglish: 'English',
     reminderInterval: 'รอบการแจ้งเตือน',
     reminderIntervalDescription: 'เลือกความถี่ที่แอปควรเตือนให้ขยับร่างกาย',
     minutes: 'นาที',
     movementReminders: 'แจ้งเตือนให้ขยับ',
     quietHours: 'ช่วงเวลางดแจ้งเตือน',
+    quietHoursDescription: 'แอปจะไม่แจ้งเตือนในช่วงเวลานี้ของวันที่เลือก',
+    quietHoursStart: 'เริ่ม',
+    quietHoursEnd: 'สิ้นสุด',
+    quietHoursDays: 'วันที่งดแจ้งเตือน',
+    quietHoursInvalidTime: 'กรอกเวลาเป็นรูปแบบ HH:MM',
   },
   timeline: {
     neckResetCompleted: 'ทำท่ายืดคอแล้ว',
@@ -137,6 +168,15 @@ const en: Locale = {
     minutesShort: 'min',
     percent: '%',
   },
+  weekdays: {
+    sunday: 'Sun',
+    monday: 'Mon',
+    tuesday: 'Tue',
+    wednesday: 'Wed',
+    thursday: 'Thu',
+    friday: 'Fri',
+    saturday: 'Sat',
+  },
   tabs: {
     today: 'Today',
     stretches: 'Stretches',
@@ -149,12 +189,14 @@ const en: Locale = {
     reminderInterval: 'Reminder interval',
     nextReminderAt: 'Next at {{time}}',
     remindersPaused: 'Reminders are paused',
+    remindersPausedValue: 'Paused',
+    quietHoursActive: 'Quiet hours are active',
     suggestedStretch: 'Suggested activity',
     suggestedStretchDone: 'All activities completed',
     startSuggestedStretch: 'Do this activity',
     progressSummary: '{{completed}}/{{goal}} completed',
-    pause: 'Pause reminders',
-    start: 'Start reminders',
+    pause: 'Pause',
+    start: 'Start',
     skip: 'Skip',
     doneMetric: 'Done',
     streakMetric: 'Streak',
@@ -171,7 +213,9 @@ const en: Locale = {
     cooldown: 'Wait {{seconds}}s',
     doingCountdown: 'Doing {{seconds}}s',
     completed: 'Done',
+    completedCount: 'Done {{count}} times',
     markDone: 'Mark done',
+    repeatDone: 'Do again',
   },
   settings: {
     eyebrow: 'Settings',
@@ -182,12 +226,30 @@ const en: Locale = {
     syncing: 'Syncing with your account...',
     syncError: 'Sync failed',
     signOut: 'Sign out',
+    themeTitle: 'App theme',
+    themeDescription:
+      'Choose the app appearance or follow your device setting.',
+    themeSystem: 'System',
+    themeLight: 'Light',
+    themeDark: 'Dark',
+    languageTitle: 'App language',
+    languageDescription:
+      'Choose the app language or follow your device language.',
+    languageSystem: 'System',
+    languageThai: 'Thai',
+    languageEnglish: 'English',
     reminderInterval: 'Reminder interval',
     reminderIntervalDescription:
       'Choose how often the app should remind you to move.',
     minutes: 'minutes',
     movementReminders: 'Movement reminders',
     quietHours: 'Quiet hours',
+    quietHoursDescription:
+      'The app will not send reminders during this time on selected days.',
+    quietHoursStart: 'Start',
+    quietHoursEnd: 'End',
+    quietHoursDays: 'Quiet days',
+    quietHoursInvalidTime: 'Use HH:MM time format',
   },
   timeline: {
     neckResetCompleted: 'Neck reset completed',
@@ -258,7 +320,7 @@ const en: Locale = {
 };
 
 const supportedLanguageSchema = z.enum(['en', 'th']);
-type SupportedLanguage = z.infer<typeof supportedLanguageSchema>;
+export type SupportedLanguage = z.infer<typeof supportedLanguageSchema>;
 
 const fallbackLanguage: SupportedLanguage = 'th';
 const translations: Record<SupportedLanguage, Locale> = { en, th };
@@ -285,6 +347,10 @@ function parseSupportedLanguage(languageCode: string | null | undefined) {
 }
 
 export function getCurrentLanguage(): SupportedLanguage {
+  if (languageModeOverride !== 'system') {
+    return languageModeOverride;
+  }
+
   const [locale] = getLocales();
   const languageCode = locale?.languageCode?.toLowerCase();
   const languageTagLanguage = locale?.languageTag.toLowerCase().split('-')[0];
@@ -294,6 +360,10 @@ export function getCurrentLanguage(): SupportedLanguage {
     parseSupportedLanguage(languageTagLanguage) ??
     fallbackLanguage
   );
+}
+
+export function setLanguageModeOverride(mode: LanguageMode) {
+  languageModeOverride = mode;
 }
 
 function lookupTranslation(

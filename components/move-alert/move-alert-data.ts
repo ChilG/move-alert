@@ -85,6 +85,12 @@ export type TimelineItem = {
 
 export const reminderIntervals = [30, 45, 60];
 
+export const weekDays = [0, 1, 2, 3, 4, 5, 6] as const;
+
+export type WeekDay = (typeof weekDays)[number];
+
+export const defaultQuietHoursDays: WeekDay[] = [...weekDays];
+
 export const defaultActivityTemplates: StretchItem[] = [
   {
     completionLabelKey: 'timeline.neckResetCompleted',
