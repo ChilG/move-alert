@@ -1,0 +1,8 @@
+node_modules/
+.mcp/
+.expo/
+dist/
+web-build/
+coverage/
+package-lock.json
+expo-env.d.ts
