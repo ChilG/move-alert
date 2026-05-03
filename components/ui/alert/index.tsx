@@ -45,10 +45,7 @@ function AlertText({ className, ...props }: AlertTextProps) {
   const { action } = useContext(AlertContext);
 
   return (
-    <Text
-      {...props}
-      className={alertTextStyle({ action, class: className })}
-    />
+    <Text {...props} className={alertTextStyle({ action, class: className })} />
   );
 }
 

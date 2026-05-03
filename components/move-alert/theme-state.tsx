@@ -24,9 +24,7 @@ const ThemePreferenceContext = createContext<{
   themeMode: 'system',
 });
 
-export function ThemePreferenceProvider({
-  children,
-}: PropsWithChildren) {
+export function ThemePreferenceProvider({ children }: PropsWithChildren) {
   const systemColorScheme = useSystemColorScheme();
   const [themeMode, setThemeModeState] = useState<ThemeMode>('system');
 

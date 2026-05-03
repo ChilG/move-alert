@@ -7,7 +7,10 @@ import {
 
 import type { VariantProps } from '@gluestack-ui/utils/nativewind-utils';
 
-import { getButtonForegroundColor, useThemeColors } from '@/components/move-alert/theme-colors';
+import {
+  getButtonForegroundColor,
+  useThemeColors,
+} from '@/components/move-alert/theme-colors';
 import { Text } from '@/components/ui/text';
 
 import { buttonStyle, buttonTextStyle } from './styles';
@@ -91,7 +94,13 @@ function ButtonText({ className, ...props }: ButtonTextProps) {
   );
 }
 
-function ButtonSpinner({ color, size = 'small' }: { color?: string; size?: 'small' | 'large' }) {
+function ButtonSpinner({
+  color,
+  size = 'small',
+}: {
+  color?: string;
+  size?: 'small' | 'large';
+}) {
   const { action, variant } = useContext(ButtonContext);
   const colors = useThemeColors();
   const resolvedColor =

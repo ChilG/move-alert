@@ -105,8 +105,14 @@ const InputField = React.forwardRef<
   { className, onBlur, onFocus, secureTextEntry, type = 'text', ...props },
   ref,
 ) {
-  const { isDisabled, isReadOnly, onBlur: handleContextBlur, onFocus: handleContextFocus, size, variant } =
-    useContext(InputContext);
+  const {
+    isDisabled,
+    isReadOnly,
+    onBlur: handleContextBlur,
+    onFocus: handleContextFocus,
+    size,
+    variant,
+  } = useContext(InputContext);
 
   return (
     <TextInput

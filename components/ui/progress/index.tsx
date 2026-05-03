@@ -1,10 +1,11 @@
-import React, { createContext, useEffect, useRef, useState, useContext } from 'react';
-import {
-  Animated,
-  LayoutChangeEvent,
-  View,
-  ViewProps,
-} from 'react-native';
+import React, {
+  createContext,
+  useEffect,
+  useRef,
+  useState,
+  useContext,
+} from 'react';
+import { Animated, LayoutChangeEvent, View, ViewProps } from 'react-native';
 
 import type { VariantProps } from '@gluestack-ui/utils/nativewind-utils';
 
@@ -33,59 +34,60 @@ type ProgressProps = ViewProps &
     value: number;
   };
 
-const Progress = React.forwardRef<React.ComponentRef<typeof View>, ProgressProps>(
-  function Progress(
-    {
-      children,
-      className,
-      isAnimated = false,
-      onLayout,
-      orientation = 'horizontal',
-      size = 'md',
-      value,
-      ...props
-    },
-    ref,
-  ) {
-    const normalizedValue = Math.max(0, Math.min(100, value));
-    const [trackLength, setTrackLength] = useState(0);
+const Progress = React.forwardRef<
+  React.ComponentRef<typeof View>,
+  ProgressProps
+>(function Progress(
+  {
+    children,
+    className,
+    isAnimated = false,
+    onLayout,
+    orientation = 'horizontal',
+    size = 'md',
+    value,
+    ...props
+  },
+  ref,
+) {
+  const normalizedValue = Math.max(0, Math.min(100, value));
+  const [trackLength, setTrackLength] = useState(0);
 
-    function handleLayout(event: LayoutChangeEvent) {
-      const nextTrackLength =
-        orientation === 'vertical'
-          ? event.nativeEvent.layout.height
-          : event.nativeEvent.layout.width;
+  function handleLayout(event: LayoutChangeEvent) {
+    const nextTrackLength =
+      orientation === 'vertical'
+        ? event.nativeEvent.layout.height
+        : event.nativeEvent.layout.width;
 
-      setTrackLength(nextTrackLength);
-      onLayout?.(event);
-    }
+    setTrackLength(nextTrackLength);
+    onLayout?.(event);
+  }
 
-    return (
-      <ProgressContext.Provider
-        value={{
-          isAnimated,
+  return (
+    <ProgressContext.Provider
+      value={{
+        isAnimated,
+        orientation,
+        size,
+        trackLength,
+        value: normalizedValue,
+      }}
+    >
+      <View
+        ref={ref}
+        {...props}
+        onLayout={handleLayout}
+        className={progressStyle({
+          class: className,
           orientation,
           size,
-          trackLength,
-          value: normalizedValue,
-        }}
+        })}
       >
-        <View
-          ref={ref}
-          {...props}
-          onLayout={handleLayout}
-          className={progressStyle({
-            class: className,
-            orientation,
-            size,
-          })}
-        >
-          {children}
-        </View>
-      </ProgressContext.Provider>
-    );
-  },
-);
+        {children}
+      </View>
+    </ProgressContext.Provider>
+  );
+});
 
 type ProgressFilledTrackProps = ViewProps & { className?: string };
 

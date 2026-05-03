@@ -868,7 +868,12 @@ export function MoveAlertProvider({ children }: PropsWithChildren) {
       clearScheduledSave();
       void supabase.removeChannel(channel);
     };
-  }, [clearScheduledSave, hasPendingLocalChanges, updateStretchCooldown, user?.id]);
+  }, [
+    clearScheduledSave,
+    hasPendingLocalChanges,
+    updateStretchCooldown,
+    user?.id,
+  ]);
 
   useEffect(() => {
     currentStateRef.current = state;

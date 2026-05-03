@@ -1,10 +1,16 @@
-import { StretchItem, weekDays, type WeekDay } from '@/components/move-alert/move-alert-data';
+import {
+  StretchItem,
+  weekDays,
+  type WeekDay,
+} from '@/components/move-alert/move-alert-data';
 import { useMoveAlert } from '@/components/move-alert/move-alert-state';
 
 export const minuteInMs = 60 * 1000;
 export const secondInMs = 1000;
 
-export type MoveAlertTimeline = ReturnType<typeof useMoveAlert>['state']['timeline'];
+export type MoveAlertTimeline = ReturnType<
+  typeof useMoveAlert
+>['state']['timeline'];
 
 export function formatReminderTime(date: Date) {
   return `${String(date.getHours()).padStart(2, '0')}:${String(

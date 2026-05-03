@@ -27,18 +27,15 @@ const LanguagePreferenceContext = createContext<{
   setLanguageMode: async () => undefined,
 });
 
-export function LanguagePreferenceProvider({
-  children,
-}: PropsWithChildren) {
+export function LanguagePreferenceProvider({ children }: PropsWithChildren) {
   const [languageMode, setLanguageModeState] = useState<LanguageMode>('system');
 
   useEffect(() => {
     let isMounted = true;
 
     async function loadLanguageMode() {
-      const storedLanguageMode = await AsyncStorage.getItem(
-        LANGUAGE_STORAGE_KEY,
-      );
+      const storedLanguageMode =
+        await AsyncStorage.getItem(LANGUAGE_STORAGE_KEY);
 
       if (
         isMounted &&
