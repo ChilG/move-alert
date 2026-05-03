@@ -136,11 +136,12 @@ Apply the Supabase migrations in:
 supabase/migrations/
 ```
 
-The app stores movement data in normalized tables:
-`move_alert_settings`, `move_alert_daily_summaries`,
+The app stores reusable movement activities in
+`move_alert_activity_templates`, then stores each user's movement data in
+normalized tables: `move_alert_settings`, `move_alert_daily_summaries`,
 `move_alert_completed_stretches`, and `move_alert_timeline_items`. Row Level
-Security is enabled on each table so users can only read and update their own
-movement data.
+Security is enabled so authenticated users can read active activity templates
+and can only read or update their own movement data.
 
 ## Gluestack UI
 

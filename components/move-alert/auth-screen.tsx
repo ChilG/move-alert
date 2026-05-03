@@ -5,7 +5,6 @@ import {
   KeyboardAvoidingView,
   Platform,
   Pressable,
-  Text,
   TextInput,
   View,
 } from 'react-native';
@@ -19,6 +18,8 @@ import {
 } from '@/components/move-alert/auth-validation';
 import { t } from '@/components/move-alert/i18n';
 import { Box } from '@/components/ui/box';
+import { Heading } from '@/components/ui/heading';
+import { Text } from '@/components/ui/text';
 
 type AuthMode = 'sign-in' | 'sign-up';
 
@@ -83,9 +84,9 @@ export function AuthScreen() {
           <View className="h-16 w-16 items-center justify-center rounded-2xl bg-success-100">
             <Ionicons color="#166534" name="walk-outline" size={34} />
           </View>
-          <Text className="mt-4 text-3xl font-extrabold text-typography-950">
+          <Heading size="2xl" style={{ lineHeight: 36 }}>
             {title}
-          </Text>
+          </Heading>
           <Text className="mt-2 text-center text-base leading-6 text-typography-600">
             {t('auth.screen.subtitle')}
           </Text>

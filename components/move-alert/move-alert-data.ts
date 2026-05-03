@@ -1,5 +1,10 @@
 export type StretchItem = {
   id: string;
+  completionLabelKey:
+    | 'timeline.neckResetCompleted'
+    | 'timeline.shoulderRollsCompleted'
+    | 'timeline.wristReleaseCompleted'
+    | 'timeline.deskBackStretchCompleted';
   titleKey:
     | 'stretchItems.neckReset.title'
     | 'stretchItems.shoulderRolls.title'
@@ -25,6 +30,41 @@ export type StretchItem = {
   tone: 'info' | 'success' | 'warning' | 'error';
 };
 
+export const activityTemplateTitleKeys = [
+  'stretchItems.neckReset.title',
+  'stretchItems.shoulderRolls.title',
+  'stretchItems.wristRelease.title',
+  'stretchItems.deskBackStretch.title',
+] as const;
+
+export const activityTemplateTargetKeys = [
+  'stretchItems.neckReset.target',
+  'stretchItems.shoulderRolls.target',
+  'stretchItems.wristRelease.target',
+  'stretchItems.deskBackStretch.target',
+] as const;
+
+export const activityTemplateDurationKeys = [
+  'stretchItems.neckReset.duration',
+  'stretchItems.shoulderRolls.duration',
+  'stretchItems.wristRelease.duration',
+  'stretchItems.deskBackStretch.duration',
+] as const;
+
+export const activityTemplateDescriptionKeys = [
+  'stretchItems.neckReset.description',
+  'stretchItems.shoulderRolls.description',
+  'stretchItems.wristRelease.description',
+  'stretchItems.deskBackStretch.description',
+] as const;
+
+export const activityTemplateTones = [
+  'info',
+  'success',
+  'warning',
+  'error',
+] as const;
+
 export const timelineLabelKeys = [
   'timeline.neckResetCompleted',
   'timeline.shoulderRollsCompleted',
@@ -43,12 +83,11 @@ export type TimelineItem = {
   status: (typeof timelineStatuses)[number];
 };
 
-export const dailyGoal = 8;
-
 export const reminderIntervals = [30, 45, 60];
 
-export const stretches: StretchItem[] = [
+export const defaultActivityTemplates: StretchItem[] = [
   {
+    completionLabelKey: 'timeline.neckResetCompleted',
     id: 'neck-reset',
     titleKey: 'stretchItems.neckReset.title',
     targetKey: 'stretchItems.neckReset.target',
@@ -59,6 +98,7 @@ export const stretches: StretchItem[] = [
     tone: 'info',
   },
   {
+    completionLabelKey: 'timeline.shoulderRollsCompleted',
     id: 'shoulder-rolls',
     titleKey: 'stretchItems.shoulderRolls.title',
     targetKey: 'stretchItems.shoulderRolls.target',
@@ -69,6 +109,7 @@ export const stretches: StretchItem[] = [
     tone: 'success',
   },
   {
+    completionLabelKey: 'timeline.wristReleaseCompleted',
     id: 'wrist-release',
     titleKey: 'stretchItems.wristRelease.title',
     targetKey: 'stretchItems.wristRelease.target',
@@ -79,6 +120,7 @@ export const stretches: StretchItem[] = [
     tone: 'warning',
   },
   {
+    completionLabelKey: 'timeline.deskBackStretchCompleted',
     id: 'desk-back-stretch',
     titleKey: 'stretchItems.deskBackStretch.title',
     targetKey: 'stretchItems.deskBackStretch.target',

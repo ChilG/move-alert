@@ -2,7 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useEffect, useMemo, useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 
-import { dailyGoal } from '@/components/move-alert/move-alert-data';
+import { StretchItem } from '@/components/move-alert/move-alert-data';
 import { useMoveAlert } from '@/components/move-alert/move-alert-state';
 import { t, tf } from '@/components/move-alert/i18n';
 import { ScreenScrollView } from '@/components/move-alert/screen-scroll-view';
@@ -15,6 +15,7 @@ const statusColor = {
 };
 
 const minuteInMs = 60 * 1000;
+const secondInMs = 1000;
 type MoveAlertTimeline = ReturnType<typeof useMoveAlert>['state']['timeline'];
 
 function formatReminderTime(date: Date) {
@@ -72,6 +73,37 @@ function getLatestTimelineItemByStatus(
   );
 }
 
+function getSeededIndex(seed: string, itemCount: number) {
+  const hash = seed.split('').reduce((currentHash, character) => {
+    return Math.imul(31, currentHash) + character.charCodeAt(0);
+  }, 0);
+
+  return Math.abs(hash) % itemCount;
+}
+
+function getSuggestedStretch(
+  activityTemplates: StretchItem[],
+  completedStretchIds: string[],
+  seedDate: Date,
+): StretchItem | null {
+  const availableStretches = activityTemplates.filter(
+    (stretch) => !completedStretchIds.includes(stretch.id),
+  );
+
+  if (availableStretches.length === 0) return null;
+
+  const seed = [
+    seedDate.getFullYear(),
+    seedDate.getMonth(),
+    seedDate.getDate(),
+    seedDate.getHours(),
+    seedDate.getMinutes(),
+    completedStretchIds.join(','),
+  ].join(':');
+
+  return availableStretches[getSeededIndex(seed, availableStretches.length)];
+}
+
 function isWaitingForSkippedBreak(timeline: MoveAlertTimeline, date: Date) {
   const latestHistoryItem = timeline
     .filter((item) => item.status !== 'next')
@@ -89,7 +121,16 @@ function isWaitingForSkippedBreak(timeline: MoveAlertTimeline, date: Date) {
 }
 
 export default function TodayScreen() {
-  const { progressPercent, skipBreak, state, toggleReminder } = useMoveAlert();
+  const {
+    activityTemplates,
+    completeStretch,
+    dailyGoal,
+    progressPercent,
+    skipBreak,
+    state,
+    stretchCooldown,
+    toggleReminder,
+  } = useMoveAlert();
   const { timeline } = state;
   const [currentTime, setCurrentTime] = useState(() => new Date());
   const nextReminderDate = useMemo(
@@ -108,16 +149,41 @@ export default function TodayScreen() {
   const nextReminderTime = formatReminderTime(nextReminderDate);
   const canSkipBreak =
     state.reminderEnabled && !isWaitingForSkippedBreak(timeline, currentTime);
+  const suggestedStretch = useMemo(
+    () =>
+      getSuggestedStretch(
+        activityTemplates,
+        state.completedStretchIds,
+        nextReminderDate,
+      ),
+    [activityTemplates, nextReminderDate, state.completedStretchIds],
+  );
+  const isSuggestedStretchCoolingDown =
+    suggestedStretch !== null &&
+    stretchCooldown !== null &&
+    stretchCooldown.endsAt > currentTime.getTime() &&
+    stretchCooldown.activeStretchId !== suggestedStretch.id;
+  const suggestedStretchCooldownSeconds = stretchCooldown
+    ? Math.max(
+        Math.ceil(
+          (stretchCooldown.endsAt - currentTime.getTime()) / secondInMs,
+        ),
+        0,
+      )
+    : 0;
 
   useEffect(() => {
-    const timerId = setInterval(() => {
-      setCurrentTime(new Date());
-    }, minuteInMs);
+    const timerId = setInterval(
+      () => {
+        setCurrentTime(new Date());
+      },
+      stretchCooldown ? secondInMs : minuteInMs,
+    );
 
     return () => {
       clearInterval(timerId);
     };
-  }, []);
+  }, [stretchCooldown]);
 
   return (
     <ScreenScrollView>
@@ -177,6 +243,76 @@ export default function TodayScreen() {
             className="h-3 rounded-full bg-success-500"
             style={{ width: `${progressPercent}%` }}
           />
+        </View>
+
+        <View className="mt-5 border-t border-outline-100 pt-5">
+          <View className="flex-row items-start gap-3">
+            <View className="h-11 w-11 items-center justify-center rounded-xl bg-info-50">
+              <Ionicons
+                color="#0369a1"
+                name={
+                  suggestedStretch
+                    ? (suggestedStretch.icon as keyof typeof Ionicons.glyphMap)
+                    : 'checkmark-done-outline'
+                }
+                size={24}
+              />
+            </View>
+            <View className="flex-1">
+              <Text className="text-xs font-bold uppercase text-info-700">
+                {t('today.suggestedStretch')}
+              </Text>
+              <Text className="mt-1 text-lg font-extrabold text-typography-950">
+                {suggestedStretch
+                  ? t(suggestedStretch.titleKey)
+                  : t('today.suggestedStretchDone')}
+              </Text>
+              {suggestedStretch ? (
+                <>
+                  <Text className="mt-1 text-sm font-semibold text-typography-500">
+                    {t(suggestedStretch.durationKey)}
+                  </Text>
+                  <Text className="mt-2 text-sm leading-5 text-typography-600">
+                    {t(suggestedStretch.descriptionKey)}
+                  </Text>
+                  <Pressable
+                    className={`mt-4 flex-row items-center justify-center gap-2 rounded-xl px-4 py-3 ${
+                      isSuggestedStretchCoolingDown
+                        ? 'bg-background-muted'
+                        : 'bg-info-600'
+                    }`}
+                    disabled={isSuggestedStretchCoolingDown}
+                    onPress={() => completeStretch(suggestedStretch.id)}
+                  >
+                    <Ionicons
+                      color={
+                        isSuggestedStretchCoolingDown ? '#71717a' : '#ffffff'
+                      }
+                      name={
+                        isSuggestedStretchCoolingDown
+                          ? 'time-outline'
+                          : 'walk-outline'
+                      }
+                      size={18}
+                    />
+                    <Text
+                      className={`font-bold ${
+                        isSuggestedStretchCoolingDown
+                          ? 'text-typography-500'
+                          : 'text-typography-0'
+                      }`}
+                    >
+                      {isSuggestedStretchCoolingDown
+                        ? tf('stretches.cooldown', {
+                            seconds: suggestedStretchCooldownSeconds,
+                          })
+                        : t('today.startSuggestedStretch')}
+                    </Text>
+                  </Pressable>
+                </>
+              ) : null}
+            </View>
+          </View>
         </View>
 
         <View className="mt-3 flex-row justify-between">

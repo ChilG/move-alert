@@ -14,12 +14,17 @@ import { z } from 'zod';
 import { useAuth } from '@/components/move-alert/auth-state';
 import { supabase } from '@/lib/supabase';
 import {
-  dailyGoal,
+  activityTemplateDescriptionKeys,
+  activityTemplateDurationKeys,
+  activityTemplateTargetKeys,
+  activityTemplateTitleKeys,
+  activityTemplateTones,
+  defaultActivityTemplates,
   initialTimeline,
   reminderIntervals,
-  stretches,
   timelineLabelKeys,
   timelineStatuses,
+  type StretchItem,
   type TimelineItem,
 } from './move-alert-data';
 
@@ -42,6 +47,8 @@ type StretchCooldown = {
 type SyncStatus = 'idle' | 'loading' | 'saving' | 'synced' | 'error';
 
 type MoveAlertContextValue = {
+  activityTemplates: StretchItem[];
+  dailyGoal: number;
   state: MoveAlertState;
   progressPercent: number;
   completeStretch: (stretchId: string) => void;
@@ -86,6 +93,23 @@ const completedStretchRowSchema = z.object({
   stretch_id: z.string(),
 });
 
+const activityTemplateRowSchema = z.object({
+  completion_label_key: z.enum([
+    'timeline.neckResetCompleted',
+    'timeline.shoulderRollsCompleted',
+    'timeline.wristReleaseCompleted',
+    'timeline.deskBackStretchCompleted',
+  ]),
+  description_key: z.enum(activityTemplateDescriptionKeys),
+  duration_key: z.enum(activityTemplateDurationKeys),
+  duration_seconds: z.number().int().positive(),
+  icon: z.string().min(1),
+  id: z.string().min(1),
+  target_key: z.enum(activityTemplateTargetKeys),
+  title_key: z.enum(activityTemplateTitleKeys),
+  tone: z.enum(activityTemplateTones),
+});
+
 const timelineItemRowSchema = z.object({
   item_time: z.string(),
   label_key: z.enum(timelineLabelKeys),
@@ -127,22 +151,20 @@ function getNextBreakTime(intervalMinutes: number, date: Date) {
 
 function getCompletedTimelineLabelKey(
   stretchId: string,
+  activityTemplates: StretchItem[],
 ): TimelineItem['labelKey'] {
-  const completedLabelKeyByStretchId: Record<string, TimelineItem['labelKey']> =
-    {
-      'desk-back-stretch': 'timeline.deskBackStretchCompleted',
-      'neck-reset': 'timeline.neckResetCompleted',
-      'shoulder-rolls': 'timeline.shoulderRollsCompleted',
-      'wrist-release': 'timeline.wristReleaseCompleted',
-    };
-
-  return (
-    completedLabelKeyByStretchId[stretchId] ?? 'timeline.neckResetCompleted'
+  const activityTemplate = activityTemplates.find(
+    (template) => template.id === stretchId,
   );
+
+  return activityTemplate?.completionLabelKey ?? 'timeline.neckResetCompleted';
 }
 
-function getStretchCooldownMs(stretchId: string) {
-  const stretch = stretches.find((item) => item.id === stretchId);
+function getStretchCooldownMs(
+  stretchId: string,
+  activityTemplates: StretchItem[],
+) {
+  const stretch = activityTemplates.find((item) => item.id === stretchId);
 
   return stretch ? stretch.durationSeconds * 1000 : null;
 }
@@ -332,21 +354,60 @@ function fromDatabaseRows({
   };
 }
 
-function serializeState(state: MoveAlertState) {
-  return JSON.stringify(state);
+function serializeValue(value: unknown) {
+  return JSON.stringify(value);
 }
 
 function getErrorMessage(error: unknown) {
   return error instanceof Error ? error.message : 'Unable to sync move alert.';
 }
 
+function fromActivityTemplateRows(rows: unknown[]): StretchItem[] {
+  const parsedTemplates = z
+    .array(activityTemplateRowSchema)
+    .catch([])
+    .parse(rows);
+
+  if (parsedTemplates.length === 0) return defaultActivityTemplates;
+
+  return parsedTemplates.map((template) => ({
+    completionLabelKey: template.completion_label_key,
+    descriptionKey: template.description_key,
+    durationKey: template.duration_key,
+    durationSeconds: template.duration_seconds,
+    icon: template.icon,
+    id: template.id,
+    targetKey: template.target_key,
+    titleKey: template.title_key,
+    tone: template.tone,
+  }));
+}
+
 async function loadMoveAlertState(userId: string, summaryDate: string) {
   const [
+    activityTemplatesResult,
     settingsResult,
     dailySummaryResult,
     completedStretchesResult,
     timelineResult,
   ] = await Promise.all([
+    supabase
+      .from('move_alert_activity_templates')
+      .select(
+        [
+          'id',
+          'title_key',
+          'target_key',
+          'duration_key',
+          'description_key',
+          'duration_seconds',
+          'icon',
+          'tone',
+          'completion_label_key',
+        ].join(', '),
+      )
+      .eq('is_active', true)
+      .order('position', { ascending: true }),
     supabase
       .from('move_alert_settings')
       .select('interval_minutes, reminder_enabled, quiet_hours_enabled')
@@ -373,6 +434,7 @@ async function loadMoveAlertState(userId: string, summaryDate: string) {
   ]);
 
   const error =
+    activityTemplatesResult.error ??
     settingsResult.error ??
     dailySummaryResult.error ??
     completedStretchesResult.error ??
@@ -389,6 +451,9 @@ async function loadMoveAlertState(userId: string, summaryDate: string) {
     timelineRows.length > 0;
 
   return {
+    activityTemplates: fromActivityTemplateRows(
+      activityTemplatesResult.data ?? [],
+    ),
     exists: hasStoredState,
     state: fromDatabaseRows({
       completedStretchRows,
@@ -458,6 +523,9 @@ async function saveMoveAlertState(
 export function MoveAlertProvider({ children }: PropsWithChildren) {
   const { user } = useAuth();
   const [state, setState] = useState(initialState);
+  const [activityTemplates, setActivityTemplates] = useState<StretchItem[]>(
+    defaultActivityTemplates,
+  );
   const [stretchCooldown, setStretchCooldown] =
     useState<StretchCooldown | null>(null);
   const [syncStatus, setSyncStatus] = useState<SyncStatus>('idle');
@@ -466,9 +534,10 @@ export function MoveAlertProvider({ children }: PropsWithChildren) {
   const loadedDateKeyRef = useRef<string | null>(null);
   const lastSyncedStateRef = useRef<string | null>(null);
   const stretchCooldownRef = useRef<StretchCooldown | null>(null);
+  const dailyGoal = activityTemplates.length;
 
   const progressPercent = Math.min(
-    Math.round((state.completedToday / dailyGoal) * 100),
+    dailyGoal > 0 ? Math.round((state.completedToday / dailyGoal) * 100) : 0,
     100,
   );
 
@@ -511,6 +580,7 @@ export function MoveAlertProvider({ children }: PropsWithChildren) {
 
     if (!userId) {
       setState(initialState);
+      setActivityTemplates(defaultActivityTemplates);
       setSyncStatus('idle');
       setErrorMessage(null);
       return;
@@ -535,11 +605,17 @@ export function MoveAlertProvider({ children }: PropsWithChildren) {
 
         if (!isMounted) return;
 
+        const nextActivityTemplates = result.activityTemplates;
         const nextState = result.exists ? result.state : initialState;
-        const nextSerializedState = serializeState(nextState);
+        const nextSerializedState = serializeValue(nextState);
 
+        setActivityTemplates((current) =>
+          serializeValue(current) === serializeValue(nextActivityTemplates)
+            ? current
+            : nextActivityTemplates,
+        );
         setState((current) =>
-          serializeState(current) === nextSerializedState ? current : nextState,
+          serializeValue(current) === nextSerializedState ? current : nextState,
         );
         loadedUserIdRef.current = activeUserId;
         loadedDateKeyRef.current = activeSummaryDate;
@@ -616,6 +692,15 @@ export function MoveAlertProvider({ children }: PropsWithChildren) {
         },
         scheduleHydrateState,
       )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'move_alert_activity_templates',
+        },
+        scheduleHydrateState,
+      )
       .subscribe();
 
     return () => {
@@ -640,7 +725,7 @@ export function MoveAlertProvider({ children }: PropsWithChildren) {
 
     const activeUserId = userId;
     const activeSummaryDate = loadedDateKeyRef.current;
-    const serializedState = serializeState(state);
+    const serializedState = serializeValue(state);
 
     if (lastSyncedStateRef.current === serializedState) return;
 
@@ -674,11 +759,13 @@ export function MoveAlertProvider({ children }: PropsWithChildren) {
 
   const value = useMemo<MoveAlertContextValue>(
     () => ({
+      activityTemplates,
+      dailyGoal,
       state,
       progressPercent,
       completeStretch: (stretchId) => {
         const date = new Date();
-        const cooldownMs = getStretchCooldownMs(stretchId);
+        const cooldownMs = getStretchCooldownMs(stretchId, activityTemplates);
         const activeCooldown = stretchCooldownRef.current;
 
         if (!cooldownMs) return;
@@ -716,7 +803,10 @@ export function MoveAlertProvider({ children }: PropsWithChildren) {
               : withTimelineEvent(
                   current,
                   {
-                    labelKey: getCompletedTimelineLabelKey(stretchId),
+                    labelKey: getCompletedTimelineLabelKey(
+                      stretchId,
+                      activityTemplates,
+                    ),
                     status: 'done',
                   },
                   date,
@@ -785,6 +875,8 @@ export function MoveAlertProvider({ children }: PropsWithChildren) {
       },
     }),
     [
+      activityTemplates,
+      dailyGoal,
       errorMessage,
       progressPercent,
       state,

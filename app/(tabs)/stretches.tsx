@@ -2,10 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useEffect, useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 
-import {
-  stretches,
-  StretchItem,
-} from '@/components/move-alert/move-alert-data';
+import { StretchItem } from '@/components/move-alert/move-alert-data';
 import { t, tf } from '@/components/move-alert/i18n';
 import { useMoveAlert } from '@/components/move-alert/move-alert-state';
 import { ScreenScrollView } from '@/components/move-alert/screen-scroll-view';
@@ -26,7 +23,8 @@ const toneIcon: Record<StretchItem['tone'], string> = {
 };
 
 export default function StretchesScreen() {
-  const { completeStretch, state, stretchCooldown } = useMoveAlert();
+  const { activityTemplates, completeStretch, state, stretchCooldown } =
+    useMoveAlert();
   const [now, setNow] = useState(Date.now());
 
   useEffect(() => {
@@ -62,40 +60,53 @@ export default function StretchesScreen() {
       </Text>
 
       <View className="mt-6 gap-4">
-        {stretches.map((stretch) => {
+        {activityTemplates.map((stretch) => {
           const isDone = state.completedStretchIds.includes(stretch.id);
+          const isActiveCooldown = activeCooldownStretchId === stretch.id;
           const isCoolingDown =
             !isDone &&
             activeCooldownStretchId !== null &&
             activeCooldownStretchId !== stretch.id;
-          const isDisabled = isDone || isCoolingDown;
-          const buttonClassName = isDone
-            ? 'bg-success-50'
-            : isCoolingDown
-              ? 'bg-background-muted'
-              : 'bg-primary-500';
-          const buttonIconColor = isDone
-            ? '#15803d'
-            : isCoolingDown
-              ? '#71717a'
-              : '#ffffff';
-          const buttonIconName = isDone
-            ? 'checkmark-circle'
-            : isCoolingDown
-              ? 'time-outline'
-              : 'checkmark-circle-outline';
-          const buttonTextClassName = isDone
-            ? 'text-success-700'
-            : isCoolingDown
-              ? 'text-typography-500'
-              : 'text-typography-0';
-          const buttonLabel = isDone
-            ? t('stretches.completed')
-            : isCoolingDown
-              ? tf('stretches.cooldown', {
-                  seconds: cooldownRemainingSeconds,
-                })
-              : t('stretches.markDone');
+          const isDisabled = isDone || isCoolingDown || isActiveCooldown;
+          const buttonClassName = isActiveCooldown
+            ? 'bg-primary-500'
+            : isDone
+              ? 'bg-success-50'
+              : isCoolingDown
+                ? 'bg-background-muted'
+                : 'bg-primary-500';
+          const buttonIconColor = isActiveCooldown
+            ? '#ffffff'
+            : isDone
+              ? '#15803d'
+              : isCoolingDown
+                ? '#71717a'
+                : '#ffffff';
+          const buttonIconName = isActiveCooldown
+            ? 'time-outline'
+            : isDone
+              ? 'checkmark-circle'
+              : isCoolingDown
+                ? 'time-outline'
+                : 'checkmark-circle-outline';
+          const buttonTextClassName = isActiveCooldown
+            ? 'text-typography-0'
+            : isDone
+              ? 'text-success-700'
+              : isCoolingDown
+                ? 'text-typography-500'
+                : 'text-typography-0';
+          const buttonLabel = isActiveCooldown
+            ? tf('stretches.doingCountdown', {
+                seconds: cooldownRemainingSeconds,
+              })
+            : isDone
+              ? t('stretches.completed')
+              : isCoolingDown
+                ? tf('stretches.cooldown', {
+                    seconds: cooldownRemainingSeconds,
+                  })
+                : t('stretches.markDone');
 
           return (
             <Box
