@@ -1,8 +1,9 @@
 import { Ionicons } from '@expo/vector-icons';
+import { useEffect, useMemo, useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 
-import { dailyGoal, timeline } from '@/components/move-alert/demo-data';
-import { useMoveAlert } from '@/components/move-alert/demo-state';
+import { dailyGoal } from '@/components/move-alert/move-alert-data';
+import { useMoveAlert } from '@/components/move-alert/move-alert-state';
 import { t, tf } from '@/components/move-alert/i18n';
 import { ScreenScrollView } from '@/components/move-alert/screen-scroll-view';
 import { Box } from '@/components/ui/box';
@@ -13,8 +14,110 @@ const statusColor = {
   next: '#0369a1',
 };
 
+const minuteInMs = 60 * 1000;
+type MoveAlertTimeline = ReturnType<typeof useMoveAlert>['state']['timeline'];
+
+function formatReminderTime(date: Date) {
+  return `${String(date.getHours()).padStart(2, '0')}:${String(
+    date.getMinutes(),
+  ).padStart(2, '0')}`;
+}
+
+function parseReminderTime(time: string, date: Date) {
+  const parsedTime = /^([01]\d|2[0-3]):([0-5]\d)$/.exec(time);
+
+  if (!parsedTime) return null;
+
+  return new Date(
+    date.getFullYear(),
+    date.getMonth(),
+    date.getDate(),
+    Number(parsedTime[1]),
+    Number(parsedTime[2]),
+  );
+}
+
+function getNextReminderDate(
+  timeline: MoveAlertTimeline,
+  intervalMinutes: number,
+  date: Date,
+) {
+  const nextTimelineItem = timeline.reduce<(typeof timeline)[number] | null>(
+    (nextItem, item) => (item.status === 'next' ? item : nextItem),
+    null,
+  );
+  const intervalMs = Math.max(intervalMinutes, 1) * minuteInMs;
+  const timelineDate = nextTimelineItem
+    ? parseReminderTime(nextTimelineItem.time, date)
+    : null;
+  const scheduledDate = timelineDate ?? new Date(date.getTime() + intervalMs);
+
+  if (scheduledDate.getTime() > date.getTime()) {
+    return scheduledDate;
+  }
+
+  const intervalsElapsed =
+    Math.floor((date.getTime() - scheduledDate.getTime()) / intervalMs) + 1;
+
+  return new Date(scheduledDate.getTime() + intervalsElapsed * intervalMs);
+}
+
+function getLatestTimelineItemByStatus(
+  timeline: MoveAlertTimeline,
+  status: MoveAlertTimeline[number]['status'],
+) {
+  return timeline.reduce<MoveAlertTimeline[number] | null>(
+    (latestItem, item) => (item.status === status ? item : latestItem),
+    null,
+  );
+}
+
+function isWaitingForSkippedBreak(timeline: MoveAlertTimeline, date: Date) {
+  const latestHistoryItem = timeline
+    .filter((item) => item.status !== 'next')
+    .at(-1);
+  const nextBreakItem = getLatestTimelineItemByStatus(timeline, 'next');
+  const nextBreakDate = nextBreakItem
+    ? parseReminderTime(nextBreakItem.time, date)
+    : null;
+
+  return (
+    latestHistoryItem?.labelKey === 'timeline.breakSkipped' &&
+    nextBreakDate !== null &&
+    nextBreakDate.getTime() > date.getTime()
+  );
+}
+
 export default function TodayScreen() {
   const { progressPercent, skipBreak, state, toggleReminder } = useMoveAlert();
+  const { timeline } = state;
+  const [currentTime, setCurrentTime] = useState(() => new Date());
+  const nextReminderDate = useMemo(
+    () => getNextReminderDate(timeline, state.intervalMinutes, currentTime),
+    [currentTime, state.intervalMinutes, timeline],
+  );
+  const minutesUntilNextReminder = Math.max(
+    1,
+    Math.ceil(
+      (nextReminderDate.getTime() - currentTime.getTime()) / minuteInMs,
+    ),
+  );
+  const reminderMinutes = state.reminderEnabled
+    ? minutesUntilNextReminder
+    : state.intervalMinutes;
+  const nextReminderTime = formatReminderTime(nextReminderDate);
+  const canSkipBreak =
+    state.reminderEnabled && !isWaitingForSkippedBreak(timeline, currentTime);
+
+  useEffect(() => {
+    const timerId = setInterval(() => {
+      setCurrentTime(new Date());
+    }, minuteInMs);
+
+    return () => {
+      clearInterval(timerId);
+    };
+  }, []);
 
   return (
     <ScreenScrollView>
@@ -36,16 +139,23 @@ export default function TodayScreen() {
         <View className="flex-row items-start justify-between">
           <View>
             <Text className="text-sm font-semibold text-typography-500">
-              {t('today.nextReminder')}
+              {state.reminderEnabled
+                ? t('today.nextReminder')
+                : t('today.reminderInterval')}
             </Text>
             <View className="mt-2 flex-row items-end">
               <Text className="text-6xl font-extrabold text-typography-950">
-                {state.intervalMinutes}
+                {reminderMinutes}
               </Text>
               <Text className="pb-2 text-base font-bold text-typography-500">
                 {t('common.minutesShort')}
               </Text>
             </View>
+            <Text className="mt-2 text-sm font-semibold text-typography-500">
+              {state.reminderEnabled
+                ? tf('today.nextReminderAt', { time: nextReminderTime })
+                : t('today.remindersPaused')}
+            </Text>
           </View>
           <View
             className={`rounded-full px-3 py-1 ${
@@ -98,11 +208,22 @@ export default function TodayScreen() {
           </Pressable>
 
           <Pressable
-            className="flex-1 flex-row items-center justify-center gap-2 rounded-xl border border-outline-200 bg-background-0 px-4 py-3"
+            className={`flex-1 flex-row items-center justify-center gap-2 rounded-xl border border-outline-200 px-4 py-3 ${
+              canSkipBreak ? 'bg-background-0' : 'bg-background-muted'
+            }`}
+            disabled={!canSkipBreak}
             onPress={skipBreak}
           >
-            <Ionicons color="#525252" name="close-circle-outline" size={18} />
-            <Text className="font-bold text-typography-700">
+            <Ionicons
+              color={canSkipBreak ? '#525252' : '#a3a3a3'}
+              name="close-circle-outline"
+              size={18}
+            />
+            <Text
+              className={`font-bold ${
+                canSkipBreak ? 'text-typography-700' : 'text-typography-400'
+              }`}
+            >
               {t('today.skip')}
             </Text>
           </Pressable>
@@ -146,30 +267,36 @@ export default function TodayScreen() {
       </Text>
 
       <Box className="rounded-3xl bg-background-0 p-5 shadow-soft-1">
-        {timeline.map((item, index) => (
-          <View
-            className={`flex-row gap-3 ${index === 0 ? '' : 'mt-4'}`}
-            key={`${item.time}-${item.labelKey}`}
-          >
-            <View className="w-14">
-              <Text className="text-sm font-bold text-typography-500">
-                {item.time}
+        {timeline.length === 0 ? (
+          <Text className="text-base text-typography-500">
+            {t('today.timelineEmpty')}
+          </Text>
+        ) : (
+          timeline.map((item, index) => (
+            <View
+              className={`flex-row gap-3 ${index === 0 ? '' : 'mt-4'}`}
+              key={`${item.time}-${item.labelKey}-${item.status}-${index}`}
+            >
+              <View className="w-14">
+                <Text className="text-sm font-bold text-typography-500">
+                  {item.time}
+                </Text>
+              </View>
+              <View className="items-center pt-1.5">
+                <View
+                  className="h-3 w-3 rounded-full"
+                  style={{ backgroundColor: statusColor[item.status] }}
+                />
+                {index < timeline.length - 1 ? (
+                  <View className="mt-2 h-8 w-px bg-outline-100" />
+                ) : null}
+              </View>
+              <Text className="flex-1 text-base text-typography-700">
+                {t(item.labelKey)}
               </Text>
             </View>
-            <View className="items-center pt-1.5">
-              <View
-                className="h-3 w-3 rounded-full"
-                style={{ backgroundColor: statusColor[item.status] }}
-              />
-              {index < timeline.length - 1 ? (
-                <View className="mt-2 h-8 w-px bg-outline-100" />
-              ) : null}
-            </View>
-            <Text className="flex-1 text-base text-typography-700">
-              {t(item.labelKey)}
-            </Text>
-          </View>
-        ))}
+          ))
+        )}
       </Box>
     </ScreenScrollView>
   );

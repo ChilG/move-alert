@@ -1,9 +1,13 @@
 import { Ionicons } from '@expo/vector-icons';
+import { useEffect, useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 
-import { stretches, StretchItem } from '@/components/move-alert/demo-data';
-import { t } from '@/components/move-alert/i18n';
-import { useMoveAlert } from '@/components/move-alert/demo-state';
+import {
+  stretches,
+  StretchItem,
+} from '@/components/move-alert/move-alert-data';
+import { t, tf } from '@/components/move-alert/i18n';
+import { useMoveAlert } from '@/components/move-alert/move-alert-state';
 import { ScreenScrollView } from '@/components/move-alert/screen-scroll-view';
 import { Box } from '@/components/ui/box';
 
@@ -22,7 +26,28 @@ const toneIcon: Record<StretchItem['tone'], string> = {
 };
 
 export default function StretchesScreen() {
-  const { completeStretch, state } = useMoveAlert();
+  const { completeStretch, state, stretchCooldown } = useMoveAlert();
+  const [now, setNow] = useState(Date.now());
+
+  useEffect(() => {
+    if (!stretchCooldown) return;
+
+    setNow(Date.now());
+
+    const interval = setInterval(() => {
+      setNow(Date.now());
+    }, 250);
+
+    return () => {
+      clearInterval(interval);
+    };
+  }, [stretchCooldown]);
+
+  const cooldownRemainingSeconds = stretchCooldown
+    ? Math.max(Math.ceil((stretchCooldown.endsAt - now) / 1000), 0)
+    : 0;
+  const activeCooldownStretchId =
+    cooldownRemainingSeconds > 0 ? stretchCooldown?.activeStretchId : null;
 
   return (
     <ScreenScrollView>
@@ -39,6 +64,38 @@ export default function StretchesScreen() {
       <View className="mt-6 gap-4">
         {stretches.map((stretch) => {
           const isDone = state.completedStretchIds.includes(stretch.id);
+          const isCoolingDown =
+            !isDone &&
+            activeCooldownStretchId !== null &&
+            activeCooldownStretchId !== stretch.id;
+          const isDisabled = isDone || isCoolingDown;
+          const buttonClassName = isDone
+            ? 'bg-success-50'
+            : isCoolingDown
+              ? 'bg-background-muted'
+              : 'bg-primary-500';
+          const buttonIconColor = isDone
+            ? '#15803d'
+            : isCoolingDown
+              ? '#71717a'
+              : '#ffffff';
+          const buttonIconName = isDone
+            ? 'checkmark-circle'
+            : isCoolingDown
+              ? 'time-outline'
+              : 'checkmark-circle-outline';
+          const buttonTextClassName = isDone
+            ? 'text-success-700'
+            : isCoolingDown
+              ? 'text-typography-500'
+              : 'text-typography-0';
+          const buttonLabel = isDone
+            ? t('stretches.completed')
+            : isCoolingDown
+              ? tf('stretches.cooldown', {
+                  seconds: cooldownRemainingSeconds,
+                })
+              : t('stretches.markDone');
 
           return (
             <Box
@@ -80,26 +137,18 @@ export default function StretchesScreen() {
                   </Text>
 
                   <Pressable
-                    className={`mt-4 flex-row items-center justify-center gap-2 rounded-xl px-4 py-3 ${
-                      isDone ? 'bg-success-50' : 'bg-primary-500'
-                    }`}
+                    accessibilityState={{ disabled: isDisabled }}
+                    className={`mt-4 flex-row items-center justify-center gap-2 rounded-xl px-4 py-3 ${buttonClassName}`}
+                    disabled={isDisabled}
                     onPress={() => completeStretch(stretch.id)}
                   >
                     <Ionicons
-                      color={isDone ? '#15803d' : '#ffffff'}
-                      name={
-                        isDone ? 'checkmark-circle' : 'checkmark-circle-outline'
-                      }
+                      color={buttonIconColor}
+                      name={buttonIconName}
                       size={18}
                     />
-                    <Text
-                      className={`font-bold ${
-                        isDone ? 'text-success-700' : 'text-typography-0'
-                      }`}
-                    >
-                      {isDone
-                        ? t('stretches.completed')
-                        : t('stretches.markDone')}
+                    <Text className={`font-bold ${buttonTextClassName}`}>
+                      {buttonLabel}
                     </Text>
                   </Pressable>
                 </View>

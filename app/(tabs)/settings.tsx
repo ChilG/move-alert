@@ -2,9 +2,9 @@ import { Ionicons } from '@expo/vector-icons';
 import { Pressable, Text, View } from 'react-native';
 
 import { useAuth } from '@/components/move-alert/auth-state';
-import { reminderIntervals } from '@/components/move-alert/demo-data';
+import { reminderIntervals } from '@/components/move-alert/move-alert-data';
 import { t } from '@/components/move-alert/i18n';
-import { useMoveAlert } from '@/components/move-alert/demo-state';
+import { useMoveAlert } from '@/components/move-alert/move-alert-state';
 import { ScreenScrollView } from '@/components/move-alert/screen-scroll-view';
 import { Box } from '@/components/ui/box';
 
@@ -47,7 +47,6 @@ export default function SettingsScreen() {
   const {
     errorMessage,
     isSyncing,
-    resetDemo,
     setIntervalMinutes,
     state,
     syncStatus,
@@ -166,30 +165,6 @@ export default function SettingsScreen() {
           onPress={toggleQuietHours}
         />
       </View>
-
-      <Box className="mt-5 rounded-3xl bg-warning-50 p-5">
-        <View className="flex-row gap-3">
-          <Ionicons color="#b45309" name="construct-outline" size={24} />
-          <View className="flex-1">
-            <Text className="font-extrabold text-warning-900">
-              {t('settings.prototypeNoteTitle')}
-            </Text>
-            <Text className="mt-2 leading-6 text-warning-800">
-              {t('settings.prototypeNoteBody')}
-            </Text>
-          </View>
-        </View>
-      </Box>
-
-      <Pressable
-        className="mt-5 flex-row items-center justify-center gap-2 rounded-2xl border border-outline-200 bg-background-0 px-4 py-4"
-        onPress={resetDemo}
-      >
-        <Ionicons color="#525252" name="refresh-outline" size={20} />
-        <Text className="font-bold text-typography-700">
-          {t('settings.resetDemo')}
-        </Text>
-      </Pressable>
     </ScreenScrollView>
   );
 }

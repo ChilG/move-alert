@@ -4,7 +4,7 @@ import { ActivityIndicator, View } from 'react-native';
 
 import { AuthScreen } from '@/components/move-alert/auth-screen';
 import { AuthProvider, useAuth } from '@/components/move-alert/auth-state';
-import { MoveAlertProvider } from '@/components/move-alert/demo-state';
+import { MoveAlertProvider } from '@/components/move-alert/move-alert-state';
 import { GluestackUIProvider } from '@/components/ui/gluestack-ui-provider';
 import '@/global.css';
 

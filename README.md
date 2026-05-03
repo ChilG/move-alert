@@ -27,7 +27,7 @@ This project supports **SDG 3: Good Health and Well-being** by promoting healthi
 - Office workers
 - People who study or work at a computer for long periods
 
-## Demo Features
+## Features
 
 - Three-tab app structure: Today, Stretch, and Settings
 - Reminder interval settings, such as 30, 45, or 60 minutes
@@ -39,7 +39,7 @@ This project supports **SDG 3: Good Health and Well-being** by promoting healthi
 
 ## Current Project Status
 
-This repository currently contains a polished Expo/React Native demo for the Move Alert concept. It is intentionally UI-first, with authenticated movement state synced to Supabase and notification scheduling left for a later development-build phase.
+This repository contains the Expo/React Native Move Alert app, with authenticated movement state synced to normalized Supabase tables and notification scheduling left for a later development-build phase.
 
 Current setup includes:
 
@@ -48,7 +48,7 @@ Current setup includes:
 - Gluestack UI v3 base provider/configuration
 - NativeWind styling setup
 - Bottom tab navigation
-- Shared demo state provider
+- Shared movement state provider
 - Supabase Auth and per-user state sync
 - Gluestack MCP server configuration for component guidance
 
@@ -66,8 +66,8 @@ Current setup includes:
 
 ```text
 app/                         App screens and routing
-app/(tabs)/                  Demo tab screens
-components/move-alert/       Demo data and shared state
+app/(tabs)/                  App tab screens
+components/move-alert/       App data and shared state
 components/ui/               Gluestack UI provider and UI components
 .codex/config.toml           Codex MCP configuration
 global.css                   Global NativeWind styles
@@ -130,13 +130,17 @@ EXPO_PUBLIC_SUPABASE_URL=https://your-project-ref.supabase.co
 EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your-supabase-publishable-key
 ```
 
-Apply the database migration in:
+Apply the Supabase migrations in:
 
 ```text
-supabase/migrations/20260503000000_create_move_alert_states.sql
+supabase/migrations/
 ```
 
-The `move_alert_states` table stores one state row per authenticated user. Row Level Security is enabled so users can only read and update their own movement state.
+The app stores movement data in normalized tables:
+`move_alert_settings`, `move_alert_daily_summaries`,
+`move_alert_completed_stretches`, and `move_alert_timeline_items`. Row Level
+Security is enabled on each table so users can only read and update their own
+movement data.
 
 ## Gluestack UI
 
@@ -162,7 +166,7 @@ The MCP server is intended to help reference Gluestack component patterns while 
 
 The planned reminder feature will require native notification support. In Expo SDK 53 and later, Android remote push notification functionality from `expo-notifications` is not available in Expo Go. For real notification behavior, use a development build.
 
-The current demo intentionally uses UI-only reminder behavior. Real local notification scheduling should be added after switching to a development build.
+The current app uses UI-only reminder behavior. Real local notification scheduling should be added after switching to a development build.
 
 ## Development Plan
 

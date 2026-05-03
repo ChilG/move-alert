@@ -20,17 +20,27 @@ export type StretchItem = {
     | 'stretchItems.shoulderRolls.description'
     | 'stretchItems.wristRelease.description'
     | 'stretchItems.deskBackStretch.description';
+  durationSeconds: number;
   icon: string;
   tone: 'info' | 'success' | 'warning' | 'error';
 };
 
+export const timelineLabelKeys = [
+  'timeline.neckResetCompleted',
+  'timeline.shoulderRollsCompleted',
+  'timeline.wristReleaseCompleted',
+  'timeline.deskBackStretchCompleted',
+  'timeline.shoulderReminderSkipped',
+  'timeline.breakSkipped',
+  'timeline.nextMovementBreak',
+] as const;
+
+export const timelineStatuses = ['done', 'skipped', 'next'] as const;
+
 export type TimelineItem = {
   time: string;
-  labelKey:
-    | 'timeline.neckResetCompleted'
-    | 'timeline.shoulderReminderSkipped'
-    | 'timeline.nextMovementBreak';
-  status: 'done' | 'skipped' | 'next';
+  labelKey: (typeof timelineLabelKeys)[number];
+  status: (typeof timelineStatuses)[number];
 };
 
 export const dailyGoal = 8;
@@ -44,6 +54,7 @@ export const stretches: StretchItem[] = [
     targetKey: 'stretchItems.neckReset.target',
     durationKey: 'stretchItems.neckReset.duration',
     descriptionKey: 'stretchItems.neckReset.description',
+    durationSeconds: 45,
     icon: 'body-outline',
     tone: 'info',
   },
@@ -53,6 +64,7 @@ export const stretches: StretchItem[] = [
     targetKey: 'stretchItems.shoulderRolls.target',
     durationKey: 'stretchItems.shoulderRolls.duration',
     descriptionKey: 'stretchItems.shoulderRolls.description',
+    durationSeconds: 60,
     icon: 'sync-outline',
     tone: 'success',
   },
@@ -62,6 +74,7 @@ export const stretches: StretchItem[] = [
     targetKey: 'stretchItems.wristRelease.target',
     durationKey: 'stretchItems.wristRelease.duration',
     descriptionKey: 'stretchItems.wristRelease.description',
+    durationSeconds: 40,
     icon: 'hand-left-outline',
     tone: 'warning',
   },
@@ -71,17 +84,10 @@ export const stretches: StretchItem[] = [
     targetKey: 'stretchItems.deskBackStretch.target',
     durationKey: 'stretchItems.deskBackStretch.duration',
     descriptionKey: 'stretchItems.deskBackStretch.description',
+    durationSeconds: 90,
     icon: 'accessibility-outline',
     tone: 'error',
   },
 ];
 
-export const timeline: TimelineItem[] = [
-  { time: '09:30', labelKey: 'timeline.neckResetCompleted', status: 'done' },
-  {
-    time: '10:15',
-    labelKey: 'timeline.shoulderReminderSkipped',
-    status: 'skipped',
-  },
-  { time: '11:00', labelKey: 'timeline.nextMovementBreak', status: 'next' },
-];
+export const initialTimeline: TimelineItem[] = [];
