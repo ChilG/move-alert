@@ -59,7 +59,7 @@ Recommended setup:
 2. Add repository secrets:
    - `EXPO_PUBLIC_SUPABASE_URL`
    - `EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY`
-3. Push to `main` to trigger [.github/workflows/deploy-legal-pages.yml](/Users/chilgoe/Documents/2026/move-alert/.github/workflows/deploy-legal-pages.yml)
+3. Push to `master` to trigger [.github/workflows/deploy-legal-pages.yml](/Users/chilgoe/Documents/2026/move-alert/.github/workflows/deploy-legal-pages.yml)
 4. Set `EXPO_PUBLIC_LEGAL_BASE_URL` in the app env to your Pages URL
 
 Expected public URLs:
