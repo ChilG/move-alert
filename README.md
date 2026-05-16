@@ -178,20 +178,22 @@ native builds.
 
 ## Legal Pages
 
-Self-contained legal HTML pages are generated with:
-
-```bash
-npm run legal:build
-```
-
-They are deployed with GitHub Pages through:
+The public legal pages live directly at the repository root:
 
 ```text
-.github/workflows/deploy-legal-pages.yml
+privacy-policy.html
+account-deletion.html
 ```
 
-Set `EXPO_PUBLIC_LEGAL_BASE_URL` so the app opens the same public URLs that are
-published on GitHub Pages.
+When GitHub Pages is configured to publish from `master / (root)`, these files
+are available at:
+
+```text
+https://<username>.github.io/<repo>/privacy-policy.html
+https://<username>.github.io/<repo>/account-deletion.html
+```
+
+Set `EXPO_PUBLIC_LEGAL_BASE_URL` so the app opens those same public URLs.
 
 ## Google Play Release
 

@@ -38,29 +38,20 @@ EXPO_PUBLIC_LEGAL_BASE_URL=https://<username>.github.io/move-alert
   - Android output: `aab`
   - version code auto-increments on EAS
 
-## Generate legal pages
+## Legal pages
 
-Build self-contained legal HTML files:
+The legal pages are committed directly in the repository root:
 
-```bash
-node ./scripts/build-legal-pages.mjs
-```
-
-Generated files:
-
-- `legal/dist/privacy-policy.html`
-- `legal/dist/account-deletion.html`
-
-Deploy the generated files with **GitHub Pages**.
+- `privacy-policy.html`
+- `account-deletion.html`
 
 Recommended setup:
 
-1. In GitHub repository settings, enable **Pages** with **GitHub Actions** as the source.
-2. Add repository secrets:
-   - `EXPO_PUBLIC_SUPABASE_URL`
-   - `EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY`
-3. Push to `master` to trigger [.github/workflows/deploy-legal-pages.yml](/Users/chilgoe/Documents/2026/move-alert/.github/workflows/deploy-legal-pages.yml)
-4. Set `EXPO_PUBLIC_LEGAL_BASE_URL` in the app env to your Pages URL
+1. In GitHub repository settings, enable **Pages**
+2. Set source to `Deploy from a branch`
+3. Choose branch `master`
+4. Choose folder `/(root)`
+5. Set `EXPO_PUBLIC_LEGAL_BASE_URL` in the app env to your Pages URL
 
 Expected public URLs:
 
