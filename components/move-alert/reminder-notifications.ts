@@ -9,10 +9,21 @@ import {
   minuteInMs,
 } from '@/components/move-alert/today/today-helpers';
 
-const REMINDER_NOTIFICATION_CHANNEL_ID = 'move-reminders-urgent';
+const REMINDER_NOTIFICATION_CHANNEL_ID = 'move-reminders-signature-v2';
 const REMINDER_NOTIFICATION_SCOPE = 'move-reminder';
 const REMINDER_HORIZON_DAYS = 3;
-const REMINDER_VIBRATION_PATTERN = [0, 350, 150, 350, 150, 700];
+const REMINDER_VIBRATION_PATTERN = [
+  0,
+  720,
+  140,
+  260,
+  120,
+  260,
+  160,
+  860,
+  180,
+  320,
+];
 const REMINDER_COLOR = '#16A34A';
 let reminderSyncPromise = Promise.resolve();
 let hasInitializedNotificationHandler = false;
@@ -35,6 +46,9 @@ type NotificationsModule = typeof import('expo-notifications');
 type ScheduledNotificationRequest = Awaited<
   ReturnType<NotificationsModule['getAllScheduledNotificationsAsync']>
 >[number];
+type NotificationResponse = NonNullable<
+  Awaited<ReturnType<NotificationsModule['getLastNotificationResponseAsync']>>
+>;
 
 function isAndroidDevice() {
   return Platform.OS === 'android';
@@ -73,6 +87,14 @@ function isReminderNotification(
   return request.content.data?.scope === REMINDER_NOTIFICATION_SCOPE;
 }
 
+function isReminderNotificationResponse(response: NotificationResponse) {
+  return (
+    response.notification.request.content.data?.scope ===
+      REMINDER_NOTIFICATION_SCOPE &&
+    response.notification.request.content.data?.isDebug !== true
+  );
+}
+
 async function ensureReminderChannelAsync() {
   const notificationsModule = await loadNotificationsAsync();
 
@@ -88,7 +110,7 @@ async function ensureReminderChannelAsync() {
       bypassDnd: false,
       description: t('notifications.channelDescription'),
       enableVibrate: true,
-      importance: notificationsModule.AndroidImportance.HIGH,
+      importance: notificationsModule.AndroidImportance.MAX,
       lightColor: REMINDER_COLOR,
       lockscreenVisibility:
         notificationsModule.AndroidNotificationVisibility.PUBLIC,
@@ -234,6 +256,56 @@ export function syncReminderNotificationsAsync(
     .then(() => runReminderNotificationsSyncAsync(state));
 
   return reminderSyncPromise;
+}
+
+export async function subscribeToReminderNotificationResponsesAsync(
+  onReminderPress: () => void,
+) {
+  const notificationsModule = await loadNotificationsAsync();
+
+  if (!notificationsModule) {
+    return () => {};
+  }
+
+  const notifications = notificationsModule;
+  const handledResponseIds = new Set<string>();
+
+  async function handleResponse(response: NotificationResponse | null) {
+    if (!response || !isReminderNotificationResponse(response)) {
+      return;
+    }
+
+    if (
+      response.actionIdentifier !==
+      notifications.DEFAULT_ACTION_IDENTIFIER
+    ) {
+      return;
+    }
+
+    const responseId = response.notification.request.identifier;
+
+    if (handledResponseIds.has(responseId)) {
+      return;
+    }
+
+    handledResponseIds.add(responseId);
+    onReminderPress();
+    await notifications.clearLastNotificationResponseAsync();
+  }
+
+  await handleResponse(
+    await notifications.getLastNotificationResponseAsync(),
+  );
+
+  const subscription = notifications.addNotificationResponseReceivedListener(
+    (response) => {
+      void handleResponse(response);
+    },
+  );
+
+  return () => {
+    subscription.remove();
+  };
 }
 
 export async function sendDebugReminderNotificationAsync(): Promise<DebugReminderResult> {

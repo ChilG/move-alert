@@ -11,7 +11,10 @@ import {
 } from 'react';
 import { z } from 'zod';
 
-import { syncReminderNotificationsAsync } from '@/components/move-alert/reminder-notifications';
+import {
+  subscribeToReminderNotificationResponsesAsync,
+  syncReminderNotificationsAsync,
+} from '@/components/move-alert/reminder-notifications';
 import { useAuth } from '@/components/move-alert/auth-state';
 import { useLanguagePreference } from '@/components/move-alert/language-state';
 import { supabase } from '@/lib/supabase';
@@ -933,6 +936,48 @@ export function MoveAlertProvider({ children }: PropsWithChildren) {
     state.timeline,
     user?.id,
   ]);
+
+  const completeReminderBreak = useCallback(() => {
+    const date = new Date();
+
+    setState((current) => ({
+      ...current,
+      completedToday: current.completedToday + 1,
+      timeline: withTimelineEvent(
+        current,
+        {
+          labelKey: 'timeline.movementBreakCompleted',
+          status: 'done',
+        },
+        date,
+      ),
+    }));
+  }, []);
+
+  useEffect(() => {
+    if (!user?.id) {
+      return;
+    }
+
+    let cleanup = () => {};
+    let isMounted = true;
+
+    void subscribeToReminderNotificationResponsesAsync(() => {
+      completeReminderBreak();
+    }).then((unsubscribe) => {
+      if (!isMounted) {
+        unsubscribe();
+        return;
+      }
+
+      cleanup = unsubscribe;
+    });
+
+    return () => {
+      isMounted = false;
+      cleanup();
+    };
+  }, [completeReminderBreak, user?.id]);
 
   const value = useMemo<MoveAlertContextValue>(
     () => ({

@@ -29,6 +29,20 @@ type AuthState = {
 
 const AuthContext = createContext<AuthState | null>(null);
 
+async function isSoftDeletedAccount(userId: string) {
+  const { data, error } = await supabase
+    .from('deleted_accounts')
+    .select('user_id')
+    .eq('user_id', userId)
+    .maybeSingle();
+
+  if (error) {
+    throw error;
+  }
+
+  return Boolean(data);
+}
+
 function toFriendlyAuthMessage(message: string) {
   if (
     message.toLowerCase().includes('otp_expired') ||
@@ -43,6 +57,10 @@ function toFriendlyAuthMessage(message: string) {
 
   if (message.toLowerCase().includes('email not confirmed')) {
     return t('auth.errors.emailNotConfirmed');
+  }
+
+  if (message.toLowerCase().includes('account_soft_deleted')) {
+    return t('auth.errors.accountDeleted');
   }
 
   return message;
@@ -161,6 +179,54 @@ export function AuthProvider({ children }: PropsWithChildren) {
     };
   }, []);
 
+  useEffect(() => {
+    let isMounted = true;
+
+    async function enforceSoftDelete() {
+      const userId = session?.user?.id;
+
+      if (!userId) return;
+
+      try {
+        const deleted = await isSoftDeletedAccount(userId);
+
+        if (!isMounted || !deleted) {
+          return;
+        }
+
+        const { error } = await supabase.auth.signOut({ scope: 'local' });
+
+        if (!isMounted) {
+          return;
+        }
+
+        if (error) {
+          setErrorMessage(toFriendlyAuthMessage(error.message));
+          return;
+        }
+
+        setSession(null);
+        setErrorMessage(t('auth.errors.accountDeleted'));
+      } catch (error) {
+        if (!isMounted) {
+          return;
+        }
+
+        setErrorMessage(
+          toFriendlyAuthMessage(
+            error instanceof Error ? error.message : 'Unable to verify account.',
+          ),
+        );
+      }
+    }
+
+    void enforceSoftDelete();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [session?.user?.id]);
+
   const value = useMemo<AuthState>(
     () => ({
       errorMessage,
@@ -168,7 +234,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
         setIsLoading(true);
         setErrorMessage(null);
 
-        const { error } = await supabase.rpc('delete_my_account');
+        const { error } = await supabase.rpc('soft_delete_my_account');
 
         if (error) {
           setErrorMessage(toFriendlyAuthMessage(error.message));
@@ -180,6 +246,8 @@ export function AuthProvider({ children }: PropsWithChildren) {
 
         if (signOutResult.error) {
           setErrorMessage(toFriendlyAuthMessage(signOutResult.error.message));
+        } else {
+          setErrorMessage(t('auth.errors.accountDeleted'));
         }
 
         setSession(null);

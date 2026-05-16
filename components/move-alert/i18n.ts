@@ -14,7 +14,7 @@ const th = {
   },
   notifications: {
     channelName: 'การเตือนให้ขยับร่างกาย',
-    channelDescription: 'การแจ้งเตือนตามเวลาพร้อมแรงสั่นแบบชัดเจน',
+    channelDescription: 'การแจ้งเตือนตามเวลาพร้อมแรงสั่นแบบจังหวะเฉพาะที่เด่นชัดขึ้น',
     reminderTitle: 'ได้เวลาขยับร่างกาย',
     reminderBody: 'ลุกขึ้นยืดเส้น คลายตัว และรีเซ็ตท่าทางสักครู่',
   },
@@ -113,7 +113,7 @@ const th = {
     deleteAccount: 'ลบบัญชี',
     deleteAccountConfirm: 'ยืนยันการลบบัญชี',
     deleteAccountDescription:
-      'การลบบัญชีจะลบข้อมูลการใช้งานและการตั้งค่าเตือนทั้งหมดของคุณออกจากระบบอย่างถาวร',
+      'การลบบัญชีแบบนี้จะปิดการใช้งานบัญชีทันทีในแอปและเก็บข้อมูลไว้ในสถานะลบเพื่อดำเนินการต่อภายหลัง',
     cancelDeleteAccount: 'ยกเลิก',
     legalTitle: 'นโยบายและสิทธิข้อมูล',
     legalDescription:
@@ -156,6 +156,7 @@ const th = {
     shoulderRollsCompleted: 'ทำท่าหมุนไหล่แล้ว',
     wristReleaseCompleted: 'ทำท่าคลายข้อมือแล้ว',
     deskBackStretchCompleted: 'ทำท่ายืดหลังข้างโต๊ะแล้ว',
+    movementBreakCompleted: 'ขยับร่างกายตามแจ้งเตือนแล้ว',
     shoulderReminderSkipped: 'ข้ามการแจ้งเตือนไหล่',
     breakSkipped: 'ข้ามเวลาพักขยับร่างกาย',
     nextMovementBreak: 'พักขยับร่างกายครั้งถัดไป',
@@ -246,6 +247,8 @@ const th = {
         'ลิงก์ยืนยันอีเมลหมดอายุหรือถูกใช้ไปแล้ว กรุณาสมัคร/เข้าสู่ระบบใหม่เพื่อรับลิงก์ล่าสุด',
       invalidCredentials: 'อีเมลหรือรหัสผ่านไม่ถูกต้อง',
       emailNotConfirmed: 'กรุณายืนยันอีเมลก่อนเข้าสู่ระบบ',
+      accountDeleted:
+        'บัญชีนี้ถูกปิดการใช้งานแล้ว หากต้องการกลับมาใช้ กรุณาติดต่อผู้ดูแลระบบ',
     },
   },
 };
@@ -262,7 +265,8 @@ const en: Locale = {
   },
   notifications: {
     channelName: 'Move reminders',
-    channelDescription: 'Timed movement reminders with strong vibration.',
+    channelDescription:
+      'Timed movement reminders with a stronger signature vibration pattern.',
     reminderTitle: 'Time to move',
     reminderBody: 'Stand up, stretch, and reset your posture for a moment.',
   },
@@ -366,7 +370,7 @@ const en: Locale = {
     deleteAccount: 'Delete account',
     deleteAccountConfirm: 'Confirm account deletion',
     deleteAccountDescription:
-      'Deleting your account permanently removes your reminder settings and movement history from the system.',
+      'This account deletion flow deactivates the account in the app immediately and keeps the data in a soft-deleted state for follow-up processing.',
     cancelDeleteAccount: 'Cancel',
     legalTitle: 'Policies and data rights',
     legalDescription:
@@ -413,6 +417,7 @@ const en: Locale = {
     shoulderRollsCompleted: 'Shoulder rolls completed',
     wristReleaseCompleted: 'Wrist release completed',
     deskBackStretchCompleted: 'Desk back stretch completed',
+    movementBreakCompleted: 'Movement break completed',
     shoulderReminderSkipped: 'Shoulder reminder skipped',
     breakSkipped: 'Movement break skipped',
     nextMovementBreak: 'Next movement break',
@@ -505,6 +510,8 @@ const en: Locale = {
         'The email verification link has expired or was already used. Sign up or sign in again to get the latest link.',
       invalidCredentials: 'Email or password is incorrect.',
       emailNotConfirmed: 'Confirm your email before signing in.',
+      accountDeleted:
+        'This account has been deactivated. Contact support if you need it restored.',
     },
   },
 };

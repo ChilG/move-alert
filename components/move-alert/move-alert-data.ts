@@ -70,6 +70,7 @@ export const timelineLabelKeys = [
   'timeline.shoulderRollsCompleted',
   'timeline.wristReleaseCompleted',
   'timeline.deskBackStretchCompleted',
+  'timeline.movementBreakCompleted',
   'timeline.shoulderReminderSkipped',
   'timeline.breakSkipped',
   'timeline.nextMovementBreak',

@@ -79,7 +79,7 @@ export function SettingsQuietHoursSection({
             <Button
               action={isSelected ? 'primary' : 'default'}
               className={`min-w-12 rounded-2xl ${
-                isSelected ? '' : 'bg-background-muted'
+                isSelected ? 'bg-green-500' : 'bg-background-muted'
               }`}
               key={day}
               onPress={() => onSelectDay(day)}
@@ -87,7 +87,7 @@ export function SettingsQuietHoursSection({
             >
               <Text
                 className={`text-center text-sm font-extrabold ${
-                  isSelected ? 'text-typography-0' : 'text-typography-800'
+                  isSelected ? 'text-white' : 'text-typography-800'
                 }`}
               >
                 {t(weekDayLabelKey[day])}
