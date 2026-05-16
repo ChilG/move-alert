@@ -11,7 +11,9 @@ import {
 } from 'react';
 import { z } from 'zod';
 
+import { syncReminderNotificationsAsync } from '@/components/move-alert/reminder-notifications';
 import { useAuth } from '@/components/move-alert/auth-state';
+import { useLanguagePreference } from '@/components/move-alert/language-state';
 import { supabase } from '@/lib/supabase';
 import {
   activityTemplateDescriptionKeys,
@@ -593,6 +595,7 @@ async function saveMoveAlertState(
 
 export function MoveAlertProvider({ children }: PropsWithChildren) {
   const { user } = useAuth();
+  const { resolvedLanguage } = useLanguagePreference();
   const [state, setState] = useState(initialState);
   const [activityTemplates, setActivityTemplates] = useState<StretchItem[]>(
     defaultActivityTemplates,
@@ -903,6 +906,33 @@ export function MoveAlertProvider({ children }: PropsWithChildren) {
       clearScheduledSave();
     };
   }, [clearScheduledSave, flushStateToDatabase, state, user?.id]);
+
+  useEffect(() => {
+    if (!user?.id) {
+      void syncReminderNotificationsAsync(null);
+      return;
+    }
+
+    void syncReminderNotificationsAsync({
+      intervalMinutes: state.intervalMinutes,
+      quietHoursDays: state.quietHoursDays,
+      quietHoursEnabled: state.quietHoursEnabled,
+      quietHoursEndTime: state.quietHoursEndTime,
+      quietHoursStartTime: state.quietHoursStartTime,
+      reminderEnabled: state.reminderEnabled,
+      timeline: state.timeline,
+    });
+  }, [
+    resolvedLanguage,
+    state.intervalMinutes,
+    state.quietHoursDays,
+    state.quietHoursEnabled,
+    state.quietHoursEndTime,
+    state.quietHoursStartTime,
+    state.reminderEnabled,
+    state.timeline,
+    user?.id,
+  ]);
 
   const value = useMemo<MoveAlertContextValue>(
     () => ({

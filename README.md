@@ -39,7 +39,7 @@ This project supports **SDG 3: Good Health and Well-being** by promoting healthi
 
 ## Current Project Status
 
-This repository contains the Expo/React Native Move Alert app, with authenticated movement state synced to normalized Supabase tables and notification scheduling left for a later development-build phase.
+This repository contains the Expo/React Native Move Alert app, with authenticated movement state synced to normalized Supabase tables, Android local reminder scheduling, and Google Play release preparation work.
 
 Current setup includes:
 
@@ -50,6 +50,8 @@ Current setup includes:
 - Bottom tab navigation
 - Shared movement state provider
 - Supabase Auth and per-user state sync
+- Android local reminder scheduling with `expo-notifications`
+- Account deletion support and public legal page generation
 - Gluestack MCP server configuration for component guidance
 
 ## Tech Stack
@@ -128,6 +130,7 @@ Create a Supabase project, copy `.env.example` to `.env`, and fill in:
 ```bash
 EXPO_PUBLIC_SUPABASE_URL=https://your-project-ref.supabase.co
 EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your-supabase-publishable-key
+EXPO_PUBLIC_LEGAL_BASE_URL=https://your-username.github.io/move-alert
 ```
 
 Apply the Supabase migrations in:
@@ -168,9 +171,35 @@ The MCP server is intended to help reference Gluestack component patterns while 
 
 ## Notification Note
 
-The planned reminder feature will require native notification support. In Expo SDK 53 and later, Android remote push notification functionality from `expo-notifications` is not available in Expo Go. For real notification behavior, use a development build.
+Move Alert now includes Android local reminder scheduling with
+`expo-notifications`. For reliable release-like behavior, test notifications in
+a development build or production build. Expo Go support is limited compared to
+native builds.
 
-The current app uses UI-only reminder behavior. Real local notification scheduling should be added after switching to a development build.
+## Legal Pages
+
+Self-contained legal HTML pages are generated with:
+
+```bash
+npm run legal:build
+```
+
+They are deployed with GitHub Pages through:
+
+```text
+.github/workflows/deploy-legal-pages.yml
+```
+
+Set `EXPO_PUBLIC_LEGAL_BASE_URL` so the app opens the same public URLs that are
+published on GitHub Pages.
+
+## Google Play Release
+
+Release guidance is documented in:
+
+```text
+docs/google-play-release.md
+```
 
 ## Development Plan
 

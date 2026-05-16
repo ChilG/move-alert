@@ -15,6 +15,7 @@ import { supabase } from '@/lib/supabase';
 type AuthStatus = 'loading' | 'authenticated' | 'signed-out';
 
 type AuthState = {
+  deleteAccount: () => Promise<boolean>;
   errorMessage: string | null;
   isLoading: boolean;
   resendEmailVerification: (email: string) => Promise<boolean>;
@@ -163,6 +164,28 @@ export function AuthProvider({ children }: PropsWithChildren) {
   const value = useMemo<AuthState>(
     () => ({
       errorMessage,
+      deleteAccount: async () => {
+        setIsLoading(true);
+        setErrorMessage(null);
+
+        const { error } = await supabase.rpc('delete_my_account');
+
+        if (error) {
+          setErrorMessage(toFriendlyAuthMessage(error.message));
+          setIsLoading(false);
+          return false;
+        }
+
+        const signOutResult = await supabase.auth.signOut({ scope: 'local' });
+
+        if (signOutResult.error) {
+          setErrorMessage(toFriendlyAuthMessage(signOutResult.error.message));
+        }
+
+        setSession(null);
+        setIsLoading(false);
+        return true;
+      },
       isLoading,
       resendEmailVerification: async (email) => {
         const authEmail = authEmailSchema.safeParse({ email });

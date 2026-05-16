@@ -12,9 +12,17 @@ import { Text } from '@/components/ui/text';
 import { SectionCard } from '@/components/move-alert/shared/section-card';
 
 type SettingsAccountSectionProps = {
+  cancelDeleteAccountLabel: string;
+  deleteAccountConfirmLabel: string;
+  deleteAccountDescription: string;
+  deleteAccountLabel: string;
   errorMessage: string | null;
+  isDeleteConfirmationVisible: boolean;
   isLoading: boolean;
+  onCancelDeleteAccount: () => void;
+  onConfirmDeleteAccount: () => void;
   onSignOut: () => void;
+  onStartDeleteAccount: () => void;
   signedInAccountLabel: string;
   signOutLabel: string;
   syncLabel: string;
@@ -22,9 +30,17 @@ type SettingsAccountSectionProps = {
 };
 
 export function SettingsAccountSection({
+  cancelDeleteAccountLabel,
+  deleteAccountConfirmLabel,
+  deleteAccountDescription,
+  deleteAccountLabel,
   errorMessage,
+  isDeleteConfirmationVisible,
   isLoading,
+  onCancelDeleteAccount,
+  onConfirmDeleteAccount,
   onSignOut,
+  onStartDeleteAccount,
   signedInAccountLabel,
   signOutLabel,
   syncLabel,
@@ -76,6 +92,45 @@ export function SettingsAccountSection({
         />
         <Text className="font-bold">{signOutLabel}</Text>
       </Button>
+
+      <Button
+        action="negative"
+        className="mt-3"
+        disabled={isLoading}
+        onPress={
+          isDeleteConfirmationVisible
+            ? onConfirmDeleteAccount
+            : onStartDeleteAccount
+        }
+        size="xl"
+      >
+        <Ionicons
+          color={getButtonForegroundColor(colors, 'negative', 'solid')}
+          name="trash-outline"
+          size={18}
+        />
+        <Text className="font-bold text-typography-0">
+          {isDeleteConfirmationVisible
+            ? deleteAccountConfirmLabel
+            : deleteAccountLabel}
+        </Text>
+      </Button>
+
+      {isDeleteConfirmationVisible ? (
+        <Alert action="warning" className="mt-4 rounded-2xl">
+          <AlertText>{deleteAccountDescription}</AlertText>
+          <Button
+            action="default"
+            className="mt-3 self-start"
+            disabled={isLoading}
+            onPress={onCancelDeleteAccount}
+            size="md"
+            variant="outline"
+          >
+            <Text className="font-bold">{cancelDeleteAccountLabel}</Text>
+          </Button>
+        </Alert>
+      ) : null}
     </SectionCard>
   );
 }

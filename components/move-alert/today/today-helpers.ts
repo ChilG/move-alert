@@ -1,5 +1,6 @@
 import {
   StretchItem,
+  type TimelineItem,
   weekDays,
   type WeekDay,
 } from '@/components/move-alert/move-alert-data';
@@ -11,6 +12,16 @@ export const secondInMs = 1000;
 export type MoveAlertTimeline = ReturnType<
   typeof useMoveAlert
 >['state']['timeline'];
+export type QuietHoursState = {
+  quietHoursDays: WeekDay[];
+  quietHoursEnabled: boolean;
+  quietHoursEndTime: string;
+  quietHoursStartTime: string;
+};
+export type ReminderScheduleState = QuietHoursState & {
+  intervalMinutes: number;
+  timeline: TimelineItem[];
+};
 
 export function formatReminderTime(date: Date) {
   return `${String(date.getHours()).padStart(2, '0')}:${String(
@@ -45,7 +56,7 @@ function getPreviousWeekDay(day: WeekDay) {
 }
 
 export function isQuietHoursActive(
-  state: ReturnType<typeof useMoveAlert>['state'],
+  state: QuietHoursState,
   date: Date,
 ) {
   if (!state.quietHoursEnabled) return false;

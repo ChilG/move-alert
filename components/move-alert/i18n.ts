@@ -12,6 +12,12 @@ const th = {
     minutesShort: 'นาที',
     percent: '%',
   },
+  notifications: {
+    channelName: 'การเตือนให้ขยับร่างกาย',
+    channelDescription: 'การแจ้งเตือนตามเวลาพร้อมแรงสั่นแบบชัดเจน',
+    reminderTitle: 'ได้เวลาขยับร่างกาย',
+    reminderBody: 'ลุกขึ้นยืดเส้น คลายตัว และรีเซ็ตท่าทางสักครู่',
+  },
   weekdays: {
     sunday: 'อา',
     monday: 'จ',
@@ -64,12 +70,66 @@ const th = {
   settings: {
     eyebrow: 'ตั้งค่า',
     title: 'ปรับจังหวะพักให้เข้ากับตัวเอง',
+    menuDescription:
+      'เลือกหมวดที่ต้องการ แล้วเข้าไปปรับรายละเอียดในหน้าตั้งค่าย่อย',
+    menuPreferencesGroup: 'การใช้งานแอป',
+    menuAccountGroup: 'บัญชี',
+    menuSupportGroup: 'นโยบายและเครื่องมือ',
+    menuAccountTitle: 'บัญชี',
+    menuRemindersTitle: 'การแจ้งเตือน',
+    menuRemindersDescription:
+      'ปรับรอบเตือน เปิดปิดการเตือน และตั้ง quiet hours',
+    menuAppearanceTitle: 'ธีม',
+    menuAppearanceDescription: 'เปลี่ยนโหมดสีของแอปให้ตรงกับการใช้งานของคุณ',
+    menuLanguageTitle: 'ภาษา',
+    menuLanguageDescription: 'เลือกภาษาที่ใช้ในแอป หรือให้ตามเครื่อง',
+    menuLegalTitle: 'นโยบายและข้อมูลส่วนตัว',
+    menuLegalDescription: 'เปิดดู privacy policy และหน้าขอลบบัญชี',
+    menuDebugTitle: 'ทดสอบการแจ้งเตือน',
+    menuDebugDescription: 'ใช้ตรวจเสียงและแรงสั่นของ notification บนอุปกรณ์นี้',
+    accountPageTitle: 'บัญชี',
+    accountPageDescription:
+      'จัดการสถานะบัญชี การซิงก์ และตัวเลือกด้านความเป็นส่วนตัว',
+    remindersPageTitle: 'การแจ้งเตือน',
+    remindersPageDescription:
+      'ควบคุมการเตือนให้ลุกขยับและเวลาที่แอปควรเว้นการแจ้งเตือน',
+    appearancePageTitle: 'ธีม',
+    appearancePageDescription:
+      'เลือกโหมดสีที่เหมาะกับสภาพแสงและสไตล์การใช้งานของคุณ',
+    languagePageTitle: 'ภาษา',
+    languagePageDescription:
+      'ตั้งค่าภาษาหลักของแอปหรือปล่อยให้ตามระบบของเครื่อง',
+    legalPageTitle: 'นโยบายและข้อมูลส่วนตัว',
+    legalPageDescription: 'รวมลิงก์นโยบายที่ใช้กับในแอปและ Google Play Console',
+    debugPageTitle: 'ทดสอบการแจ้งเตือน',
+    debugPageDescription:
+      'ส่ง notification ทันทีเพื่อตรวจพฤติกรรมจริงของอุปกรณ์นี้',
     signedInAccount: 'บัญชีที่เข้าสู่ระบบ',
     unknownUser: 'ผู้ใช้บัญชี Move Alert',
     synced: 'ซิงก์กับบัญชีแล้ว',
     syncing: 'กำลังซิงก์กับบัญชี...',
     syncError: 'ซิงก์ข้อมูลไม่สำเร็จ',
     signOut: 'ออกจากระบบ',
+    deleteAccount: 'ลบบัญชี',
+    deleteAccountConfirm: 'ยืนยันการลบบัญชี',
+    deleteAccountDescription:
+      'การลบบัญชีจะลบข้อมูลการใช้งานและการตั้งค่าเตือนทั้งหมดของคุณออกจากระบบอย่างถาวร',
+    cancelDeleteAccount: 'ยกเลิก',
+    legalTitle: 'นโยบายและสิทธิข้อมูล',
+    legalDescription:
+      'เปิดดูนโยบายความเป็นส่วนตัวและหน้าขอให้ลบบัญชีสำหรับใช้ใน Play Console และภายในแอป',
+    privacyPolicy: 'นโยบายความเป็นส่วนตัว',
+    accountDeletionPolicy: 'หน้าขอลบบัญชี',
+    notificationDebugTitle: 'ทดสอบการแจ้งเตือน',
+    notificationDebugDescription:
+      'ส่งการแจ้งเตือนทันทีผ่าน channel เดียวกับที่ใช้เตือนจริง เพื่อเช็กเสียงและแรงสั่นบนอุปกรณ์นี้',
+    notificationDebugSend: 'ส่ง Noti ทดสอบ',
+    notificationDebugSent:
+      'ส่งการแจ้งเตือนทดสอบแล้ว กรุณาเช็กแถบการแจ้งเตือนของอุปกรณ์',
+    notificationDebugPermissionDenied:
+      'แอปยังไม่ได้รับสิทธิ์แจ้งเตือน กรุณาอนุญาตก่อนทดสอบ',
+    notificationDebugUnsupported:
+      'ปุ่มทดสอบนี้รองรับเฉพาะ Android build ที่มี native notifications',
     themeTitle: 'ธีมของแอป',
     themeDescription: 'เลือกรูปแบบสีของแอป หรือให้ตามค่าระบบของเครื่อง',
     themeSystem: 'ระบบ',
@@ -99,6 +159,38 @@ const th = {
     shoulderReminderSkipped: 'ข้ามการแจ้งเตือนไหล่',
     breakSkipped: 'ข้ามเวลาพักขยับร่างกาย',
     nextMovementBreak: 'พักขยับร่างกายครั้งถัดไป',
+  },
+  legal: {
+    privacyPolicyTitle: 'นโยบายความเป็นส่วนตัว',
+    privacyPolicyUpdated: 'อัปเดตล่าสุด 16 พฤษภาคม 2026',
+    accountDeletionTitle: 'ขอลบบัญชี',
+    accountDeletionUpdated: 'อัปเดตล่าสุด 16 พฤษภาคม 2026',
+    accountDeletionIntro:
+      'กรอกอีเมลของบัญชีที่ต้องการลบ ระบบจะบันทึกคำขอไว้ให้ทีมผู้ดูแลดำเนินการ',
+    accountDeletionEmailLabel: 'อีเมลบัญชี',
+    accountDeletionReasonLabel: 'เหตุผลเพิ่มเติม (ไม่บังคับ)',
+    accountDeletionSubmit: 'ส่งคำขอลบบัญชี',
+    accountDeletionSuccess:
+      'ส่งคำขอลบบัญชีแล้ว เราจะใช้คำขอนี้เพื่อติดต่อและดำเนินการลบข้อมูลของคุณ',
+    accountDeletionError: 'ส่งคำขอไม่สำเร็จ กรุณาลองใหม่อีกครั้งในภายหลัง',
+    accountDeletionInAppTitle: 'ถ้าคุณยังเข้าแอปได้',
+    accountDeletionInAppBody:
+      'คุณสามารถไปที่ Settings > Delete account เพื่อทำการลบบัญชีได้ทันทีจากในแอป',
+    privacyOverviewTitle: 'ข้อมูลที่เราเก็บ',
+    privacyOverviewBody:
+      'แอปเก็บข้อมูลอีเมลสำหรับการยืนยันตัวตน รวมถึงการตั้งค่าการเตือนและประวัติการขยับร่างกายที่เชื่อมกับบัญชีของคุณ',
+    privacyUseTitle: 'การใช้งานข้อมูล',
+    privacyUseBody:
+      'เราใช้ข้อมูลเพื่อเข้าสู่ระบบ ซิงก์สถานะการเตือน แสดงความคืบหน้า และรองรับการแจ้งเตือนบนอุปกรณ์ของคุณ',
+    privacySharingTitle: 'การเปิดเผยข้อมูล',
+    privacySharingBody:
+      'ข้อมูลถูกประมวลผลผ่าน Supabase ในฐานะผู้ให้บริการโครงสร้างพื้นฐานของแอป และไม่ได้ขายข้อมูลให้เครือข่ายโฆษณา',
+    privacyRetentionTitle: 'การเก็บรักษาและการลบ',
+    privacyRetentionBody:
+      'ข้อมูลจะถูกเก็บไว้จนกว่าคุณจะลบบัญชี เมื่อมีการลบบัญชี ข้อมูลที่ผูกกับบัญชีจะถูกลบออกตามกระบวนการของระบบ',
+    privacyContactTitle: 'คำขอด้านความเป็นส่วนตัว',
+    privacyContactBody:
+      'หากต้องการขอลบข้อมูลหรือสอบถามเรื่องความเป็นส่วนตัว กรุณาใช้หน้าขอลบบัญชีซึ่งเป็นช่องทางรับคำขออย่างเป็นทางการของแอป',
   },
   stretchItems: {
     neckReset: {
@@ -168,6 +260,12 @@ const en: Locale = {
     minutesShort: 'min',
     percent: '%',
   },
+  notifications: {
+    channelName: 'Move reminders',
+    channelDescription: 'Timed movement reminders with strong vibration.',
+    reminderTitle: 'Time to move',
+    reminderBody: 'Stand up, stretch, and reset your posture for a moment.',
+  },
   weekdays: {
     sunday: 'Sun',
     monday: 'Mon',
@@ -220,12 +318,71 @@ const en: Locale = {
   settings: {
     eyebrow: 'Settings',
     title: 'Tune break timing to fit your day',
+    menuDescription:
+      'Choose a category, then adjust the details inside each settings page.',
+    menuPreferencesGroup: 'App preferences',
+    menuAccountGroup: 'Account',
+    menuSupportGroup: 'Policies and tools',
+    menuAccountTitle: 'Account',
+    menuRemindersTitle: 'Reminders',
+    menuRemindersDescription:
+      'Adjust reminder cadence, toggle reminders, and configure quiet hours.',
+    menuAppearanceTitle: 'Appearance',
+    menuAppearanceDescription:
+      'Change the app theme to match how and where you use it.',
+    menuLanguageTitle: 'Language',
+    menuLanguageDescription:
+      'Choose the app language or follow your device language.',
+    menuLegalTitle: 'Privacy and policies',
+    menuLegalDescription:
+      'Open the privacy policy and the account deletion request page.',
+    menuDebugTitle: 'Notification debug',
+    menuDebugDescription:
+      'Check the reminder notification sound and vibration on this device.',
+    accountPageTitle: 'Account',
+    accountPageDescription:
+      'Manage your account status, sync state, and privacy actions.',
+    remindersPageTitle: 'Reminders',
+    remindersPageDescription:
+      'Control movement reminders and when the app should stay quiet.',
+    appearancePageTitle: 'Appearance',
+    appearancePageDescription:
+      'Choose the color mode that fits your lighting and workflow.',
+    languagePageTitle: 'Language',
+    languagePageDescription:
+      'Set the primary app language or follow the device setting.',
+    legalPageTitle: 'Privacy and policies',
+    legalPageDescription:
+      'One place for the policy links used in-app and in Google Play.',
+    debugPageTitle: 'Notification debug',
+    debugPageDescription:
+      'Send an immediate notification to verify real device behavior.',
     signedInAccount: 'Signed-in account',
     unknownUser: 'Move Alert account user',
     synced: 'Synced with your account',
     syncing: 'Syncing with your account...',
     syncError: 'Sync failed',
     signOut: 'Sign out',
+    deleteAccount: 'Delete account',
+    deleteAccountConfirm: 'Confirm account deletion',
+    deleteAccountDescription:
+      'Deleting your account permanently removes your reminder settings and movement history from the system.',
+    cancelDeleteAccount: 'Cancel',
+    legalTitle: 'Policies and data rights',
+    legalDescription:
+      'Open the privacy policy and account deletion page used for Google Play and in-app access.',
+    privacyPolicy: 'Privacy Policy',
+    accountDeletionPolicy: 'Account deletion page',
+    notificationDebugTitle: 'Notification debug',
+    notificationDebugDescription:
+      'Send an immediate notification through the same channel used by real reminders to verify sound and vibration on this device.',
+    notificationDebugSend: 'Send test notification',
+    notificationDebugSent:
+      'Test notification sent. Check the device notification tray.',
+    notificationDebugPermissionDenied:
+      'Notification permission is not granted yet. Allow notifications before testing.',
+    notificationDebugUnsupported:
+      'This debug action is only supported in Android builds with native notifications.',
     themeTitle: 'App theme',
     themeDescription:
       'Choose the app appearance or follow your device setting.',
@@ -259,6 +416,39 @@ const en: Locale = {
     shoulderReminderSkipped: 'Shoulder reminder skipped',
     breakSkipped: 'Movement break skipped',
     nextMovementBreak: 'Next movement break',
+  },
+  legal: {
+    privacyPolicyTitle: 'Privacy Policy',
+    privacyPolicyUpdated: 'Last updated May 16, 2026',
+    accountDeletionTitle: 'Account deletion request',
+    accountDeletionUpdated: 'Last updated May 16, 2026',
+    accountDeletionIntro:
+      'Enter the email address for the account you want deleted. The request will be recorded for the Move Alert team to process.',
+    accountDeletionEmailLabel: 'Account email',
+    accountDeletionReasonLabel: 'Additional note (optional)',
+    accountDeletionSubmit: 'Submit deletion request',
+    accountDeletionSuccess:
+      'Your deletion request has been submitted. We will use this request to process removal of your account data.',
+    accountDeletionError:
+      'Unable to submit your request right now. Please try again later.',
+    accountDeletionInAppTitle: 'If you can still access the app',
+    accountDeletionInAppBody:
+      'Go to Settings > Delete account to remove your account immediately from inside the app.',
+    privacyOverviewTitle: 'What we collect',
+    privacyOverviewBody:
+      'The app stores your account email for authentication and keeps reminder settings plus movement history linked to your account.',
+    privacyUseTitle: 'How we use it',
+    privacyUseBody:
+      'We use this data to sign you in, sync reminder state, show progress, and support on-device notifications.',
+    privacySharingTitle: 'How data is shared',
+    privacySharingBody:
+      'Data is processed through Supabase as the app infrastructure provider and is not sold to advertising networks.',
+    privacyRetentionTitle: 'Retention and deletion',
+    privacyRetentionBody:
+      'Data is retained until you delete your account. When account deletion is processed, account-linked data is removed through the app system.',
+    privacyContactTitle: 'Privacy requests',
+    privacyContactBody:
+      'For deletion requests or privacy questions, use the account deletion page, which is the app’s official request pathway.',
   },
   stretchItems: {
     neckReset: {
