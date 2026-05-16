@@ -129,7 +129,7 @@ const th = {
     notificationDebugPermissionDenied:
       'แอปยังไม่ได้รับสิทธิ์แจ้งเตือน กรุณาอนุญาตก่อนทดสอบ',
     notificationDebugUnsupported:
-      'ปุ่มทดสอบนี้รองรับเฉพาะ Android build ที่มี native notifications',
+      'ปุ่มทดสอบนี้รองรับเฉพาะบน Android เท่านั้น',
     themeTitle: 'ธีมของแอป',
     themeDescription: 'เลือกรูปแบบสีของแอป หรือให้ตามค่าระบบของเครื่อง',
     themeSystem: 'ระบบ',
@@ -386,7 +386,7 @@ const en: Locale = {
     notificationDebugPermissionDenied:
       'Notification permission is not granted yet. Allow notifications before testing.',
     notificationDebugUnsupported:
-      'This debug action is only supported in Android builds with native notifications.',
+      'This debug action is only supported on Android.',
     themeTitle: 'App theme',
     themeDescription:
       'Choose the app appearance or follow your device setting.',

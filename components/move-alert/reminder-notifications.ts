@@ -1,8 +1,10 @@
-import { isRunningInExpoGo } from 'expo';
 import { Platform } from 'react-native';
 
 import { t } from '@/components/move-alert/i18n';
-import { type TimelineItem, type WeekDay } from '@/components/move-alert/move-alert-data';
+import {
+  type TimelineItem,
+  type WeekDay,
+} from '@/components/move-alert/move-alert-data';
 import {
   getNextReminderDate,
   isQuietHoursActive,
@@ -13,24 +15,12 @@ const REMINDER_NOTIFICATION_CHANNEL_ID = 'move-reminders-signature-v2';
 const REMINDER_NOTIFICATION_SCOPE = 'move-reminder';
 const REMINDER_HORIZON_DAYS = 3;
 const REMINDER_VIBRATION_PATTERN = [
-  0,
-  720,
-  140,
-  260,
-  120,
-  260,
-  160,
-  860,
-  180,
-  320,
+  0, 720, 140, 260, 120, 260, 160, 860, 180, 320,
 ];
 const REMINDER_COLOR = '#16A34A';
 let reminderSyncPromise = Promise.resolve();
 let hasInitializedNotificationHandler = false;
-export type DebugReminderResult =
-  | 'permission-denied'
-  | 'sent'
-  | 'unsupported';
+export type DebugReminderResult = 'permission-denied' | 'sent' | 'unsupported';
 
 type ReminderNotificationState = {
   intervalMinutes: number;
@@ -55,7 +45,7 @@ function isAndroidDevice() {
 }
 
 function isNotificationRuntimeSupported() {
-  return isAndroidDevice() && !isRunningInExpoGo();
+  return isAndroidDevice();
 }
 
 async function loadNotificationsAsync(): Promise<NotificationsModule | null> {
@@ -81,9 +71,7 @@ async function loadNotificationsAsync(): Promise<NotificationsModule | null> {
   return notificationsModule;
 }
 
-function isReminderNotification(
-  request: ScheduledNotificationRequest,
-) {
+function isReminderNotification(request: ScheduledNotificationRequest) {
   return request.content.data?.scope === REMINDER_NOTIFICATION_SCOPE;
 }
 
@@ -275,10 +263,7 @@ export async function subscribeToReminderNotificationResponsesAsync(
       return;
     }
 
-    if (
-      response.actionIdentifier !==
-      notifications.DEFAULT_ACTION_IDENTIFIER
-    ) {
+    if (response.actionIdentifier !== notifications.DEFAULT_ACTION_IDENTIFIER) {
       return;
     }
 
@@ -293,9 +278,7 @@ export async function subscribeToReminderNotificationResponsesAsync(
     await notifications.clearLastNotificationResponseAsync();
   }
 
-  await handleResponse(
-    await notifications.getLastNotificationResponseAsync(),
-  );
+  await handleResponse(await notifications.getLastNotificationResponseAsync());
 
   const subscription = notifications.addNotificationResponseReceivedListener(
     (response) => {

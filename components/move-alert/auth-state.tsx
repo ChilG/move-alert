@@ -67,6 +67,15 @@ function toFriendlyAuthMessage(message: string) {
 }
 
 function getEmailRedirectTo() {
+  const hostedLegalBaseUrl = process.env.EXPO_PUBLIC_LEGAL_BASE_URL;
+
+  if (Platform.OS !== 'web' && hostedLegalBaseUrl) {
+    return new URL(
+      'verify-account.html',
+      `${hostedLegalBaseUrl.replace(/\/$/, '')}/`,
+    ).toString();
+  }
+
   if (Platform.OS === 'web' && typeof window !== 'undefined') {
     return window.location.origin;
   }
