@@ -14,14 +14,14 @@ import { GluestackUIProvider } from '@/components/ui/gluestack-ui-provider';
 import '@/global.css';
 
 function AppStack() {
-  const { status } = useAuth();
+  const { isLoginDisabled, status } = useAuth();
 
   if (status === 'loading') {
     return <AppLoadingScreen />;
   }
 
   if (status === 'signed-out') {
-    return <AuthScreen />;
+    return isLoginDisabled ? <AppLoadingScreen /> : <AuthScreen />;
   }
 
   return <Stack screenOptions={{ headerShown: false }} />;

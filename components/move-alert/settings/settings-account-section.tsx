@@ -32,6 +32,7 @@ type SettingsAccountSectionProps = {
   onSignOut: () => void;
   onStartDeleteAccount: () => void;
   showDeleteAccount: boolean;
+  showSignOut: boolean;
   signedInAccountLabel: string;
   signOutLabel: string;
   syncLabel: string;
@@ -51,6 +52,7 @@ export function SettingsAccountSection({
   onSignOut,
   onStartDeleteAccount,
   showDeleteAccount,
+  showSignOut,
   signedInAccountLabel,
   signOutLabel,
   syncLabel,
@@ -88,21 +90,23 @@ export function SettingsAccountSection({
           </Alert>
         ) : null}
 
-        <Button
-          action="default"
-          className="mt-4"
-          disabled={isLoading}
-          onPress={onSignOut}
-          size="xl"
-          variant="outline"
-        >
-          <Ionicons
-            color={getButtonForegroundColor(colors, 'default', 'outline')}
-            name="log-out-outline"
-            size={18}
-          />
-          <Text className="font-bold">{signOutLabel}</Text>
-        </Button>
+        {showSignOut ? (
+          <Button
+            action="default"
+            className="mt-4"
+            disabled={isLoading}
+            onPress={onSignOut}
+            size="xl"
+            variant="outline"
+          >
+            <Ionicons
+              color={getButtonForegroundColor(colors, 'default', 'outline')}
+              name="log-out-outline"
+              size={18}
+            />
+            <Text className="font-bold">{signOutLabel}</Text>
+          </Button>
+        ) : null}
       </SectionCard>
 
       {showDeleteAccount ? (

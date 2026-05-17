@@ -1,6 +1,13 @@
 import type { Session, User } from '@supabase/supabase-js';
 import * as Linking from 'expo-linking';
-import { createContext, useContext, useEffect, useMemo, useState } from 'react';
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import type { PropsWithChildren } from 'react';
 import { Platform } from 'react-native';
 
@@ -18,6 +25,7 @@ type AuthState = {
   deleteAccount: () => Promise<boolean>;
   errorMessage: string | null;
   isGuest: boolean;
+  isLoginDisabled: boolean;
   isLoading: boolean;
   resendEmailVerification: (email: string) => Promise<boolean>;
   session: Session | null;
@@ -30,6 +38,7 @@ type AuthState = {
 };
 
 const AuthContext = createContext<AuthState | null>(null);
+const isLoginDisabled = true;
 
 async function isSoftDeletedAccount(userId: string) {
   const { data, error } = await supabase
@@ -51,6 +60,10 @@ async function signOutSoftDeletedAccount() {
   if (signOutResult.error) {
     throw signOutResult.error;
   }
+}
+
+async function startGuestSession() {
+  return supabase.auth.signInAnonymously();
 }
 
 function toFriendlyAuthMessage(message: string) {
@@ -119,6 +132,7 @@ function getAuthParams(url: string) {
 }
 
 export function AuthProvider({ children }: PropsWithChildren) {
+  const hasAttemptedAutoGuestSessionRef = useRef(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [session, setSession] = useState<Session | null>(null);
@@ -206,6 +220,41 @@ export function AuthProvider({ children }: PropsWithChildren) {
   }, []);
 
   useEffect(() => {
+    if (!isLoginDisabled || isLoading || session) {
+      return;
+    }
+
+    if (hasAttemptedAutoGuestSessionRef.current) {
+      return;
+    }
+
+    hasAttemptedAutoGuestSessionRef.current = true;
+
+    let isMounted = true;
+
+    setIsLoading(true);
+    setErrorMessage(null);
+
+    void startGuestSession()
+      .then(({ error }) => {
+        if (!isMounted || !error) {
+          return;
+        }
+
+        setErrorMessage(toFriendlyAuthMessage(error.message));
+      })
+      .finally(() => {
+        if (isMounted) {
+          setIsLoading(false);
+        }
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [isLoading, session]);
+
+  useEffect(() => {
     let isMounted = true;
 
     async function enforceSoftDelete() {
@@ -281,6 +330,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
         return true;
       },
       isGuest: session?.user?.is_anonymous === true,
+      isLoginDisabled,
       isLoading,
       resendEmailVerification: async (email) => {
         const authEmail = authEmailSchema.safeParse({ email });
@@ -314,7 +364,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
         setIsLoading(true);
         setErrorMessage(null);
 
-        const { error } = await supabase.auth.signInAnonymously();
+        const { error } = await startGuestSession();
 
         setIsLoading(false);
 
