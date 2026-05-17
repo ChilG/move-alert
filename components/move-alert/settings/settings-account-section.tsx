@@ -31,6 +31,7 @@ type SettingsAccountSectionProps = {
   onConfirmDeleteAccount: () => void;
   onSignOut: () => void;
   onStartDeleteAccount: () => void;
+  showDeleteAccount: boolean;
   signedInAccountLabel: string;
   signOutLabel: string;
   syncLabel: string;
@@ -49,6 +50,7 @@ export function SettingsAccountSection({
   onConfirmDeleteAccount,
   onSignOut,
   onStartDeleteAccount,
+  showDeleteAccount,
   signedInAccountLabel,
   signOutLabel,
   syncLabel,
@@ -103,69 +105,75 @@ export function SettingsAccountSection({
         </Button>
       </SectionCard>
 
-      <SectionCard className="mt-5 border border-red-500">
-        <Text className="text-sm font-bold uppercase text-error-700">
-          {deleteAccountLabel}
-        </Text>
-        <Text className="mt-2 text-sm leading-6 text-typography-600">
-          {deleteAccountDescription}
-        </Text>
-
-        <Button
-          action="negative"
-          className="mt-4"
-          disabled={isLoading}
-          onPress={onStartDeleteAccount}
-          size="xl"
-        >
-          <Ionicons
-            color={getButtonForegroundColor(colors, 'negative', 'solid')}
-            name="trash-outline"
-            size={18}
-          />
-          <Text className="font-bold text-typography-0">{deleteAccountLabel}</Text>
-        </Button>
-      </SectionCard>
-
-      <AlertDialog
-        isOpen={isDeleteConfirmationVisible}
-        onClose={onCancelDeleteAccount}
-      >
-        <AlertDialogBackdrop />
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <Text className="text-lg font-extrabold text-typography-950">
+      {showDeleteAccount ? (
+        <>
+          <SectionCard className="mt-5 border border-red-500">
+            <Text className="text-sm font-bold uppercase text-error-700">
               {deleteAccountLabel}
             </Text>
-          </AlertDialogHeader>
-          <AlertDialogBody className="mt-3">
-            <Text className="text-sm leading-6 text-typography-600">
+            <Text className="mt-2 text-sm leading-6 text-typography-600">
               {deleteAccountDescription}
             </Text>
-          </AlertDialogBody>
-          <AlertDialogFooter>
-            <Button
-              action="default"
-              disabled={isLoading}
-              onPress={onCancelDeleteAccount}
-              size="md"
-              variant="outline"
-            >
-              <Text className="font-bold">{cancelDeleteAccountLabel}</Text>
-            </Button>
+
             <Button
               action="negative"
+              className="mt-4"
               disabled={isLoading}
-              onPress={onConfirmDeleteAccount}
-              size="md"
+              onPress={onStartDeleteAccount}
+              size="xl"
             >
+              <Ionicons
+                color={getButtonForegroundColor(colors, 'negative', 'solid')}
+                name="trash-outline"
+                size={18}
+              />
               <Text className="font-bold text-typography-0">
-                {deleteAccountConfirmLabel}
+                {deleteAccountLabel}
               </Text>
             </Button>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+          </SectionCard>
+
+          <AlertDialog
+            isOpen={isDeleteConfirmationVisible}
+            onClose={onCancelDeleteAccount}
+          >
+            <AlertDialogBackdrop />
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <Text className="text-lg font-extrabold text-typography-950">
+                  {deleteAccountLabel}
+                </Text>
+              </AlertDialogHeader>
+              <AlertDialogBody className="mt-3">
+                <Text className="text-sm leading-6 text-typography-600">
+                  {deleteAccountDescription}
+                </Text>
+              </AlertDialogBody>
+              <AlertDialogFooter>
+                <Button
+                  action="default"
+                  disabled={isLoading}
+                  onPress={onCancelDeleteAccount}
+                  size="md"
+                  variant="outline"
+                >
+                  <Text className="font-bold">{cancelDeleteAccountLabel}</Text>
+                </Button>
+                <Button
+                  action="negative"
+                  disabled={isLoading}
+                  onPress={onConfirmDeleteAccount}
+                  size="md"
+                >
+                  <Text className="font-bold text-typography-0">
+                    {deleteAccountConfirmLabel}
+                  </Text>
+                </Button>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </>
+      ) : null}
     </>
   );
 }

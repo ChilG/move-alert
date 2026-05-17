@@ -17,9 +17,11 @@ type AuthStatus = 'loading' | 'authenticated' | 'signed-out';
 type AuthState = {
   deleteAccount: () => Promise<boolean>;
   errorMessage: string | null;
+  isGuest: boolean;
   isLoading: boolean;
   resendEmailVerification: (email: string) => Promise<boolean>;
   session: Session | null;
+  signInAsGuest: () => Promise<boolean>;
   signIn: (email: string, password: string) => Promise<boolean>;
   signOut: () => Promise<void>;
   signUp: (email: string, password: string) => Promise<boolean>;
@@ -43,6 +45,14 @@ async function isSoftDeletedAccount(userId: string) {
   return Boolean(data);
 }
 
+async function signOutSoftDeletedAccount() {
+  const signOutResult = await supabase.auth.signOut({ scope: 'local' });
+
+  if (signOutResult.error) {
+    throw signOutResult.error;
+  }
+}
+
 function toFriendlyAuthMessage(message: string) {
   if (
     message.toLowerCase().includes('otp_expired') ||
@@ -61,6 +71,13 @@ function toFriendlyAuthMessage(message: string) {
 
   if (message.toLowerCase().includes('account_soft_deleted')) {
     return t('auth.errors.accountDeleted');
+  }
+
+  if (
+    message.toLowerCase().includes('anonymous sign-ins are disabled') ||
+    message.toLowerCase().includes('anonymous provider is disabled')
+  ) {
+    return t('auth.errors.guestModeUnavailable');
   }
 
   return message;
@@ -263,6 +280,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
         setIsLoading(false);
         return true;
       },
+      isGuest: session?.user?.is_anonymous === true,
       isLoading,
       resendEmailVerification: async (email) => {
         const authEmail = authEmailSchema.safeParse({ email });
@@ -292,6 +310,21 @@ export function AuthProvider({ children }: PropsWithChildren) {
         return true;
       },
       session,
+      signInAsGuest: async () => {
+        setIsLoading(true);
+        setErrorMessage(null);
+
+        const { error } = await supabase.auth.signInAnonymously();
+
+        setIsLoading(false);
+
+        if (error) {
+          setErrorMessage(toFriendlyAuthMessage(error.message));
+          return false;
+        }
+
+        return true;
+      },
       signIn: async (email, password) => {
         const authForm = authFormSchema.safeParse({ email, password });
         if (!authForm.success) {
@@ -302,18 +335,39 @@ export function AuthProvider({ children }: PropsWithChildren) {
         setIsLoading(true);
         setErrorMessage(null);
 
-        const { error } = await supabase.auth.signInWithPassword({
+        const { data, error } = await supabase.auth.signInWithPassword({
           email: authForm.data.email,
           password: authForm.data.password,
         });
 
-        setIsLoading(false);
-
         if (error) {
           setErrorMessage(toFriendlyAuthMessage(error.message));
+          setIsLoading(false);
           return false;
         }
 
+        try {
+          const userId = data.user?.id;
+
+          if (userId && (await isSoftDeletedAccount(userId))) {
+            await signOutSoftDeletedAccount();
+            setErrorMessage(t('auth.errors.accountDeleted'));
+            setIsLoading(false);
+            return false;
+          }
+        } catch (signInError) {
+          setErrorMessage(
+            toFriendlyAuthMessage(
+              signInError instanceof Error
+                ? signInError.message
+                : 'Unable to verify account.',
+            ),
+          );
+          setIsLoading(false);
+          return false;
+        }
+
+        setIsLoading(false);
         return true;
       },
       signOut: async () => {

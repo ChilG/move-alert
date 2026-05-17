@@ -23,6 +23,7 @@ export function ScreenScrollView({
         paddingBottom: Math.max(insets.bottom, 16) + bottomOffset,
         paddingHorizontal: 20,
       }}
+      keyboardShouldPersistTaps="handled"
       showsVerticalScrollIndicator={false}
       {...props}
     >

@@ -35,6 +35,10 @@ export default function SettingsRemindersScreen() {
       />
 
       <SettingsIntervalSection
+        customHint={t('settings.reminderIntervalCustomHint')}
+        customInvalidMessage={t('settings.reminderIntervalCustomInvalid')}
+        customLabel={t('settings.reminderIntervalCustomLabel')}
+        customPlaceholder={t('settings.reminderIntervalCustomPlaceholder')}
         description={t('settings.reminderIntervalDescription')}
         intervals={reminderIntervals}
         minutesLabel={t('settings.minutes')}

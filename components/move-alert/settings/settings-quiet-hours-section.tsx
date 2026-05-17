@@ -78,7 +78,7 @@ export function SettingsQuietHoursSection({
           return (
             <Button
               action={isSelected ? 'primary' : 'default'}
-              className={`min-w-12 rounded-2xl ${
+              className={`w-full max-w-20 rounded-2xl ${
                 isSelected ? 'bg-green-500' : 'bg-background-muted'
               }`}
               key={day}

@@ -2,12 +2,15 @@ import React, {
   createContext,
   useContext,
   useMemo,
+  useRef,
   useState,
   type PropsWithChildren,
 } from 'react';
 import { TextInput, TextInputProps, View, ViewProps } from 'react-native';
 
 import type { VariantProps } from '@gluestack-ui/utils/nativewind-utils';
+
+import { Pressable } from '@/components/ui/pressable';
 
 import { inputFieldStyle, inputStyle } from './styles';
 
@@ -19,6 +22,7 @@ type InputContextValue = {
   isReadOnly: boolean;
   onBlur: () => void;
   onFocus: () => void;
+  registerFieldRef: (field: React.ComponentRef<typeof TextInput> | null) => void;
   size: NonNullable<InputVariants['size']>;
   variant: NonNullable<InputVariants['variant']>;
 };
@@ -29,9 +33,21 @@ const InputContext = createContext<InputContextValue>({
   isReadOnly: false,
   onBlur: () => undefined,
   onFocus: () => undefined,
+  registerFieldRef: () => undefined,
   size: 'md',
   variant: 'outline',
 });
+
+function assignRef<T>(ref: React.ForwardedRef<T>, value: T) {
+  if (typeof ref === 'function') {
+    ref(value);
+    return;
+  }
+
+  if (ref) {
+    ref.current = value;
+  }
+}
 
 type InputProps = PropsWithChildren<
   ViewProps &
@@ -58,6 +74,7 @@ const Input = React.forwardRef<React.ComponentRef<typeof View>, InputProps>(
     ref,
   ) {
     const [isFocused, setIsFocused] = useState(false);
+    const fieldRef = useRef<React.ComponentRef<typeof TextInput> | null>(null);
 
     const contextValue = useMemo(
       () => ({
@@ -66,6 +83,11 @@ const Input = React.forwardRef<React.ComponentRef<typeof View>, InputProps>(
         isReadOnly,
         onBlur: () => setIsFocused(false),
         onFocus: () => setIsFocused(true),
+        registerFieldRef: (
+          field: React.ComponentRef<typeof TextInput> | null,
+        ) => {
+          fieldRef.current = field;
+        },
         size,
         variant,
       }),
@@ -74,20 +96,29 @@ const Input = React.forwardRef<React.ComponentRef<typeof View>, InputProps>(
 
     return (
       <InputContext.Provider value={contextValue}>
-        <View
-          ref={ref}
-          {...props}
-          className={inputStyle({
-            class: className,
-            isDisabled,
-            isFocused,
-            isInvalid,
-            size,
-            variant,
-          })}
+        <Pressable
+          accessible={false}
+          onPress={() => {
+            if (!isDisabled && !isReadOnly) {
+              fieldRef.current?.focus();
+            }
+          }}
         >
-          {children}
-        </View>
+          <View
+            ref={ref}
+            {...props}
+            className={inputStyle({
+              class: className,
+              isDisabled,
+              isFocused,
+              isInvalid,
+              size,
+              variant,
+            })}
+          >
+            {children}
+          </View>
+        </Pressable>
       </InputContext.Provider>
     );
   },
@@ -105,18 +136,24 @@ const InputField = React.forwardRef<
   { className, onBlur, onFocus, secureTextEntry, type = 'text', ...props },
   ref,
 ) {
+  const inputRef = useRef<React.ComponentRef<typeof TextInput>>(null);
   const {
     isDisabled,
     isReadOnly,
     onBlur: handleContextBlur,
     onFocus: handleContextFocus,
+    registerFieldRef,
     size,
     variant,
   } = useContext(InputContext);
 
   return (
     <TextInput
-      ref={ref}
+      ref={(node) => {
+        inputRef.current = node;
+        registerFieldRef(node);
+        assignRef(ref, node);
+      }}
       {...props}
       className={inputFieldStyle({
         class: className,

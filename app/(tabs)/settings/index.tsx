@@ -30,7 +30,7 @@ function getLanguageLabel(
 
 export default function SettingsScreen() {
   const router = useRouter();
-  const { user } = useAuth();
+  const { isGuest, user } = useAuth();
   const { languageMode } = useLanguagePreference();
   const { themeMode } = useThemePreference();
   const { state } = useMoveAlert();
@@ -84,7 +84,9 @@ export default function SettingsScreen() {
             router.push('/(tabs)/settings/account');
           }}
           title={t('settings.menuAccountTitle')}
-          description={user?.email ?? t('settings.unknownUser')}
+          description={
+            isGuest ? t('settings.guestSession') : user?.email ?? t('settings.unknownUser')
+          }
         />
       </SettingsMenuSection>
 
@@ -98,16 +100,14 @@ export default function SettingsScreen() {
           title={t('settings.menuLegalTitle')}
         />
 
-        {__DEV__ ? (
-          <SettingsMenuItem
-            description={t('settings.menuDebugDescription')}
-            icon="flask-outline"
-            onPress={() => {
-              router.push('/(tabs)/settings/debug');
-            }}
-            title={t('settings.menuDebugTitle')}
-          />
-        ) : null}
+        <SettingsMenuItem
+          description={t('settings.menuDebugDescription')}
+          icon="flask-outline"
+          onPress={() => {
+            router.push('/(tabs)/settings/debug');
+          }}
+          title={t('settings.menuDebugTitle')}
+        />
       </SettingsMenuSection>
     </ScreenScrollView>
   );

@@ -1,4 +1,3 @@
-import { Redirect } from 'expo-router';
 import { useState } from 'react';
 
 import { t } from '@/components/move-alert/i18n';
@@ -12,10 +11,6 @@ export default function SettingsDebugScreen() {
   const [notificationDebugMessage, setNotificationDebugMessage] = useState<
     string | null
   >(null);
-
-  if (!__DEV__) {
-    return <Redirect href="/(tabs)/settings" />;
-  }
 
   async function sendDebugNotification() {
     setIsSendingDebugNotification(true);

@@ -27,7 +27,6 @@ import {
   defaultActivityTemplates,
   defaultQuietHoursDays,
   initialTimeline,
-  reminderIntervals,
   timelineLabelKeys,
   timelineStatuses,
   weekDays,
@@ -96,7 +95,7 @@ const moveAlertSettingsRowSchema = z.object({
   interval_minutes: z
     .number()
     .int()
-    .refine((value) => reminderIntervals.includes(value))
+    .min(1)
     .catch(initialState.intervalMinutes),
   quiet_hours_enabled: z.boolean().catch(initialState.quietHoursEnabled),
   quiet_hours_end_time: z.string().catch(initialState.quietHoursEndTime),
@@ -1060,7 +1059,7 @@ export function MoveAlertProvider({ children }: PropsWithChildren) {
         });
       },
       setIntervalMinutes: (intervalMinutes) => {
-        if (!reminderIntervals.includes(intervalMinutes)) return;
+        if (!Number.isInteger(intervalMinutes) || intervalMinutes < 1) return;
 
         tapFeedback();
         setState((current) => ({

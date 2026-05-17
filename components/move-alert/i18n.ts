@@ -8,6 +8,7 @@ const th = {
   common: {
     appName: 'Move Alert',
     active: 'เปิดใช้งาน',
+    loading: 'กำลังโหลด...',
     paused: 'พัก',
     minutesShort: 'นาที',
     percent: '%',
@@ -105,6 +106,7 @@ const th = {
     debugPageDescription:
       'ส่ง notification ทันทีเพื่อตรวจพฤติกรรมจริงของอุปกรณ์นี้',
     signedInAccount: 'บัญชีที่เข้าสู่ระบบ',
+    guestSession: 'Guest session',
     unknownUser: 'ผู้ใช้บัญชี Move Alert',
     synced: 'ซิงก์กับบัญชีแล้ว',
     syncing: 'กำลังซิงก์กับบัญชี...',
@@ -142,6 +144,11 @@ const th = {
     languageEnglish: 'English',
     reminderInterval: 'รอบการแจ้งเตือน',
     reminderIntervalDescription: 'เลือกความถี่ที่แอปควรเตือนให้ขยับร่างกาย',
+    reminderIntervalCustomLabel: 'กำหนดเอง',
+    reminderIntervalCustomPlaceholder: 'อย่างน้อย 1 นาที',
+    reminderIntervalCustomHint: 'ต่ำสุด 1 นาที',
+    reminderIntervalCustomInvalid:
+      'กรอกตัวเลขจำนวนเต็มตั้งแต่ 1 นาทีขึ้นไป',
     minutes: 'นาที',
     movementReminders: 'แจ้งเตือนให้ขยับ',
     quietHours: 'ช่วงเวลางดแจ้งเตือน',
@@ -232,6 +239,8 @@ const th = {
       signUpTitle: 'สร้างบัญชี Move Alert',
       subtitle: 'บันทึกการพักและตั้งค่าแจ้งเตือนของคุณไว้กับบัญชีเดียว',
       passwordPlaceholder: 'รหัสผ่าน',
+      showPassword: 'แสดงรหัสผ่าน',
+      hidePassword: 'ซ่อนรหัสผ่าน',
       switchToSignUp: 'ยังไม่มีบัญชี? สมัครสมาชิก',
       switchToSignIn: 'มีบัญชีแล้ว? เข้าสู่ระบบ',
       resendVerificationEmail: 'ส่งลิงก์ยืนยันอีเมลใหม่',
@@ -241,6 +250,7 @@ const th = {
         'สมัครสมาชิกสำเร็จ หากระบบเปิดยืนยันอีเมล กรุณาเช็กกล่องจดหมาย',
       invalidEmailBeforeResend: 'กรุณากรอกอีเมลให้ถูกต้องก่อนส่งลิงก์ใหม่',
       resendSuccess: 'ส่งลิงก์ยืนยันอีเมลใหม่แล้ว กรุณาเช็กกล่องจดหมาย',
+      continueAsGuest: 'เข้าใช้งานแบบ Guest',
     },
     errors: {
       verificationExpired:
@@ -249,6 +259,8 @@ const th = {
       emailNotConfirmed: 'กรุณายืนยันอีเมลก่อนเข้าสู่ระบบ',
       accountDeleted:
         'บัญชีนี้ถูกปิดการใช้งานแล้ว หากต้องการกลับมาใช้ กรุณาติดต่อผู้ดูแลระบบ',
+      guestModeUnavailable:
+        'ยังไม่สามารถเข้าใช้งานแบบ Guest ได้ กรุณาเปิด Anonymous sign-ins ใน Supabase ก่อน',
     },
   },
 };
@@ -259,6 +271,7 @@ const en: Locale = {
   common: {
     appName: 'Move Alert',
     active: 'Active',
+    loading: 'Loading...',
     paused: 'Paused',
     minutesShort: 'min',
     percent: '%',
@@ -362,6 +375,7 @@ const en: Locale = {
     debugPageDescription:
       'Send an immediate notification to verify real device behavior.',
     signedInAccount: 'Signed-in account',
+    guestSession: 'Guest session',
     unknownUser: 'Move Alert account user',
     synced: 'Synced with your account',
     syncing: 'Syncing with your account...',
@@ -402,6 +416,11 @@ const en: Locale = {
     reminderInterval: 'Reminder interval',
     reminderIntervalDescription:
       'Choose how often the app should remind you to move.',
+    reminderIntervalCustomLabel: 'Custom',
+    reminderIntervalCustomPlaceholder: 'At least 1 minute',
+    reminderIntervalCustomHint: 'Minimum 1 minute',
+    reminderIntervalCustomInvalid:
+      'Enter a whole number of at least 1 minute.',
     minutes: 'minutes',
     movementReminders: 'Movement reminders',
     quietHours: 'Quiet hours',
@@ -494,6 +513,8 @@ const en: Locale = {
       signUpTitle: 'Create your Move Alert account',
       subtitle: 'Save your breaks and reminder settings to one account.',
       passwordPlaceholder: 'Password',
+      showPassword: 'Show password',
+      hidePassword: 'Hide password',
       switchToSignUp: 'No account yet? Create one',
       switchToSignIn: 'Already have an account? Sign in',
       resendVerificationEmail: 'Resend verification email',
@@ -504,6 +525,7 @@ const en: Locale = {
       invalidEmailBeforeResend:
         'Enter a valid email address before resending the link.',
       resendSuccess: 'Verification email sent. Check your inbox.',
+      continueAsGuest: 'Continue as guest',
     },
     errors: {
       verificationExpired:
@@ -512,6 +534,8 @@ const en: Locale = {
       emailNotConfirmed: 'Confirm your email before signing in.',
       accountDeleted:
         'This account has been deactivated. Contact support if you need it restored.',
+      guestModeUnavailable:
+        'Guest mode is unavailable. Enable Anonymous sign-ins in Supabase first.',
     },
   },
 };

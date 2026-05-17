@@ -1,10 +1,9 @@
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { ActivityIndicator, View } from 'react-native';
 
+import { AppLoadingScreen } from '@/components/move-alert/app-loading-screen';
 import { AuthScreen } from '@/components/move-alert/auth-screen';
 import { LanguagePreferenceProvider } from '@/components/move-alert/language-state';
-import { useThemeColors } from '@/components/move-alert/theme-colors';
 import { AuthProvider, useAuth } from '@/components/move-alert/auth-state';
 import { MoveAlertProvider } from '@/components/move-alert/move-alert-state';
 import {
@@ -16,14 +15,9 @@ import '@/global.css';
 
 function AppStack() {
   const { status } = useAuth();
-  const colors = useThemeColors();
 
   if (status === 'loading') {
-    return (
-      <View className="flex-1 items-center justify-center bg-background-muted">
-        <ActivityIndicator color={colors.statusBarSpinner} size="large" />
-      </View>
-    );
+    return <AppLoadingScreen />;
   }
 
   if (status === 'signed-out') {

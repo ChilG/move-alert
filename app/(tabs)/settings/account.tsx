@@ -7,7 +7,7 @@ import { SettingsScreenShell } from '@/components/move-alert/settings/settings-s
 import { SettingsAccountSection } from '@/components/move-alert/settings/settings-account-section';
 
 export default function SettingsAccountScreen() {
-  const { deleteAccount, isLoading, signOut, user } = useAuth();
+  const { deleteAccount, isGuest, isLoading, signOut, user } = useAuth();
   const [isDeleteConfirmationVisible, setIsDeleteConfirmationVisible] =
     useState(false);
   const { errorMessage, isSyncing, syncStatus } = useMoveAlert();
@@ -42,10 +42,13 @@ export default function SettingsAccountScreen() {
         onStartDeleteAccount={() => {
           setIsDeleteConfirmationVisible(true);
         }}
+        showDeleteAccount={!isGuest}
         signedInAccountLabel={t('settings.signedInAccount')}
         signOutLabel={t('settings.signOut')}
         syncLabel={syncLabel}
-        userEmail={user?.email ?? t('settings.unknownUser')}
+        userEmail={
+          isGuest ? t('settings.guestSession') : user?.email ?? t('settings.unknownUser')
+        }
       />
     </SettingsScreenShell>
   );
