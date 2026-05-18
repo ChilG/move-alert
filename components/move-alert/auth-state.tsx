@@ -12,8 +12,8 @@ import type { PropsWithChildren } from 'react';
 import { Platform } from 'react-native';
 
 import {
-  authEmailSchema,
-  authFormSchema,
+  getAuthEmailSchema,
+  getAuthFormSchema,
   getValidationMessage,
 } from '@/components/move-alert/auth-validation';
 import { t } from '@/components/move-alert/i18n';
@@ -333,7 +333,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
       isLoginDisabled,
       isLoading,
       resendEmailVerification: async (email) => {
-        const authEmail = authEmailSchema.safeParse({ email });
+        const authEmail = getAuthEmailSchema().safeParse({ email });
         if (!authEmail.success) {
           setErrorMessage(getValidationMessage(authEmail.error));
           return false;
@@ -376,7 +376,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
         return true;
       },
       signIn: async (email, password) => {
-        const authForm = authFormSchema.safeParse({ email, password });
+        const authForm = getAuthFormSchema().safeParse({ email, password });
         if (!authForm.success) {
           setErrorMessage(getValidationMessage(authForm.error));
           return false;
@@ -433,7 +433,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
         setIsLoading(false);
       },
       signUp: async (email, password) => {
-        const authForm = authFormSchema.safeParse({ email, password });
+        const authForm = getAuthFormSchema().safeParse({ email, password });
         if (!authForm.success) {
           setErrorMessage(getValidationMessage(authForm.error));
           return false;

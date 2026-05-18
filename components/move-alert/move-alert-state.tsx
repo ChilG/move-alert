@@ -76,6 +76,11 @@ type MoveAlertContextValue = {
   toggleQuietHours: () => void;
 };
 
+const DEFAULT_QUIET_HOURS_START_TIME = '17:00';
+const DEFAULT_QUIET_HOURS_END_TIME = '09:00';
+const LEGACY_QUIET_HOURS_START_TIME = '22:00';
+const LEGACY_QUIET_HOURS_END_TIME = '07:00';
+
 const initialState: MoveAlertState = {
   completedToday: 0,
   skippedToday: 0,
@@ -83,8 +88,8 @@ const initialState: MoveAlertState = {
   intervalMinutes: 45,
   reminderEnabled: true,
   quietHoursEnabled: true,
-  quietHoursStartTime: '22:00',
-  quietHoursEndTime: '07:00',
+  quietHoursStartTime: DEFAULT_QUIET_HOURS_START_TIME,
+  quietHoursEndTime: DEFAULT_QUIET_HOURS_END_TIME,
   quietHoursDays: defaultQuietHoursDays,
   completedStretchCounts: {},
   completedStretchIds: [],
@@ -389,6 +394,18 @@ function fromDatabaseRows({
   const completedStretchCounts = getCompletedStretchCounts(
     parsedCompletedStretchRows,
   );
+  const quietHoursStartTime =
+    normalizeDatabaseTime(
+      parsedSettings?.quiet_hours_start_time ?? initialState.quietHoursStartTime,
+    ) ?? initialState.quietHoursStartTime;
+  const quietHoursEndTime =
+    normalizeDatabaseTime(
+      parsedSettings?.quiet_hours_end_time ?? initialState.quietHoursEndTime,
+    ) ?? initialState.quietHoursEndTime;
+  const migratedQuietHoursRange = migrateLegacyQuietHoursRange(
+    quietHoursStartTime,
+    quietHoursEndTime,
+  );
 
   return {
     completedToday:
@@ -400,17 +417,10 @@ function fromDatabaseRows({
     quietHoursDays: normalizeQuietHoursDays(
       parsedSettings?.quiet_hours_days ?? initialState.quietHoursDays,
     ),
-    quietHoursEndTime:
-      normalizeDatabaseTime(
-        parsedSettings?.quiet_hours_end_time ?? initialState.quietHoursEndTime,
-      ) ?? initialState.quietHoursEndTime,
+    quietHoursEndTime: migratedQuietHoursRange.endTime,
     quietHoursEnabled:
       parsedSettings?.quiet_hours_enabled ?? initialState.quietHoursEnabled,
-    quietHoursStartTime:
-      normalizeDatabaseTime(
-        parsedSettings?.quiet_hours_start_time ??
-          initialState.quietHoursStartTime,
-      ) ?? initialState.quietHoursStartTime,
+    quietHoursStartTime: migratedQuietHoursRange.startTime,
     reminderEnabled:
       parsedSettings?.reminder_enabled ?? initialState.reminderEnabled,
     skippedToday:
@@ -426,6 +436,20 @@ function serializeValue(value: unknown) {
 
 function getErrorMessage(error: unknown) {
   return error instanceof Error ? error.message : 'Unable to sync move alert.';
+}
+
+function migrateLegacyQuietHoursRange(startTime: string, endTime: string) {
+  if (
+    startTime === LEGACY_QUIET_HOURS_START_TIME &&
+    endTime === LEGACY_QUIET_HOURS_END_TIME
+  ) {
+    return {
+      endTime: DEFAULT_QUIET_HOURS_END_TIME,
+      startTime: DEFAULT_QUIET_HOURS_START_TIME,
+    };
+  }
+
+  return { endTime, startTime };
 }
 
 function fromActivityTemplateRows(rows: unknown[]): StretchItem[] {

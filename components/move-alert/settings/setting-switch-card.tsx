@@ -23,18 +23,19 @@ export function SettingSwitchCard({
   const colors = useThemeColors();
 
   return (
-    <Pressable
-      className="flex-row items-center justify-between rounded-2xl bg-background-0 p-4 shadow-soft-1"
-      onPress={onPress}
-    >
-      <HStack className="items-center" space="md">
-        <View className="h-10 w-10 items-center justify-center rounded-xl bg-info-50">
-          <Ionicons color={colors.info} name={icon} size={22} />
-        </View>
-        <Text className="text-base font-bold text-typography-800">{label}</Text>
-      </HStack>
+    <View className="flex-row items-center justify-between rounded-2xl bg-background-0 p-4 shadow-soft-1">
+      <Pressable className="flex-1" onPress={onPress}>
+        <HStack className="items-center" space="md">
+          <View className="h-10 w-10 items-center justify-center rounded-xl bg-info-50">
+            <Ionicons color={colors.info} name={icon} size={22} />
+          </View>
+          <Text className="text-base font-bold text-typography-800">
+            {label}
+          </Text>
+        </HStack>
+      </Pressable>
 
-      <Switch pointerEvents="none" value={isEnabled} />
-    </Pressable>
+      <Switch onValueChange={onPress} value={isEnabled} />
+    </View>
   );
 }

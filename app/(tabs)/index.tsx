@@ -1,9 +1,8 @@
-import { Ionicons } from '@expo/vector-icons';
+import { Image } from 'react-native';
 
 import { t, tf } from '@/components/move-alert/i18n';
 import { ScreenScrollView } from '@/components/move-alert/screen-scroll-view';
 import { ScreenHeader } from '@/components/move-alert/shared/screen-header';
-import { useThemeColors } from '@/components/move-alert/theme-colors';
 import { TodayMetricsSection } from '@/components/move-alert/today/today-metrics-section';
 import { TodayReminderSection } from '@/components/move-alert/today/today-reminder-section';
 import { TodayTimelineSection } from '@/components/move-alert/today/today-timeline-section';
@@ -12,7 +11,6 @@ import { Box } from '@/components/ui/box';
 import { VStack } from '@/components/ui/vstack';
 
 export default function TodayScreen() {
-  const colors = useThemeColors();
   const { reminderSectionModel, skipBreak, state, toggleReminder } =
     useTodayScreenState();
 
@@ -23,8 +21,11 @@ export default function TodayScreen() {
         eyebrowClassName="text-info-600"
         title={t('today.title')}
         trailing={
-          <Box className="h-14 w-14 items-center justify-center rounded-2xl bg-success-100">
-            <Ionicons color={colors.success} name="walk-outline" size={30} />
+          <Box className="h-16 w-16 items-center justify-center rounded-2xl">
+            <Image
+              source={require('@/assets/images/icon.png')}
+              style={{ width: 56, height: 56, borderRadius: 10 }}
+            />
           </Box>
         }
       />

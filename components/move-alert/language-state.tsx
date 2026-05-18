@@ -1,5 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
+  Fragment,
   createContext,
   PropsWithChildren,
   useCallback,
@@ -69,7 +70,7 @@ export function LanguagePreferenceProvider({ children }: PropsWithChildren) {
     <LanguagePreferenceContext.Provider
       value={{ languageMode, resolvedLanguage, setLanguageMode }}
     >
-      {children}
+      <Fragment key={resolvedLanguage}>{children}</Fragment>
     </LanguagePreferenceContext.Provider>
   );
 }

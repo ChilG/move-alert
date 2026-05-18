@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 
 import { tf } from '@/components/move-alert/i18n';
+import { useLanguagePreference } from '@/components/move-alert/language-state';
 import { useMoveAlert } from '@/components/move-alert/move-alert-state';
 
 import type { TodayReminderSectionModel } from './today-reminder-section';
@@ -14,6 +15,7 @@ import {
 
 export function useTodayScreenState() {
   const moveAlert = useMoveAlert();
+  useLanguagePreference();
   const { dailyGoal, state } = moveAlert;
   const { timeline } = state;
   const [currentTime, setCurrentTime] = useState(() => new Date());
@@ -37,6 +39,10 @@ export function useTodayScreenState() {
     state.reminderEnabled &&
     !isQuietNow &&
     !isWaitingForSkippedBreak(timeline, currentTime);
+  const progressSummary = tf('today.progressSummary', {
+    completed: state.completedToday,
+    goal: dailyGoal,
+  });
   const reminderSectionModel = useMemo<TodayReminderSectionModel>(
     () => ({
       canSkipBreak,
@@ -44,20 +50,16 @@ export function useTodayScreenState() {
       isReminderEnabled: state.reminderEnabled,
       nextReminderTime,
       progressPercent: moveAlert.progressPercent,
-      progressSummary: tf('today.progressSummary', {
-        completed: state.completedToday,
-        goal: dailyGoal,
-      }),
+      progressSummary,
       reminderMinutes,
     }),
     [
       canSkipBreak,
-      dailyGoal,
       isQuietNow,
       moveAlert.progressPercent,
       nextReminderTime,
+      progressSummary,
       reminderMinutes,
-      state.completedToday,
       state.reminderEnabled,
     ],
   );

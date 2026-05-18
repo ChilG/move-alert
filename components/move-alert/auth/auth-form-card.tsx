@@ -16,6 +16,7 @@ import { SectionCard } from '@/components/move-alert/shared/section-card';
 
 type AuthFormCardProps = {
   email: string;
+  emailPlaceholder: string;
   guestLabel: string;
   isLoading: boolean;
   isSignIn: boolean;
@@ -38,6 +39,7 @@ type AuthFormCardProps = {
 
 export function AuthFormCard({
   email,
+  emailPlaceholder,
   guestLabel,
   isLoading,
   message,
@@ -73,7 +75,7 @@ export function AuthFormCard({
             autoCorrect={false}
             inputMode="email"
             onChangeText={onChangeEmail}
-            placeholder="you@example.com"
+            placeholder={emailPlaceholder}
             placeholderTextColor={colors.placeholder}
             textContentType="emailAddress"
             value={email}

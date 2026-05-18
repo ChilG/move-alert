@@ -53,6 +53,7 @@ export default function SettingsRemindersScreen() {
           description={t('settings.quietHoursDescription')}
           endLabel={t('settings.quietHoursEnd')}
           endTime={state.quietHoursEndTime}
+          inputPlaceholder={t('settings.quietHoursPlaceholder')}
           onSelectDay={toggleQuietHoursDay}
           onSetEndTime={setQuietHoursEndTime}
           onSetStartTime={setQuietHoursStartTime}

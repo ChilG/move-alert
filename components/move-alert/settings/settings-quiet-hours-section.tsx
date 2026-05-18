@@ -15,6 +15,7 @@ import { weekDayLabelKey } from './settings-constants';
 type SettingsQuietHoursSectionProps = {
   daysLabel: string;
   description: string;
+  inputPlaceholder: string;
   onSelectDay: (day: WeekDay) => void;
   onSetEndTime: (time: string) => void;
   onSetStartTime: (time: string) => void;
@@ -32,6 +33,7 @@ export function SettingsQuietHoursSection({
   description,
   endLabel,
   endTime,
+  inputPlaceholder,
   onSelectDay,
   onSetEndTime,
   onSetStartTime,
@@ -59,11 +61,13 @@ export function SettingsQuietHoursSection({
         <QuietTimeInput
           label={startLabel}
           onCommit={onSetStartTime}
+          placeholder={inputPlaceholder}
           value={startTime}
         />
         <QuietTimeInput
           label={endLabel}
           onCommit={onSetEndTime}
+          placeholder={inputPlaceholder}
           value={endTime}
         />
       </HStack>

@@ -139,6 +139,10 @@ const th = {
     themeDark: 'มืด',
     languageTitle: 'ภาษาของแอป',
     languageDescription: 'เลือกภาษาของแอป หรือให้ตามค่าภาษาของเครื่อง',
+    languageRestartTitle: 'ต้องเปิดแอปใหม่',
+    languageRestartDescription:
+      'เพื่อให้ภาษาเปลี่ยนครบทุกหน้าของแอป กรุณาปิดแล้วเปิด Move Alert ใหม่อีกครั้ง',
+    languageRestartConfirm: 'รับทราบ',
     languageSystem: 'ระบบ',
     languageThai: 'ไทย',
     languageEnglish: 'English',
@@ -153,6 +157,7 @@ const th = {
     movementReminders: 'แจ้งเตือนให้ขยับ',
     quietHours: 'ช่วงเวลางดแจ้งเตือน',
     quietHoursDescription: 'แอปจะไม่แจ้งเตือนในช่วงเวลานี้ของวันที่เลือก',
+    quietHoursPlaceholder: '17:00',
     quietHoursStart: 'เริ่ม',
     quietHoursEnd: 'สิ้นสุด',
     quietHoursDays: 'วันที่งดแจ้งเตือน',
@@ -238,6 +243,7 @@ const th = {
       signInTitle: 'เข้าสู่ Move Alert',
       signUpTitle: 'สร้างบัญชี Move Alert',
       subtitle: 'บันทึกการพักและตั้งค่าแจ้งเตือนของคุณไว้กับบัญชีเดียว',
+      emailPlaceholder: 'you@example.com',
       passwordPlaceholder: 'รหัสผ่าน',
       showPassword: 'แสดงรหัสผ่าน',
       hidePassword: 'ซ่อนรหัสผ่าน',
@@ -410,6 +416,10 @@ const en: Locale = {
     languageTitle: 'App language',
     languageDescription:
       'Choose the app language or follow your device language.',
+    languageRestartTitle: 'Restart required',
+    languageRestartDescription:
+      'To apply the language across the entire app, close Move Alert and open it again.',
+    languageRestartConfirm: 'OK',
     languageSystem: 'System',
     languageThai: 'Thai',
     languageEnglish: 'English',
@@ -426,6 +436,7 @@ const en: Locale = {
     quietHours: 'Quiet hours',
     quietHoursDescription:
       'The app will not send reminders during this time on selected days.',
+    quietHoursPlaceholder: '17:00',
     quietHoursStart: 'Start',
     quietHoursEnd: 'End',
     quietHoursDays: 'Quiet days',
@@ -512,6 +523,7 @@ const en: Locale = {
       signInTitle: 'Sign in to Move Alert',
       signUpTitle: 'Create your Move Alert account',
       subtitle: 'Save your breaks and reminder settings to one account.',
+      emailPlaceholder: 'you@example.com',
       passwordPlaceholder: 'Password',
       showPassword: 'Show password',
       hidePassword: 'Hide password',

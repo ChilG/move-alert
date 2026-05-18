@@ -6,8 +6,8 @@ import { AuthFormCard } from '@/components/move-alert/auth/auth-form-card';
 import { AuthHero } from '@/components/move-alert/auth/auth-hero';
 import { useAuth } from '@/components/move-alert/auth-state';
 import {
-  authEmailSchema,
-  authFormSchema,
+  getAuthEmailSchema,
+  getAuthFormSchema,
   getValidationMessage,
 } from '@/components/move-alert/auth-validation';
 import { t } from '@/components/move-alert/i18n';
@@ -40,7 +40,7 @@ export function AuthScreen() {
   async function submitAuthForm() {
     setFormMessage(null);
 
-    const authForm = authFormSchema.safeParse({ email, password });
+    const authForm = getAuthFormSchema().safeParse({ email, password });
     if (!authForm.success) {
       setFormMessage(getValidationMessage(authForm.error));
       return;
@@ -58,7 +58,7 @@ export function AuthScreen() {
   async function resendVerificationEmail() {
     setFormMessage(null);
 
-    const authEmail = authEmailSchema.safeParse({ email });
+    const authEmail = getAuthEmailSchema().safeParse({ email });
     if (!authEmail.success) {
       setFormMessage(t('auth.screen.invalidEmailBeforeResend'));
       return;
@@ -111,6 +111,7 @@ export function AuthScreen() {
           resendLabel={t('auth.screen.resendVerificationEmail')}
           showPasswordLabel={t('auth.screen.showPassword')}
           guestLabel={t('auth.screen.continueAsGuest')}
+          emailPlaceholder={t('auth.screen.emailPlaceholder')}
           submitLabel={submitLabel}
           switchModeLabel={
             isSignIn

@@ -11,12 +11,14 @@ import { isValidQuietTime } from './settings-helpers';
 type QuietTimeInputProps = {
   label: string;
   onCommit: (time: string) => void;
+  placeholder: string;
   value: string;
 };
 
 export function QuietTimeInput({
   label,
   onCommit,
+  placeholder,
   value,
 }: QuietTimeInputProps) {
   const [draftValue, setDraftValue] = useState(value);
@@ -43,7 +45,7 @@ export function QuietTimeInput({
           onBlur={commitValue}
           onChangeText={setDraftValue}
           onSubmitEditing={commitValue}
-          placeholder="22:00"
+          placeholder={placeholder}
           placeholderTextColor={colors.placeholder}
           value={draftValue}
         />

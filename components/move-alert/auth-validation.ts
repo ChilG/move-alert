@@ -2,24 +2,29 @@ import { z } from 'zod';
 
 import { t } from '@/components/move-alert/i18n';
 
-const emailSchema = z
-  .string()
-  .trim()
-  .pipe(z.email(t('auth.screen.invalidEmail')));
+function createEmailSchema() {
+  return z.string().trim().pipe(z.email(t('auth.screen.invalidEmail')));
+}
 
-const passwordSchema = z.string().min(6, t('auth.screen.passwordTooShort'));
+function createPasswordSchema() {
+  return z.string().min(6, t('auth.screen.passwordTooShort'));
+}
 
-export const authFormSchema = z.object({
-  email: emailSchema,
-  password: passwordSchema,
-});
+export function getAuthFormSchema() {
+  return z.object({
+    email: createEmailSchema(),
+    password: createPasswordSchema(),
+  });
+}
 
-export const authEmailSchema = z.object({
-  email: emailSchema,
-});
+export function getAuthEmailSchema() {
+  return z.object({
+    email: createEmailSchema(),
+  });
+}
 
-export type AuthFormInput = z.infer<typeof authFormSchema>;
-export type AuthEmailInput = z.infer<typeof authEmailSchema>;
+export type AuthFormInput = z.infer<ReturnType<typeof getAuthFormSchema>>;
+export type AuthEmailInput = z.infer<ReturnType<typeof getAuthEmailSchema>>;
 
 export function getValidationMessage(error: z.ZodError) {
   return error.issues[0]?.message ?? t('auth.screen.invalidEmail');

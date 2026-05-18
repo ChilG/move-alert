@@ -3,6 +3,7 @@ import { Tabs } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { t } from '@/components/move-alert/i18n';
+import { useLanguagePreference } from '@/components/move-alert/language-state';
 import { useThemeColors } from '@/components/move-alert/theme-colors';
 
 type TabIconName = keyof typeof Ionicons.glyphMap;
@@ -37,9 +38,11 @@ export default function TabsLayout() {
   const insets = useSafeAreaInsets();
   const bottomInset = Math.max(insets.bottom, 12);
   const colors = useThemeColors();
+  const { resolvedLanguage } = useLanguagePreference();
 
   return (
     <Tabs
+      key={resolvedLanguage}
       screenOptions={{
         headerShown: false,
         tabBarActiveTintColor: colors.tabBarActive,
