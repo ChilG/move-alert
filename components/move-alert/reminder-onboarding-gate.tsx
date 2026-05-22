@@ -1,5 +1,5 @@
 import { usePathname, useRouter } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef } from 'react';
 
 import { useMoveAlert } from '@/components/move-alert/move-alert-state';
 import { hasSeenReminderOnboardingAsync } from '@/components/move-alert/reminder-onboarding-storage';
@@ -8,10 +8,17 @@ export function ReminderOnboardingGate() {
   const { syncStatus } = useMoveAlert();
   const pathname = usePathname();
   const router = useRouter();
-  const [hasCheckedStorage, setHasCheckedStorage] = useState(false);
+  const hasCheckedStorageRef = useRef(false);
 
   useEffect(() => {
-    if (syncStatus === 'loading' || hasCheckedStorage) return;
+    if (
+      hasCheckedStorageRef.current ||
+      syncStatus === 'idle' ||
+      syncStatus === 'loading' ||
+      syncStatus === 'saving'
+    ) {
+      return;
+    }
 
     let isMounted = true;
 
@@ -20,7 +27,7 @@ export function ReminderOnboardingGate() {
 
       if (!isMounted) return;
 
-      setHasCheckedStorage(true);
+      hasCheckedStorageRef.current = true;
 
       if (!hasSeenOnboarding && pathname !== '/onboarding/reminders') {
         router.replace('/onboarding/reminders');
@@ -32,7 +39,7 @@ export function ReminderOnboardingGate() {
     return () => {
       isMounted = false;
     };
-  }, [hasCheckedStorage, pathname, router, syncStatus]);
+  }, [pathname, router, syncStatus]);
 
   return null;
 }

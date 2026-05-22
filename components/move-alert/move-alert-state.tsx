@@ -1114,15 +1114,25 @@ export function MoveAlertProvider({ children }: PropsWithChildren) {
         if (!normalizedPreferences) return false;
 
         tapFeedback();
-        setState((current) =>
-          normalizeReminderScheduleState(
-            {
-              ...current,
-              ...normalizedPreferences,
-            },
-            new Date(),
-          ),
-        );
+        setState((current) => {
+          const now = new Date();
+          const nextState = {
+            ...current,
+            ...normalizedPreferences,
+          };
+
+          if (!nextState.reminderEnabled) {
+            return normalizeReminderScheduleState(nextState, now);
+          }
+
+          return {
+            ...nextState,
+            nextReminderAt: createNextReminderDateFromAnchor(
+              nextState,
+              now,
+            ).toISOString(),
+          };
+        });
         return true;
       },
       completeStretch: (stretchId) => {
