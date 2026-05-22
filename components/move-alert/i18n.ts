@@ -184,9 +184,8 @@ const th = {
     reminderInterval: 'รอบการแจ้งเตือน',
     reminderIntervalDescription: 'เลือกความถี่ที่แอปควรเตือนให้ขยับร่างกาย',
     reminderIntervalCustomLabel: 'กำหนดเอง',
-    reminderIntervalCustomPlaceholder: '10-300 นาที',
     reminderIntervalCustomHint: 'ต่ำสุด 10 นาที สูงสุด 5 ชั่วโมง',
-    reminderIntervalCustomInvalid: 'กรอกตัวเลขจำนวนเต็มตั้งแต่ 10 ถึง 300 นาที',
+    hourShort: 'ชม.',
     minutes: 'นาที',
     movementReminders: 'แจ้งเตือนให้ขยับ',
     quietHours: 'ช่วงเวลางดแจ้งเตือน',
@@ -510,10 +509,8 @@ const en: Locale = {
     reminderIntervalDescription:
       'Choose how often the app should remind you to move.',
     reminderIntervalCustomLabel: 'Custom',
-    reminderIntervalCustomPlaceholder: '10-300 minutes',
     reminderIntervalCustomHint: 'Minimum 10 minutes, maximum 5 hours',
-    reminderIntervalCustomInvalid:
-      'Enter a whole number from 10 to 300 minutes.',
+    hourShort: 'hr',
     minutes: 'minutes',
     movementReminders: 'Movement reminders',
     quietHours: 'Quiet hours',

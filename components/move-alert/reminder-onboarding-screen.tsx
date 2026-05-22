@@ -1,28 +1,29 @@
 import { useRouter } from 'expo-router';
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { View } from 'react-native';
 
 import { t, tf } from '@/components/move-alert/i18n';
 import {
+  reminderIntervals,
   weekDays,
   type WeekDay,
 } from '@/components/move-alert/move-alert-data';
 import { useMoveAlert } from '@/components/move-alert/move-alert-state';
 import { markReminderOnboardingSeenAsync } from '@/components/move-alert/reminder-onboarding-storage';
 import { ScreenScrollView } from '@/components/move-alert/screen-scroll-view';
-import { QuietTimeInput } from '@/components/move-alert/settings/quiet-time-input';
+import { QuietHoursControls } from '@/components/move-alert/settings/quiet-hours-controls';
+import { ReminderIntervalPicker } from '@/components/move-alert/settings/reminder-interval-picker';
 import { weekDayLabelKey } from '@/components/move-alert/settings/settings-constants';
-import { parseReminderInterval } from '@/components/move-alert/settings/settings-helpers';
 import { ScreenHeader } from '@/components/move-alert/shared/screen-header';
 import { Button, ButtonText } from '@/components/ui/button';
 import { HStack } from '@/components/ui/hstack';
-import { Input, InputField } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import { Text } from '@/components/ui/text';
 import { VStack } from '@/components/ui/vstack';
 
-const onboardingIntervals = [30, 45, 60];
 const onboardingSteps = ['welcome', 'interval', 'quiet-hours', 'done'] as const;
+const onboardingCardClassName =
+  'rounded-2xl border border-outline-200 bg-background-0 p-4 shadow-soft-1';
 
 type OnboardingStep = (typeof onboardingSteps)[number];
 
@@ -64,9 +65,7 @@ export function ReminderOnboardingScreen() {
   const { configureReminderPreferences, state } = useMoveAlert();
   const router = useRouter();
   const [stepIndex, setStepIndex] = useState(0);
-  const [draftInterval, setDraftInterval] = useState(
-    String(state.intervalMinutes),
-  );
+  const [draftInterval, setDraftInterval] = useState(state.intervalMinutes);
   const [quietHoursEnabled, setQuietHoursEnabled] = useState(
     state.quietHoursEnabled,
   );
@@ -79,12 +78,7 @@ export function ReminderOnboardingScreen() {
   const [quietHoursDays, setQuietHoursDays] = useState<WeekDay[]>(
     state.quietHoursDays,
   );
-  const parsedInterval = useMemo(
-    () => parseReminderInterval(draftInterval),
-    [draftInterval],
-  );
   const activeStep = onboardingSteps[stepIndex];
-  const isValidInterval = parsedInterval !== null;
   const isDoneStep = activeStep === 'done';
   const quietDayLabels = quietHoursDays
     .map((day) => t(weekDayLabelKey[day]))
@@ -95,8 +89,6 @@ export function ReminderOnboardingScreen() {
   }
 
   function goNext() {
-    if (activeStep === 'interval' && !isValidInterval) return;
-
     setStepIndex((currentStepIndex) =>
       Math.min(currentStepIndex + 1, onboardingSteps.length - 1),
     );
@@ -108,10 +100,8 @@ export function ReminderOnboardingScreen() {
   }
 
   async function savePreferences() {
-    if (parsedInterval === null) return;
-
     const didConfigure = configureReminderPreferences({
-      intervalMinutes: parsedInterval,
+      intervalMinutes: draftInterval,
       quietHoursDays,
       quietHoursEnabled,
       quietHoursEndTime,
@@ -128,7 +118,7 @@ export function ReminderOnboardingScreen() {
     if (activeStep === 'welcome') {
       return (
         <VStack space="md">
-          <View className="rounded-2xl bg-background-muted p-4">
+          <View className={onboardingCardClassName}>
             <Text className="text-base font-extrabold text-typography-900">
               {t('onboarding.welcomeCardTitle')}
             </Text>
@@ -145,65 +135,24 @@ export function ReminderOnboardingScreen() {
 
     if (activeStep === 'interval') {
       return (
-        <VStack space="lg">
-          <HStack space="sm">
-            {onboardingIntervals.map((interval) => {
-              const isSelected = parsedInterval === interval;
-
-              return (
-                <Button
-                  action={isSelected ? 'primary' : 'default'}
-                  className={`flex-1 rounded-2xl ${
-                    isSelected ? '' : 'bg-background-muted'
-                  }`}
-                  key={interval}
-                  onPress={() => setDraftInterval(String(interval))}
-                  size="lg"
-                >
-                  <ButtonText>
-                    {interval} {t('settings.minutes')}
-                  </ButtonText>
-                </Button>
-              );
-            })}
-          </HStack>
-
-          <VStack space="xs">
-            <View className="flex-row items-center justify-between">
-              <Text className="text-sm font-bold text-typography-700">
-                {t('settings.reminderIntervalCustomLabel')}
-              </Text>
-              <Text className="text-xs font-semibold text-typography-500">
-                {t('settings.reminderIntervalCustomHint')}
-              </Text>
-            </View>
-            <Input
-              className="rounded-2xl"
-              isInvalid={!isValidInterval}
-              size="lg"
-            >
-              <InputField
-                inputMode="numeric"
-                keyboardType="number-pad"
-                onChangeText={setDraftInterval}
-                placeholder={t('settings.reminderIntervalCustomPlaceholder')}
-                value={draftInterval}
-              />
-            </Input>
-            {isValidInterval ? null : (
-              <Text className="text-xs font-semibold text-error-700">
-                {t('settings.reminderIntervalCustomInvalid')}
-              </Text>
-            )}
-          </VStack>
-        </VStack>
+        <ReminderIntervalPicker
+          customHint={t('settings.reminderIntervalCustomHint')}
+          customLabel={t('settings.reminderIntervalCustomLabel')}
+          intervals={reminderIntervals}
+          minutesLabel={t('settings.minutes')}
+          onSelectInterval={setDraftInterval}
+          presetButtonSize="lg"
+          selectedInterval={draftInterval}
+        />
       );
     }
 
     if (activeStep === 'quiet-hours') {
       return (
         <VStack space="lg">
-          <View className="flex-row items-center justify-between rounded-2xl bg-background-muted p-4">
+          <View
+            className={`flex-row items-center justify-between ${onboardingCardClassName}`}
+          >
             <View className="flex-1 pr-4">
               <Text className="text-sm font-bold text-typography-700">
                 {t('settings.quietHours')}
@@ -219,57 +168,25 @@ export function ReminderOnboardingScreen() {
           </View>
 
           {quietHoursEnabled ? (
-            <VStack space="md">
-              <HStack space="sm">
-                <QuietTimeInput
-                  label={t('settings.quietHoursStart')}
-                  onCommit={setQuietHoursStartTime}
-                  placeholder={t('settings.quietHoursPlaceholder')}
-                  value={quietHoursStartTime}
-                />
-                <QuietTimeInput
-                  label={t('settings.quietHoursEnd')}
-                  onCommit={setQuietHoursEndTime}
-                  placeholder={t('settings.quietHoursPlaceholder')}
-                  value={quietHoursEndTime}
-                />
-              </HStack>
-
-              <VStack space="sm">
-                <Text className="text-sm font-bold text-typography-700">
-                  {t('settings.quietHoursDays')}
-                </Text>
-                <HStack className="flex-wrap" space="sm">
-                  {weekDays.map((day) => {
-                    const isSelected = quietHoursDays.includes(day);
-
-                    return (
-                      <Button
-                        action={isSelected ? 'primary' : 'default'}
-                        className={`w-full max-w-20 rounded-2xl ${
-                          isSelected ? 'bg-green-500' : 'bg-background-muted'
-                        }`}
-                        key={day}
-                        onPress={() =>
-                          setQuietHoursDays((currentDays) =>
-                            toggleQuietDay(currentDays, day),
-                          )
-                        }
-                        size="md"
-                      >
-                        <Text
-                          className={`text-center text-xs font-extrabold ${
-                            isSelected ? 'text-white' : 'text-typography-800'
-                          }`}
-                        >
-                          {t(weekDayLabelKey[day])}
-                        </Text>
-                      </Button>
-                    );
-                  })}
-                </HStack>
-              </VStack>
-            </VStack>
+            <QuietHoursControls
+              dayLabelSize="xs"
+              daysLabel={t('settings.quietHoursDays')}
+              endLabel={t('settings.quietHoursEnd')}
+              endTime={quietHoursEndTime}
+              inputPlaceholder={t('settings.quietHoursPlaceholder')}
+              onSelectDay={(day) => {
+                setQuietHoursDays((currentDays) =>
+                  toggleQuietDay(currentDays, day),
+                );
+              }}
+              onSetEndTime={setQuietHoursEndTime}
+              onSetStartTime={setQuietHoursStartTime}
+              quietHoursDays={weekDays}
+              selectedDays={quietHoursDays}
+              startLabel={t('settings.quietHoursStart')}
+              startTime={quietHoursStartTime}
+              timeInputSpace="sm"
+            />
           ) : null}
         </VStack>
       );
@@ -277,18 +194,18 @@ export function ReminderOnboardingScreen() {
 
     return (
       <VStack space="md">
-        <View className="rounded-2xl bg-background-muted p-4">
+        <View className={onboardingCardClassName}>
           <Text className="text-sm font-bold text-typography-600">
             {t('settings.reminderInterval')}
           </Text>
           <Text className="mt-1 text-lg font-extrabold text-typography-950">
             {tf('onboarding.doneIntervalSummary', {
-              minutes: parsedInterval ?? state.intervalMinutes,
+              minutes: draftInterval,
             })}
           </Text>
         </View>
 
-        <View className="rounded-2xl bg-background-muted p-4">
+        <View className={onboardingCardClassName}>
           <Text className="text-sm font-bold text-typography-600">
             {t('settings.quietHours')}
           </Text>
@@ -319,14 +236,20 @@ export function ReminderOnboardingScreen() {
       />
 
       <HStack className="mt-5" space="xs">
-        {onboardingSteps.map((step, index) => (
-          <View
-            className={`h-1 flex-1 rounded-full ${
-              index <= stepIndex ? 'bg-primary-500' : 'bg-background-muted'
-            }`}
-            key={step}
-          />
-        ))}
+        {onboardingSteps.map((step, index) => {
+          const isReachedStep = index <= stepIndex;
+
+          return (
+            <View
+              className={`h-2 flex-1 rounded-full border ${
+                isReachedStep
+                  ? 'border-primary-500 bg-primary-500'
+                  : 'border-outline-200 bg-background-0'
+              }`}
+              key={step}
+            />
+          );
+        })}
       </HStack>
 
       <View className="mt-8">{renderStepContent()}</View>
@@ -358,7 +281,6 @@ export function ReminderOnboardingScreen() {
 
         <Button
           className="flex-1 rounded-xl"
-          disabled={activeStep === 'interval' && !isValidInterval}
           onPress={() => {
             if (isDoneStep) {
               void savePreferences();
