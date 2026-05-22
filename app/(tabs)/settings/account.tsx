@@ -49,7 +49,9 @@ export default function SettingsAccountScreen() {
         signOutLabel={t('settings.signOut')}
         syncLabel={syncLabel}
         userEmail={
-          isGuest ? t('settings.guestSession') : user?.email ?? t('settings.unknownUser')
+          isGuest
+            ? t('settings.guestSession')
+            : (user?.email ?? t('settings.unknownUser'))
         }
       />
     </SettingsScreenShell>

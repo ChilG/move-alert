@@ -44,7 +44,8 @@ export async function syncAppVersionFiles({
   appJsonPath,
   packageJsonPath,
 } = {}) {
-  const packagePath = packageJsonPath ?? path.resolve(process.cwd(), 'package.json');
+  const packagePath =
+    packageJsonPath ?? path.resolve(process.cwd(), 'package.json');
   const appPath = appJsonPath ?? path.resolve(process.cwd(), 'app.json');
 
   const [packageText, appText] = await Promise.all([

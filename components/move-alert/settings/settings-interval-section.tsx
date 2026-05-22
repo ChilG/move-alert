@@ -114,7 +114,11 @@ export function SettingsIntervalSection({
           </Text>
         </View>
 
-        <Input className="rounded-2xl" isInvalid={!isValidDraftInterval} size="lg">
+        <Input
+          className="rounded-2xl"
+          isInvalid={!isValidDraftInterval}
+          size="lg"
+        >
           <InputField
             inputMode="numeric"
             keyboardType="number-pad"

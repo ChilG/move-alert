@@ -15,7 +15,8 @@ const th = {
   },
   notifications: {
     channelName: 'การเตือนให้ขยับร่างกาย',
-    channelDescription: 'การแจ้งเตือนตามเวลาพร้อมแรงสั่นแบบจังหวะเฉพาะที่เด่นชัดขึ้น',
+    channelDescription:
+      'การแจ้งเตือนตามเวลาพร้อมแรงสั่นแบบจังหวะเฉพาะที่เด่นชัดขึ้น',
     reminderTitle: 'ได้เวลาขยับร่างกาย',
     reminderBody: 'ลุกขึ้นยืดเส้น คลายตัว และรีเซ็ตท่าทางสักครู่',
   },
@@ -36,8 +37,7 @@ const th = {
     intervalTitle: 'รอบการแจ้งเตือน',
     intervalDescription: 'เลือกว่าต้องการให้แอปเตือนให้ขยับทุกกี่นาที',
     quietHoursTitle: 'ช่วงเวลางดแจ้งเตือน',
-    quietHoursDescription:
-      'กำหนดช่วงเวลาและวันที่แอปควรหยุดแจ้งเตือนชั่วคราว',
+    quietHoursDescription: 'กำหนดช่วงเวลาและวันที่แอปควรหยุดแจ้งเตือนชั่วคราว',
     doneTitle: 'ตั้งค่าเสร็จสิ้น',
     doneDescription: 'ตรวจค่าที่เลือกไว้ แล้วเริ่มใช้งาน Move Alert ได้เลย',
     stepProgress: 'ขั้นตอน {{current}}/{{total}}',
@@ -160,8 +160,7 @@ const th = {
       'ส่งการแจ้งเตือนทดสอบแล้ว กรุณาเช็กแถบการแจ้งเตือนของอุปกรณ์',
     notificationDebugPermissionDenied:
       'แอปยังไม่ได้รับสิทธิ์แจ้งเตือน กรุณาอนุญาตก่อนทดสอบ',
-    notificationDebugUnsupported:
-      'ปุ่มทดสอบนี้รองรับเฉพาะบน Android เท่านั้น',
+    notificationDebugUnsupported: 'ปุ่มทดสอบนี้รองรับเฉพาะบน Android เท่านั้น',
     onboardingDebugTitle: 'ทดสอบ Onboarding',
     onboardingDebugDescription:
       'ล้างสถานะว่าเคยตั้งค่าการแจ้งเตือนครั้งแรกแล้ว เพื่อให้ทดสอบ flow onboarding ใหม่ได้',
@@ -187,8 +186,7 @@ const th = {
     reminderIntervalCustomLabel: 'กำหนดเอง',
     reminderIntervalCustomPlaceholder: '10-300 นาที',
     reminderIntervalCustomHint: 'ต่ำสุด 10 นาที สูงสุด 5 ชั่วโมง',
-    reminderIntervalCustomInvalid:
-      'กรอกตัวเลขจำนวนเต็มตั้งแต่ 10 ถึง 300 นาที',
+    reminderIntervalCustomInvalid: 'กรอกตัวเลขจำนวนเต็มตั้งแต่ 10 ถึง 300 นาที',
     minutes: 'นาที',
     movementReminders: 'แจ้งเตือนให้ขยับ',
     quietHours: 'ช่วงเวลางดแจ้งเตือน',

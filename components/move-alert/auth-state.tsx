@@ -289,7 +289,9 @@ export function AuthProvider({ children }: PropsWithChildren) {
 
         setErrorMessage(
           toFriendlyAuthMessage(
-            error instanceof Error ? error.message : 'Unable to verify account.',
+            error instanceof Error
+              ? error.message
+              : 'Unable to verify account.',
           ),
         );
       }

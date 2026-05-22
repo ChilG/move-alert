@@ -32,7 +32,7 @@
           system-ui,
           -apple-system,
           BlinkMacSystemFont,
-          "Segoe UI",
+          'Segoe UI',
           sans-serif;
         background:
           radial-gradient(circle at top right, #ffe8da, transparent 28%),
@@ -195,7 +195,8 @@
             account immediately from inside the app.
           </p>
           <p class="muted">
-            หากคุณยังเข้าแอปได้ ให้ไปที่ <strong>Settings &gt; Delete account</strong>
+            หากคุณยังเข้าแอปได้ ให้ไปที่
+            <strong>Settings &gt; Delete account</strong>
             เพื่อลบบัญชีได้ทันทีจากในแอป
           </p>
         </section>
@@ -235,61 +236,61 @@
     </main>
 
     <script>
-      const supabaseUrl = "https://ixezvobatanxrrcrukdv.supabase.co";
-      const supabaseKey = "sb_publishable_A30HjDIDrCuHDzEv_CRlIA_w_pdAzkZ";
-      const form = document.getElementById("deletion-form");
-      const submitButton = document.getElementById("submit-button");
-      const message = document.getElementById("message");
+      const supabaseUrl = 'https://ixezvobatanxrrcrukdv.supabase.co';
+      const supabaseKey = 'sb_publishable_A30HjDIDrCuHDzEv_CRlIA_w_pdAzkZ';
+      const form = document.getElementById('deletion-form');
+      const submitButton = document.getElementById('submit-button');
+      const message = document.getElementById('message');
 
       function setMessage(kind, text) {
         message.className = `message ${kind}`;
         message.textContent = text;
       }
 
-      form.addEventListener("submit", async (event) => {
+      form.addEventListener('submit', async (event) => {
         event.preventDefault();
         submitButton.disabled = true;
-        message.className = "message";
-        message.textContent = "";
+        message.className = 'message';
+        message.textContent = '';
 
         const formData = new FormData(form);
-        const email = String(formData.get("email") || "").trim();
-        const note = String(formData.get("note") || "").trim();
+        const email = String(formData.get('email') || '').trim();
+        const note = String(formData.get('note') || '').trim();
 
         try {
           const response = await fetch(
             `${supabaseUrl}/rest/v1/account_deletion_requests`,
             {
-              method: "POST",
+              method: 'POST',
               headers: {
-                "Content-Type": "application/json",
+                'Content-Type': 'application/json',
                 apikey: supabaseKey,
                 Authorization: `Bearer ${supabaseKey}`,
-                Prefer: "return=minimal",
+                Prefer: 'return=minimal',
               },
               body: JSON.stringify([
                 {
                   email,
-                  locale: navigator.language || "unknown",
+                  locale: navigator.language || 'unknown',
                   note: note || null,
                 },
               ]),
-            }
+            },
           );
 
           if (!response.ok) {
-            throw new Error("Request failed");
+            throw new Error('Request failed');
           }
 
           form.reset();
           setMessage(
-            "success",
-            "Request submitted successfully. ส่งคำขอลบบัญชีเรียบร้อยแล้ว"
+            'success',
+            'Request submitted successfully. ส่งคำขอลบบัญชีเรียบร้อยแล้ว',
           );
         } catch (error) {
           setMessage(
-            "error",
-            "Unable to submit the request right now. กรุณาลองใหม่อีกครั้งภายหลัง"
+            'error',
+            'Unable to submit the request right now. กรุณาลองใหม่อีกครั้งภายหลัง',
           );
         } finally {
           submitButton.disabled = false;

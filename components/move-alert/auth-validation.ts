@@ -3,7 +3,10 @@ import { z } from 'zod';
 import { t } from '@/components/move-alert/i18n';
 
 function createEmailSchema() {
-  return z.string().trim().pipe(z.email(t('auth.screen.invalidEmail')));
+  return z
+    .string()
+    .trim()
+    .pipe(z.email(t('auth.screen.invalidEmail')));
 }
 
 function createPasswordSchema() {

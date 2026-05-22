@@ -52,11 +52,7 @@ export function SettingsMenuItem({
             {value}
           </Text>
         ) : null}
-        <Ionicons
-          color={colors.textMuted}
-          name="chevron-forward"
-          size={18}
-        />
+        <Ionicons color={colors.textMuted} name="chevron-forward" size={18} />
       </HStack>
     </Pressable>
   );

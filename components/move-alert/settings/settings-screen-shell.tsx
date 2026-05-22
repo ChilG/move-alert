@@ -35,7 +35,11 @@ export function SettingsScreenShell({
               router.back();
             }}
           >
-            <Ionicons color={colors.textDefault} name="chevron-back" size={22} />
+            <Ionicons
+              color={colors.textDefault}
+              name="chevron-back"
+              size={22}
+            />
           </Pressable>
         }
       />

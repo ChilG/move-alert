@@ -31,7 +31,9 @@ export function QuietTimeInput({
   placeholder,
   value,
 }: QuietTimeInputProps) {
-  const [draftDigits, setDraftDigits] = useState(() => getQuietTimeDigits(value));
+  const [draftDigits, setDraftDigits] = useState(() =>
+    getQuietTimeDigits(value),
+  );
   const colors = useThemeColors();
   const draftValue = formatQuietTimeDigits(draftDigits);
   const isValid = isValidQuietTime(draftValue);

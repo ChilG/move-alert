@@ -53,10 +53,7 @@ function getPreviousWeekDay(day: WeekDay) {
   return ((day + 6) % 7) as WeekDay;
 }
 
-export function isQuietHoursActive(
-  state: QuietHoursState,
-  date: Date,
-) {
+export function isQuietHoursActive(state: QuietHoursState, date: Date) {
   if (!state.quietHoursEnabled) return false;
 
   const startMinutes = getTimeMinutes(state.quietHoursStartTime);
@@ -98,10 +95,7 @@ function parseStoredReminderDate(value: string | null) {
   return Number.isNaN(parsedDate.getTime()) ? null : parsedDate;
 }
 
-function getLegacyNextReminderDate(
-  timeline: MoveAlertTimeline,
-  date: Date,
-) {
+function getLegacyNextReminderDate(timeline: MoveAlertTimeline, date: Date) {
   const nextTimelineItem = timeline.reduce<(typeof timeline)[number] | null>(
     (nextItem, item) => (item.status === 'next' ? item : nextItem),
     null,
@@ -140,15 +134,14 @@ export function createNextReminderDateFromAnchor(
 ) {
   return advanceReminderDate(
     state,
-    new Date(anchorDate.getTime() + getReminderIntervalMs(state.intervalMinutes)),
+    new Date(
+      anchorDate.getTime() + getReminderIntervalMs(state.intervalMinutes),
+    ),
     anchorDate,
   );
 }
 
-export function getNextReminderDate(
-  state: ReminderScheduleState,
-  date: Date,
-) {
+export function getNextReminderDate(state: ReminderScheduleState, date: Date) {
   const storedReminderDate = parseStoredReminderDate(state.nextReminderAt);
   const legacyTimelineDate = getLegacyNextReminderDate(state.timeline, date);
   const scheduledDate =

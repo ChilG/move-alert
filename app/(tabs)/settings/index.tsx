@@ -85,7 +85,9 @@ export default function SettingsScreen() {
           }}
           title={t('settings.menuAccountTitle')}
           description={
-            isGuest ? t('settings.guestSession') : user?.email ?? t('settings.unknownUser')
+            isGuest
+              ? t('settings.guestSession')
+              : (user?.email ?? t('settings.unknownUser'))
           }
         />
       </SettingsMenuSection>
@@ -101,12 +103,12 @@ export default function SettingsScreen() {
         />
 
         <SettingsMenuItem
-          description={t('settings.menuDebugDescription')}
+          description={t('settings.debugPageDescription')}
           icon="flask-outline"
           onPress={() => {
             router.push('/(tabs)/settings/debug');
           }}
-          title={t('settings.menuDebugTitle')}
+          title={t('settings.debugPageTitle')}
         />
       </SettingsMenuSection>
     </ScreenScrollView>

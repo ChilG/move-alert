@@ -30,7 +30,7 @@
           system-ui,
           -apple-system,
           BlinkMacSystemFont,
-          "Segoe UI",
+          'Segoe UI',
           sans-serif;
         background:
           radial-gradient(circle at top right, #ddf4e5, transparent 28%),
@@ -143,24 +143,22 @@
           </a>
         </div>
 
-        <p class="status" id="status">
-          Redirecting to the app...
-        </p>
+        <p class="status" id="status">Redirecting to the app...</p>
       </section>
     </main>
 
     <script>
-      const statusNode = document.getElementById("status");
-      const openAppButton = document.getElementById("open-app-button");
-      const query = window.location.search || "";
-      const hash = window.location.hash || "";
+      const statusNode = document.getElementById('status');
+      const openAppButton = document.getElementById('open-app-button');
+      const query = window.location.search || '';
+      const hash = window.location.hash || '';
       const appUrl = `movealert://auth/callback${query}${hash}`;
 
       openAppButton.href = appUrl;
 
       if (!query && !hash) {
         statusNode.textContent =
-          "No verification payload was found in this link. กรุณากลับไปกดลิงก์จากอีเมลอีกครั้ง";
+          'No verification payload was found in this link. กรุณากลับไปกดลิงก์จากอีเมลอีกครั้ง';
       } else {
         window.setTimeout(() => {
           window.location.href = appUrl;

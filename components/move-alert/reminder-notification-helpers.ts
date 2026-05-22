@@ -73,9 +73,7 @@ export function isReminderScheduledNotification(
 export function isReminderNotificationResponse(
   response: ReminderNotificationResponseLike,
 ) {
-  return isReminderNotificationData(
-    response.notification.request.content.data,
-  );
+  return isReminderNotificationData(response.notification.request.content.data);
 }
 
 export function getPresentedReminderNotificationIds(

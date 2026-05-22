@@ -22,7 +22,9 @@ type InputContextValue = {
   isReadOnly: boolean;
   onBlur: () => void;
   onFocus: () => void;
-  registerFieldRef: (field: React.ComponentRef<typeof TextInput> | null) => void;
+  registerFieldRef: (
+    field: React.ComponentRef<typeof TextInput> | null,
+  ) => void;
   size: NonNullable<InputVariants['size']>;
   variant: NonNullable<InputVariants['variant']>;
 };

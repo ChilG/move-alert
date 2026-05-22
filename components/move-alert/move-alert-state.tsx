@@ -308,7 +308,9 @@ function normalizeReminderPreferencesInput(
   const quietHoursStartTime = normalizeDatabaseTime(
     preferences.quietHoursStartTime,
   );
-  const quietHoursEndTime = normalizeDatabaseTime(preferences.quietHoursEndTime);
+  const quietHoursEndTime = normalizeDatabaseTime(
+    preferences.quietHoursEndTime,
+  );
 
   if (
     !Number.isInteger(preferences.intervalMinutes) ||
@@ -337,10 +339,7 @@ function normalizeReminderDateTime(value: string | null) {
   return Number.isNaN(parsedDate.getTime()) ? null : parsedDate.toISOString();
 }
 
-function getLegacyNextReminderAt(
-  timeline: TimelineItem[],
-  date: Date,
-) {
+function getLegacyNextReminderAt(timeline: TimelineItem[], date: Date) {
   const nextTimelineItem = timeline.findLast((item) => item.status === 'next');
   const parsedTime = nextTimelineItem
     ? /^([01]\d|2[0-3]):([0-5]\d)$/.exec(nextTimelineItem.time)
@@ -357,10 +356,7 @@ function getLegacyNextReminderAt(
   ).toISOString();
 }
 
-function normalizeReminderScheduleState(
-  state: MoveAlertState,
-  date: Date,
-) {
+function normalizeReminderScheduleState(state: MoveAlertState, date: Date) {
   if (!state.reminderEnabled) {
     return state.nextReminderAt === null
       ? state
@@ -436,7 +432,8 @@ function fromDatabaseRows({
   );
   const quietHoursStartTime =
     normalizeDatabaseTime(
-      parsedSettings?.quiet_hours_start_time ?? initialState.quietHoursStartTime,
+      parsedSettings?.quiet_hours_start_time ??
+        initialState.quietHoursStartTime,
     ) ?? initialState.quietHoursStartTime;
   const quietHoursEndTime =
     normalizeDatabaseTime(
@@ -603,7 +600,8 @@ async function loadMoveAlertState(userId: string, summaryDate: string) {
   }
 
   const fallbackSettingsResult =
-    settingsResult.error && isMissingNextReminderAtColumnError(settingsResult.error.message)
+    settingsResult.error &&
+    isMissingNextReminderAtColumnError(settingsResult.error.message)
       ? await supabase
           .from('move_alert_settings')
           .select(legacySettingsColumns)
@@ -654,19 +652,16 @@ async function saveMoveAlertState(
   const fallbackSettingsResult =
     settingsResult.error &&
     isMissingNextReminderAtColumnError(settingsResult.error.message)
-      ? await supabase
-          .from('move_alert_settings')
-          .upsert(
-            {
-              ...settingsPayload,
-              next_reminder_at: undefined,
-            },
-            { onConflict: 'user_id' },
-          )
+      ? await supabase.from('move_alert_settings').upsert(
+          {
+            ...settingsPayload,
+            next_reminder_at: undefined,
+          },
+          { onConflict: 'user_id' },
+        )
       : settingsResult;
   const dailySummaryResult = await dailySummaryPromise;
-  const upsertError =
-    fallbackSettingsResult.error ?? dailySummaryResult.error;
+  const upsertError = fallbackSettingsResult.error ?? dailySummaryResult.error;
 
   if (upsertError) throw new Error(upsertError.message);
 
@@ -1064,7 +1059,10 @@ export function MoveAlertProvider({ children }: PropsWithChildren) {
     setState((current) => ({
       ...current,
       completedToday: current.completedToday + 1,
-      nextReminderAt: createNextReminderDateFromAnchor(current, date).toISOString(),
+      nextReminderAt: createNextReminderDateFromAnchor(
+        current,
+        date,
+      ).toISOString(),
       timeline: withTimelineEvent(
         current.timeline,
         {
