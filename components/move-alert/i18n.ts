@@ -208,6 +208,9 @@ const th = {
     batterySettingsTitle: 'การตั้งค่า Battery',
     batterySettingsDescription:
       'ใช้ตรวจ Battery optimization หรือโหมดประหยัดพลังงานที่อาจทำให้การเตือนมาช้า',
+    batteryOptimizationIgnored: 'ตั้งค่าแล้ว',
+    batteryOptimizationOptimized: 'ยังประหยัดแบตอยู่',
+    batteryOptimizationUnsupported: 'ตรวจไม่ได้',
   },
   timeline: {
     neckResetCompleted: 'ทำท่ายืดคอแล้ว',
@@ -533,6 +536,9 @@ const en: Locale = {
     batterySettingsTitle: 'Battery settings',
     batterySettingsDescription:
       'Check battery optimization or power-saving settings that may delay reminders.',
+    batteryOptimizationIgnored: 'Allowed',
+    batteryOptimizationOptimized: 'Optimized',
+    batteryOptimizationUnsupported: 'Unavailable',
   },
   timeline: {
     neckResetCompleted: 'Neck reset completed',

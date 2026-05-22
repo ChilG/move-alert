@@ -1,9 +1,16 @@
+import { useCallback, useState } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
+
 import { t } from '@/components/move-alert/i18n';
 import {
   reminderIntervals,
   weekDays,
 } from '@/components/move-alert/move-alert-data';
 import { useMoveAlert } from '@/components/move-alert/move-alert-state';
+import {
+  getBatteryOptimizationStatusAsync,
+  type BatteryOptimizationStatus,
+} from '@/components/move-alert/settings/battery-optimization-status';
 import { SettingsIntervalSection } from '@/components/move-alert/settings/settings-interval-section';
 import { SettingsMenuItem } from '@/components/move-alert/settings/settings-menu-item';
 import { SettingsMenuSection } from '@/components/move-alert/settings/settings-menu-section';
@@ -16,7 +23,25 @@ import {
 } from '@/components/move-alert/settings/system-settings';
 import { SettingsToggleSection } from '@/components/move-alert/settings/settings-toggle-section';
 
+function getBatteryOptimizationStatusLabel(
+  status: BatteryOptimizationStatus | 'loading',
+) {
+  switch (status) {
+    case 'ignored':
+      return t('settings.batteryOptimizationIgnored');
+    case 'optimized':
+      return t('settings.batteryOptimizationOptimized');
+    case 'unsupported':
+      return t('settings.batteryOptimizationUnsupported');
+    case 'loading':
+      return t('common.loading');
+  }
+}
+
 export default function SettingsRemindersScreen() {
+  const [batteryOptimizationStatus, setBatteryOptimizationStatus] = useState<
+    BatteryOptimizationStatus | 'loading'
+  >('loading');
   const {
     setIntervalMinutes,
     setQuietHoursEndTime,
@@ -26,6 +51,23 @@ export default function SettingsRemindersScreen() {
     toggleQuietHoursDay,
     toggleReminder,
   } = useMoveAlert();
+
+  useFocusEffect(
+    useCallback(() => {
+      let isActive = true;
+
+      setBatteryOptimizationStatus('loading');
+      void getBatteryOptimizationStatusAsync().then((status) => {
+        if (isActive) {
+          setBatteryOptimizationStatus(status);
+        }
+      });
+
+      return () => {
+        isActive = false;
+      };
+    }, []),
+  );
 
   return (
     <SettingsScreenShell
@@ -96,6 +138,7 @@ export default function SettingsRemindersScreen() {
             void openReminderBatterySettingsAsync();
           }}
           title={t('settings.batterySettingsTitle')}
+          value={getBatteryOptimizationStatusLabel(batteryOptimizationStatus)}
         />
       </SettingsMenuSection>
     </SettingsScreenShell>
