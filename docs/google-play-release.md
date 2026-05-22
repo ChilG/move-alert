@@ -90,9 +90,9 @@ builds can be decoded back to readable stack traces.
 
 Current project status:
 
-- R8/ProGuard support is already wired in `android/app/build.gradle`
-- Release minification is only enabled when `android.enableMinifyInReleaseBuilds=true`
-- The current default in `android/gradle.properties` does **not** enable it yet
+- The source of truth is `app.json` via the `expo-build-properties` config plugin
+- EAS Build / Expo Prebuild writes that config into the generated native Android project
+- Production EAS builds will therefore generate a `mapping.txt` file for each release build
 
 If minification is enabled for a production release:
 

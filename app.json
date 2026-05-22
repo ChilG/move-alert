@@ -49,6 +49,14 @@
         {
           "defaultChannel": "move-reminders-signature-v2"
         }
+      ],
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "enableMinifyInReleaseBuilds": true
+          }
+        }
       ]
     ],
     "experiments": {
