@@ -10,18 +10,14 @@ import { SettingsMenuSection } from '@/components/move-alert/settings/settings-m
 import { ScreenHeader } from '@/components/move-alert/shared/screen-header';
 import { useThemePreference } from '@/components/move-alert/theme-state';
 
-function getThemeLabel(
-  mode: ReturnType<typeof useThemePreference>['themeMode'],
-) {
+function getThemeLabel(mode: ReturnType<typeof useThemePreference>['themeMode']) {
   if (mode === 'light') return t('settings.themeLight');
   if (mode === 'dark') return t('settings.themeDark');
 
   return t('settings.themeSystem');
 }
 
-function getLanguageLabel(
-  mode: ReturnType<typeof useLanguagePreference>['languageMode'],
-) {
+function getLanguageLabel(mode: ReturnType<typeof useLanguagePreference>['languageMode']) {
   if (mode === 'th') return t('settings.languageThai');
   if (mode === 'en') return t('settings.languageEnglish');
 
@@ -44,10 +40,7 @@ export default function SettingsScreen() {
         title={t('settings.title')}
       />
 
-      <SettingsMenuSection
-        className="mt-6"
-        title={t('settings.menuPreferencesGroup')}
-      >
+      <SettingsMenuSection className="mt-6" title={t('settings.menuPreferencesGroup')}>
         <SettingsMenuItem
           description={t('settings.menuRemindersDescription')}
           icon="notifications-outline"
@@ -84,11 +77,7 @@ export default function SettingsScreen() {
             router.push('/(tabs)/settings/account');
           }}
           title={t('settings.menuAccountTitle')}
-          description={
-            isGuest
-              ? t('settings.guestSession')
-              : (user?.email ?? t('settings.unknownUser'))
-          }
+          description={isGuest ? t('settings.guestSession') : (user?.email ?? t('settings.unknownUser'))}
         />
       </SettingsMenuSection>
 

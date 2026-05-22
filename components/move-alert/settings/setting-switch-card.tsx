@@ -14,12 +14,7 @@ type SettingSwitchCardProps = {
   onPress: () => void;
 };
 
-export function SettingSwitchCard({
-  icon,
-  isEnabled,
-  label,
-  onPress,
-}: SettingSwitchCardProps) {
+export function SettingSwitchCard({ icon, isEnabled, label, onPress }: SettingSwitchCardProps) {
   const colors = useThemeColors();
 
   return (
@@ -29,9 +24,7 @@ export function SettingSwitchCard({
           <View className="h-10 w-10 items-center justify-center rounded-xl bg-info-50">
             <Ionicons color={colors.info} name={icon} size={22} />
           </View>
-          <Text className="text-base font-bold text-typography-800">
-            {label}
-          </Text>
+          <Text className="text-base font-bold text-typography-800">{label}</Text>
         </HStack>
       </Pressable>
 

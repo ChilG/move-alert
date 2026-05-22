@@ -12,13 +12,10 @@ type SupabaseAuthStorage = {
 
 const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL;
 const supabasePublishableKey =
-  process.env.EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY ??
-  process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
+  process.env.EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY ?? process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
 
 if (!supabaseUrl || !supabasePublishableKey) {
-  throw new Error(
-    'Missing EXPO_PUBLIC_SUPABASE_URL or EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY.',
-  );
+  throw new Error('Missing EXPO_PUBLIC_SUPABASE_URL or EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY.');
 }
 
 function createMemoryStorage(): SupabaseAuthStorage {
@@ -35,10 +32,7 @@ function createMemoryStorage(): SupabaseAuthStorage {
   };
 }
 
-const authStorage =
-  Platform.OS === 'web' && typeof window === 'undefined'
-    ? createMemoryStorage()
-    : AsyncStorage;
+const authStorage = Platform.OS === 'web' && typeof window === 'undefined' ? createMemoryStorage() : AsyncStorage;
 
 export const supabase = createClient(supabaseUrl, supabasePublishableKey, {
   auth: {

@@ -19,26 +19,16 @@ export function useTodayScreenState() {
   const { dailyGoal, state } = moveAlert;
   const [currentTime, setCurrentTime] = useState(() => new Date());
 
-  const nextReminderDate = useMemo(
-    () => getNextReminderDate(state, currentTime),
-    [currentTime, state],
-  );
+  const nextReminderDate = useMemo(() => getNextReminderDate(state, currentTime), [currentTime, state]);
   const minutesUntilNextReminder = Math.max(
     1,
-    Math.floor(
-      (nextReminderDate.getTime() - currentTime.getTime()) / minuteInMs,
-    ),
+    Math.floor((nextReminderDate.getTime() - currentTime.getTime()) / minuteInMs),
   );
-  const reminderMinutes = state.reminderEnabled
-    ? minutesUntilNextReminder
-    : state.intervalMinutes;
+  const reminderMinutes = state.reminderEnabled ? minutesUntilNextReminder : state.intervalMinutes;
   const nextReminderTime = formatReminderTime(nextReminderDate);
   const isQuietNow = isQuietHoursActive(state, currentTime);
   const isScheduleLoading = moveAlert.syncStatus === 'loading';
-  const canSkipBreak =
-    state.reminderEnabled &&
-    !isQuietNow &&
-    !isWaitingForSkippedBreak(state, currentTime);
+  const canSkipBreak = state.reminderEnabled && !isQuietNow && !isWaitingForSkippedBreak(state, currentTime);
   const progressSummary = tf('today.progressSummary', {
     completed: state.completedToday,
     goal: dailyGoal,

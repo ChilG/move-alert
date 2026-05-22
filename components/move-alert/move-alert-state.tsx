@@ -1,14 +1,5 @@
 import * as Haptics from 'expo-haptics';
-import {
-  createContext,
-  PropsWithChildren,
-  useCallback,
-  useEffect,
-  useContext,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+import { createContext, PropsWithChildren, useCallback, useEffect, useContext, useMemo, useRef, useState } from 'react';
 import { z } from 'zod';
 
 import {
@@ -18,10 +9,7 @@ import {
 import { useAuth } from '@/components/move-alert/auth-state';
 import { useLanguagePreference } from '@/components/move-alert/language-state';
 import { supabase } from '@/lib/supabase';
-import {
-  createNextReminderDateFromAnchor,
-  getNextReminderDate,
-} from './today/today-helpers';
+import { createNextReminderDateFromAnchor, getNextReminderDate } from './today/today-helpers';
 import {
   activityTemplateDescriptionKeys,
   activityTemplateDurationKeys,
@@ -75,9 +63,7 @@ type MoveAlertContextValue = {
   dailyGoal: number;
   state: MoveAlertState;
   progressPercent: number;
-  configureReminderPreferences: (
-    preferences: ReminderPreferencesInput,
-  ) => boolean;
+  configureReminderPreferences: (preferences: ReminderPreferencesInput) => boolean;
   completeStretch: (stretchId: string) => void;
   errorMessage: string | null;
   isSyncing: boolean;
@@ -114,19 +100,12 @@ const initialState: MoveAlertState = {
 };
 
 const moveAlertSettingsRowSchema = z.object({
-  interval_minutes: z
-    .number()
-    .int()
-    .min(10)
-    .max(300)
-    .catch(initialState.intervalMinutes),
+  interval_minutes: z.number().int().min(10).max(300).catch(initialState.intervalMinutes),
   next_reminder_at: z.string().nullable().catch(initialState.nextReminderAt),
   quiet_hours_enabled: z.boolean().catch(initialState.quietHoursEnabled),
   quiet_hours_end_time: z.string().catch(initialState.quietHoursEndTime),
   quiet_hours_start_time: z.string().catch(initialState.quietHoursStartTime),
-  quiet_hours_days: z
-    .array(z.number().int())
-    .catch(initialState.quietHoursDays),
+  quiet_hours_days: z.array(z.number().int()).catch(initialState.quietHoursDays),
   reminder_enabled: z.boolean().catch(initialState.reminderEnabled),
 });
 
@@ -172,26 +151,16 @@ function tapFeedback() {
 }
 
 function formatTimelineTime(date: Date) {
-  return `${String(date.getHours()).padStart(2, '0')}:${String(
-    date.getMinutes(),
-  ).padStart(2, '0')}`;
+  return `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
 }
 
-function getCompletedTimelineLabelKey(
-  stretchId: string,
-  activityTemplates: StretchItem[],
-): TimelineItem['labelKey'] {
-  const activityTemplate = activityTemplates.find(
-    (template) => template.id === stretchId,
-  );
+function getCompletedTimelineLabelKey(stretchId: string, activityTemplates: StretchItem[]): TimelineItem['labelKey'] {
+  const activityTemplate = activityTemplates.find((template) => template.id === stretchId);
 
   return activityTemplate?.completionLabelKey ?? 'timeline.neckResetCompleted';
 }
 
-function getStretchCooldownMs(
-  stretchId: string,
-  activityTemplates: StretchItem[],
-) {
+function getStretchCooldownMs(stretchId: string, activityTemplates: StretchItem[]) {
   const stretch = activityTemplates.find((item) => item.id === stretchId);
 
   return stretch ? stretch.durationSeconds * 1000 : null;
@@ -216,10 +185,7 @@ function isWaitingForSkippedBreak(state: MoveAlertState, date: Date) {
   const latestHistoryItem = state.timeline.at(-1);
   const nextBreakDate = getNextReminderDate(state, date);
 
-  return (
-    latestHistoryItem?.labelKey === 'timeline.breakSkipped' &&
-    nextBreakDate.getTime() > date.getTime()
-  );
+  return latestHistoryItem?.labelKey === 'timeline.breakSkipped' && nextBreakDate.getTime() > date.getTime();
 }
 
 function getLocalDateKey(date = new Date()) {
@@ -243,11 +209,7 @@ function toSettingsRow(userId: string, state: MoveAlertState) {
   };
 }
 
-function toDailySummaryRow(
-  userId: string,
-  summaryDate: string,
-  state: MoveAlertState,
-) {
+function toDailySummaryRow(userId: string, summaryDate: string, state: MoveAlertState) {
   return {
     completed_count: state.completedToday,
     skipped_count: state.skippedToday,
@@ -257,11 +219,7 @@ function toDailySummaryRow(
   };
 }
 
-function toCompletedStretchRows(
-  userId: string,
-  summaryDate: string,
-  state: MoveAlertState,
-) {
+function toCompletedStretchRows(userId: string, summaryDate: string, state: MoveAlertState) {
   return Object.entries(state.completedStretchCounts)
     .filter(([, completedCount]) => completedCount > 0)
     .map(([stretchId, completedCount]) => ({
@@ -272,11 +230,7 @@ function toCompletedStretchRows(
     }));
 }
 
-function toTimelineItemRows(
-  userId: string,
-  summaryDate: string,
-  state: MoveAlertState,
-) {
+function toTimelineItemRows(userId: string, summaryDate: string, state: MoveAlertState) {
   return state.timeline.map((item, position) => ({
     item_time: item.time,
     label_key: item.labelKey,
@@ -294,23 +248,15 @@ function normalizeDatabaseTime(time: string) {
 }
 
 function normalizeQuietHoursDays(days: number[]) {
-  const validDays = days.filter((day): day is WeekDay =>
-    weekDays.includes(day as WeekDay),
-  );
+  const validDays = days.filter((day): day is WeekDay => weekDays.includes(day as WeekDay));
   const uniqueDays = Array.from(new Set(validDays));
 
   return uniqueDays.length > 0 ? uniqueDays : initialState.quietHoursDays;
 }
 
-function normalizeReminderPreferencesInput(
-  preferences: ReminderPreferencesInput,
-) {
-  const quietHoursStartTime = normalizeDatabaseTime(
-    preferences.quietHoursStartTime,
-  );
-  const quietHoursEndTime = normalizeDatabaseTime(
-    preferences.quietHoursEndTime,
-  );
+function normalizeReminderPreferencesInput(preferences: ReminderPreferencesInput) {
+  const quietHoursStartTime = normalizeDatabaseTime(preferences.quietHoursStartTime);
+  const quietHoursEndTime = normalizeDatabaseTime(preferences.quietHoursEndTime);
 
   if (
     !Number.isInteger(preferences.intervalMinutes) ||
@@ -341,9 +287,7 @@ function normalizeReminderDateTime(value: string | null) {
 
 function getLegacyNextReminderAt(timeline: TimelineItem[], date: Date) {
   const nextTimelineItem = timeline.findLast((item) => item.status === 'next');
-  const parsedTime = nextTimelineItem
-    ? /^([01]\d|2[0-3]):([0-5]\d)$/.exec(nextTimelineItem.time)
-    : null;
+  const parsedTime = nextTimelineItem ? /^([01]\d|2[0-3]):([0-5]\d)$/.exec(nextTimelineItem.time) : null;
 
   if (!parsedTime) return null;
 
@@ -376,9 +320,7 @@ function normalizeReminderScheduleState(state: MoveAlertState, date: Date) {
       };
 }
 
-function getCompletedStretchCounts(
-  rows: z.infer<typeof completedStretchRowSchema>[],
-) {
+function getCompletedStretchCounts(rows: z.infer<typeof completedStretchRowSchema>[]) {
   return rows.reduce<Record<string, number>>(
     (counts, row) => ({
       ...counts,
@@ -399,20 +341,10 @@ function fromDatabaseRows({
   settingsRow: unknown;
   timelineRows: unknown[];
 }): MoveAlertState {
-  const parsedSettings = settingsRow
-    ? moveAlertSettingsRowSchema.parse(settingsRow)
-    : null;
-  const parsedDailySummary = dailySummaryRow
-    ? moveAlertDailySummaryRowSchema.parse(dailySummaryRow)
-    : null;
-  const parsedCompletedStretchRows = z
-    .array(completedStretchRowSchema)
-    .catch([])
-    .parse(completedStretchRows);
-  const parsedTimelineRows = z
-    .array(timelineItemRowSchema)
-    .catch([])
-    .parse(timelineRows);
+  const parsedSettings = settingsRow ? moveAlertSettingsRowSchema.parse(settingsRow) : null;
+  const parsedDailySummary = dailySummaryRow ? moveAlertDailySummaryRowSchema.parse(dailySummaryRow) : null;
+  const parsedCompletedStretchRows = z.array(completedStretchRowSchema).catch([]).parse(completedStretchRows);
+  const parsedTimelineRows = z.array(timelineItemRowSchema).catch([]).parse(timelineRows);
   const normalizedTimeline = parsedTimelineRows
     .map((item) => {
       const time = normalizeDatabaseTime(item.item_time);
@@ -427,45 +359,30 @@ function fromDatabaseRows({
     })
     .filter((item): item is TimelineItem => item !== null);
   const timeline = normalizedTimeline.filter((item) => item.status !== 'next');
-  const completedStretchCounts = getCompletedStretchCounts(
-    parsedCompletedStretchRows,
-  );
+  const completedStretchCounts = getCompletedStretchCounts(parsedCompletedStretchRows);
   const quietHoursStartTime =
-    normalizeDatabaseTime(
-      parsedSettings?.quiet_hours_start_time ??
-        initialState.quietHoursStartTime,
-    ) ?? initialState.quietHoursStartTime;
+    normalizeDatabaseTime(parsedSettings?.quiet_hours_start_time ?? initialState.quietHoursStartTime) ??
+    initialState.quietHoursStartTime;
   const quietHoursEndTime =
-    normalizeDatabaseTime(
-      parsedSettings?.quiet_hours_end_time ?? initialState.quietHoursEndTime,
-    ) ?? initialState.quietHoursEndTime;
-  const migratedQuietHoursRange = migrateLegacyQuietHoursRange(
-    quietHoursStartTime,
-    quietHoursEndTime,
-  );
+    normalizeDatabaseTime(parsedSettings?.quiet_hours_end_time ?? initialState.quietHoursEndTime) ??
+    initialState.quietHoursEndTime;
+  const migratedQuietHoursRange = migrateLegacyQuietHoursRange(quietHoursStartTime, quietHoursEndTime);
   const nextReminderAt =
     normalizeReminderDateTime(parsedSettings?.next_reminder_at ?? null) ??
     getLegacyNextReminderAt(normalizedTimeline, new Date());
 
   return {
-    completedToday:
-      parsedDailySummary?.completed_count ?? initialState.completedToday,
+    completedToday: parsedDailySummary?.completed_count ?? initialState.completedToday,
     completedStretchCounts,
     completedStretchIds: Object.keys(completedStretchCounts),
-    intervalMinutes:
-      parsedSettings?.interval_minutes ?? initialState.intervalMinutes,
+    intervalMinutes: parsedSettings?.interval_minutes ?? initialState.intervalMinutes,
     nextReminderAt,
-    quietHoursDays: normalizeQuietHoursDays(
-      parsedSettings?.quiet_hours_days ?? initialState.quietHoursDays,
-    ),
+    quietHoursDays: normalizeQuietHoursDays(parsedSettings?.quiet_hours_days ?? initialState.quietHoursDays),
     quietHoursEndTime: migratedQuietHoursRange.endTime,
-    quietHoursEnabled:
-      parsedSettings?.quiet_hours_enabled ?? initialState.quietHoursEnabled,
+    quietHoursEnabled: parsedSettings?.quiet_hours_enabled ?? initialState.quietHoursEnabled,
     quietHoursStartTime: migratedQuietHoursRange.startTime,
-    reminderEnabled:
-      parsedSettings?.reminder_enabled ?? initialState.reminderEnabled,
-    skippedToday:
-      parsedDailySummary?.skipped_count ?? initialState.skippedToday,
+    reminderEnabled: parsedSettings?.reminder_enabled ?? initialState.reminderEnabled,
+    skippedToday: parsedDailySummary?.skipped_count ?? initialState.skippedToday,
     streakDays: parsedDailySummary?.streak_days ?? initialState.streakDays,
     timeline,
   };
@@ -480,17 +397,11 @@ function getErrorMessage(error: unknown) {
 }
 
 function isMissingNextReminderAtColumnError(message: string) {
-  return (
-    message.includes('next_reminder_at') &&
-    (message.includes('column') || message.includes('schema cache'))
-  );
+  return message.includes('next_reminder_at') && (message.includes('column') || message.includes('schema cache'));
 }
 
 function migrateLegacyQuietHoursRange(startTime: string, endTime: string) {
-  if (
-    startTime === LEGACY_QUIET_HOURS_START_TIME &&
-    endTime === LEGACY_QUIET_HOURS_END_TIME
-  ) {
+  if (startTime === LEGACY_QUIET_HOURS_START_TIME && endTime === LEGACY_QUIET_HOURS_END_TIME) {
     return {
       endTime: DEFAULT_QUIET_HOURS_END_TIME,
       startTime: DEFAULT_QUIET_HOURS_START_TIME,
@@ -501,10 +412,7 @@ function migrateLegacyQuietHoursRange(startTime: string, endTime: string) {
 }
 
 function fromActivityTemplateRows(rows: unknown[]): StretchItem[] {
-  const parsedTemplates = z
-    .array(activityTemplateRowSchema)
-    .catch([])
-    .parse(rows);
+  const parsedTemplates = z.array(activityTemplateRowSchema).catch([]).parse(rows);
 
   if (parsedTemplates.length === 0) return defaultActivityTemplates;
 
@@ -539,54 +447,45 @@ async function loadMoveAlertState(userId: string, summaryDate: string) {
     'quiet_hours_end_time',
     'quiet_hours_days',
   ].join(', ');
-  const [
-    activityTemplatesResult,
-    settingsResult,
-    dailySummaryResult,
-    completedStretchesResult,
-    timelineResult,
-  ] = await Promise.all([
-    supabase
-      .from('move_alert_activity_templates')
-      .select(
-        [
-          'id',
-          'title_key',
-          'target_key',
-          'duration_key',
-          'description_key',
-          'duration_seconds',
-          'icon',
-          'tone',
-          'completion_label_key',
-        ].join(', '),
-      )
-      .eq('is_active', true)
-      .order('position', { ascending: true }),
-    supabase
-      .from('move_alert_settings')
-      .select(settingsColumns)
-      .eq('user_id', userId)
-      .maybeSingle(),
-    supabase
-      .from('move_alert_daily_summaries')
-      .select('completed_count, skipped_count, streak_days')
-      .eq('user_id', userId)
-      .eq('summary_date', summaryDate)
-      .maybeSingle(),
-    supabase
-      .from('move_alert_completed_stretches')
-      .select('stretch_id, completed_count')
-      .eq('user_id', userId)
-      .eq('summary_date', summaryDate)
-      .order('created_at', { ascending: true }),
-    supabase
-      .from('move_alert_timeline_items')
-      .select('label_key, status, item_time')
-      .eq('user_id', userId)
-      .eq('summary_date', summaryDate)
-      .order('position', { ascending: true }),
-  ]);
+  const [activityTemplatesResult, settingsResult, dailySummaryResult, completedStretchesResult, timelineResult] =
+    await Promise.all([
+      supabase
+        .from('move_alert_activity_templates')
+        .select(
+          [
+            'id',
+            'title_key',
+            'target_key',
+            'duration_key',
+            'description_key',
+            'duration_seconds',
+            'icon',
+            'tone',
+            'completion_label_key',
+          ].join(', '),
+        )
+        .eq('is_active', true)
+        .order('position', { ascending: true }),
+      supabase.from('move_alert_settings').select(settingsColumns).eq('user_id', userId).maybeSingle(),
+      supabase
+        .from('move_alert_daily_summaries')
+        .select('completed_count, skipped_count, streak_days')
+        .eq('user_id', userId)
+        .eq('summary_date', summaryDate)
+        .maybeSingle(),
+      supabase
+        .from('move_alert_completed_stretches')
+        .select('stretch_id, completed_count')
+        .eq('user_id', userId)
+        .eq('summary_date', summaryDate)
+        .order('created_at', { ascending: true }),
+      supabase
+        .from('move_alert_timeline_items')
+        .select('label_key, status, item_time')
+        .eq('user_id', userId)
+        .eq('summary_date', summaryDate)
+        .order('position', { ascending: true }),
+    ]);
 
   const error =
     activityTemplatesResult.error ??
@@ -600,13 +499,8 @@ async function loadMoveAlertState(userId: string, summaryDate: string) {
   }
 
   const fallbackSettingsResult =
-    settingsResult.error &&
-    isMissingNextReminderAtColumnError(settingsResult.error.message)
-      ? await supabase
-          .from('move_alert_settings')
-          .select(legacySettingsColumns)
-          .eq('user_id', userId)
-          .maybeSingle()
+    settingsResult.error && isMissingNextReminderAtColumnError(settingsResult.error.message)
+      ? await supabase.from('move_alert_settings').select(legacySettingsColumns).eq('user_id', userId).maybeSingle()
       : settingsResult;
 
   if (fallbackSettingsResult.error) {
@@ -622,9 +516,7 @@ async function loadMoveAlertState(userId: string, summaryDate: string) {
     timelineRows.length > 0;
 
   return {
-    activityTemplates: fromActivityTemplateRows(
-      activityTemplatesResult.data ?? [],
-    ),
+    activityTemplates: fromActivityTemplateRows(activityTemplatesResult.data ?? []),
     exists: hasStoredState,
     state: fromDatabaseRows({
       completedStretchRows,
@@ -635,23 +527,16 @@ async function loadMoveAlertState(userId: string, summaryDate: string) {
   };
 }
 
-async function saveMoveAlertState(
-  userId: string,
-  summaryDate: string,
-  state: MoveAlertState,
-) {
+async function saveMoveAlertState(userId: string, summaryDate: string, state: MoveAlertState) {
   const dailySummaryPromise = supabase
     .from('move_alert_daily_summaries')
     .upsert(toDailySummaryRow(userId, summaryDate, state), {
       onConflict: 'user_id,summary_date',
     });
   const settingsPayload = toSettingsRow(userId, state);
-  const settingsResult = await supabase
-    .from('move_alert_settings')
-    .upsert(settingsPayload, { onConflict: 'user_id' });
+  const settingsResult = await supabase.from('move_alert_settings').upsert(settingsPayload, { onConflict: 'user_id' });
   const fallbackSettingsResult =
-    settingsResult.error &&
-    isMissingNextReminderAtColumnError(settingsResult.error.message)
+    settingsResult.error && isMissingNextReminderAtColumnError(settingsResult.error.message)
       ? await supabase.from('move_alert_settings').upsert(
           {
             ...settingsPayload,
@@ -666,32 +551,18 @@ async function saveMoveAlertState(
   if (upsertError) throw new Error(upsertError.message);
 
   const [deleteCompletedResult, deleteTimelineResult] = await Promise.all([
-    supabase
-      .from('move_alert_completed_stretches')
-      .delete()
-      .eq('user_id', userId)
-      .eq('summary_date', summaryDate),
-    supabase
-      .from('move_alert_timeline_items')
-      .delete()
-      .eq('user_id', userId)
-      .eq('summary_date', summaryDate),
+    supabase.from('move_alert_completed_stretches').delete().eq('user_id', userId).eq('summary_date', summaryDate),
+    supabase.from('move_alert_timeline_items').delete().eq('user_id', userId).eq('summary_date', summaryDate),
   ]);
   const deleteError = deleteCompletedResult.error ?? deleteTimelineResult.error;
 
   if (deleteError) throw new Error(deleteError.message);
 
-  const completedStretchRows = toCompletedStretchRows(
-    userId,
-    summaryDate,
-    state,
-  );
+  const completedStretchRows = toCompletedStretchRows(userId, summaryDate, state);
   const timelineRows = toTimelineItemRows(userId, summaryDate, state);
   const [insertCompletedResult, insertTimelineResult] = await Promise.all([
     completedStretchRows.length > 0
-      ? supabase
-          .from('move_alert_completed_stretches')
-          .insert(completedStretchRows)
+      ? supabase.from('move_alert_completed_stretches').insert(completedStretchRows)
       : Promise.resolve({ error: null }),
     timelineRows.length > 0
       ? supabase.from('move_alert_timeline_items').insert(timelineRows)
@@ -706,11 +577,8 @@ export function MoveAlertProvider({ children }: PropsWithChildren) {
   const { user } = useAuth();
   const { resolvedLanguage } = useLanguagePreference();
   const [state, setState] = useState(initialState);
-  const [activityTemplates, setActivityTemplates] = useState<StretchItem[]>(
-    defaultActivityTemplates,
-  );
-  const [stretchCooldown, setStretchCooldown] =
-    useState<StretchCooldown | null>(null);
+  const [activityTemplates, setActivityTemplates] = useState<StretchItem[]>(defaultActivityTemplates);
+  const [stretchCooldown, setStretchCooldown] = useState<StretchCooldown | null>(null);
   const [syncStatus, setSyncStatus] = useState<SyncStatus>('idle');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const loadedUserIdRef = useRef<string | null>(null);
@@ -724,18 +592,12 @@ export function MoveAlertProvider({ children }: PropsWithChildren) {
   const stretchCooldownRef = useRef<StretchCooldown | null>(null);
   const dailyGoal = activityTemplates.length;
 
-  const progressPercent = Math.min(
-    dailyGoal > 0 ? Math.round((state.completedToday / dailyGoal) * 100) : 0,
-    100,
-  );
+  const progressPercent = Math.min(dailyGoal > 0 ? Math.round((state.completedToday / dailyGoal) * 100) : 0, 100);
 
-  const updateStretchCooldown = useCallback(
-    (nextCooldown: StretchCooldown | null) => {
-      stretchCooldownRef.current = nextCooldown;
-      setStretchCooldown(nextCooldown);
-    },
-    [],
-  );
+  const updateStretchCooldown = useCallback((nextCooldown: StretchCooldown | null) => {
+    stretchCooldownRef.current = nextCooldown;
+    setStretchCooldown(nextCooldown);
+  }, []);
 
   const clearScheduledSave = useCallback(() => {
     if (saveTimeoutRef.current) {
@@ -749,8 +611,7 @@ export function MoveAlertProvider({ children }: PropsWithChildren) {
       saveTimeoutRef.current !== null ||
       queuedSaveRef.current ||
       isSavingRef.current ||
-      (lastSyncedStateRef.current !== null &&
-        currentSerializedStateRef.current !== lastSyncedStateRef.current)
+      (lastSyncedStateRef.current !== null && currentSerializedStateRef.current !== lastSyncedStateRef.current)
     );
   }, []);
 
@@ -790,10 +651,7 @@ export function MoveAlertProvider({ children }: PropsWithChildren) {
     } finally {
       isSavingRef.current = false;
 
-      if (
-        queuedSaveRef.current ||
-        currentSerializedStateRef.current !== lastSyncedStateRef.current
-      ) {
+      if (queuedSaveRef.current || currentSerializedStateRef.current !== lastSyncedStateRef.current) {
         queuedSaveRef.current = false;
         void flushStateToDatabase();
       }
@@ -848,25 +706,15 @@ export function MoveAlertProvider({ children }: PropsWithChildren) {
     setSyncStatus('loading');
     setErrorMessage(null);
 
-    async function hydrateState({
-      createIfMissing,
-    }: {
-      createIfMissing: boolean;
-    }) {
+    async function hydrateState({ createIfMissing }: { createIfMissing: boolean }) {
       try {
-        const result = await loadMoveAlertState(
-          activeUserId,
-          activeSummaryDate,
-        );
+        const result = await loadMoveAlertState(activeUserId, activeSummaryDate);
 
         if (!isMounted) return;
 
         const nextActivityTemplates = result.activityTemplates;
         const loadedState = result.exists ? result.state : initialState;
-        const nextState = normalizeReminderScheduleState(
-          loadedState,
-          new Date(),
-        );
+        const nextState = normalizeReminderScheduleState(loadedState, new Date());
         const nextSerializedState = serializeValue(nextState);
         const loadedSerializedState = serializeValue(loadedState);
         const currentSerializedState = currentSerializedStateRef.current;
@@ -876,26 +724,17 @@ export function MoveAlertProvider({ children }: PropsWithChildren) {
           currentSerializedState === nextSerializedState;
 
         setActivityTemplates((current) =>
-          serializeValue(current) === serializeValue(nextActivityTemplates)
-            ? current
-            : nextActivityTemplates,
+          serializeValue(current) === serializeValue(nextActivityTemplates) ? current : nextActivityTemplates,
         );
         if (shouldAdoptRemoteState) {
           currentStateRef.current = nextState;
           currentSerializedStateRef.current = nextSerializedState;
-          setState((current) =>
-            serializeValue(current) === nextSerializedState
-              ? current
-              : nextState,
-          );
+          setState((current) => (serializeValue(current) === nextSerializedState ? current : nextState));
         }
         loadedUserIdRef.current = activeUserId;
         loadedDateKeyRef.current = activeSummaryDate;
 
-        if (
-          (!result.exists && createIfMissing) ||
-          loadedSerializedState !== nextSerializedState
-        ) {
+        if ((!result.exists && createIfMissing) || loadedSerializedState !== nextSerializedState) {
           await saveMoveAlertState(activeUserId, activeSummaryDate, nextState);
 
           if (!isMounted) return;
@@ -988,12 +827,7 @@ export function MoveAlertProvider({ children }: PropsWithChildren) {
       clearScheduledSave();
       void supabase.removeChannel(channel);
     };
-  }, [
-    clearScheduledSave,
-    hasPendingLocalChanges,
-    updateStretchCooldown,
-    user?.id,
-  ]);
+  }, [clearScheduledSave, hasPendingLocalChanges, updateStretchCooldown, user?.id]);
 
   useEffect(() => {
     currentStateRef.current = state;
@@ -1001,11 +835,7 @@ export function MoveAlertProvider({ children }: PropsWithChildren) {
 
     const userId = user?.id ?? null;
 
-    if (
-      !userId ||
-      loadedUserIdRef.current !== userId ||
-      !loadedDateKeyRef.current
-    ) {
+    if (!userId || loadedUserIdRef.current !== userId || !loadedDateKeyRef.current) {
       return;
     }
 
@@ -1059,10 +889,7 @@ export function MoveAlertProvider({ children }: PropsWithChildren) {
     setState((current) => ({
       ...current,
       completedToday: current.completedToday + 1,
-      nextReminderAt: createNextReminderDateFromAnchor(
-        current,
-        date,
-      ).toISOString(),
+      nextReminderAt: createNextReminderDateFromAnchor(current, date).toISOString(),
       timeline: withTimelineEvent(
         current.timeline,
         {
@@ -1106,8 +933,7 @@ export function MoveAlertProvider({ children }: PropsWithChildren) {
       state,
       progressPercent,
       configureReminderPreferences: (preferences) => {
-        const normalizedPreferences =
-          normalizeReminderPreferencesInput(preferences);
+        const normalizedPreferences = normalizeReminderPreferencesInput(preferences);
 
         if (!normalizedPreferences) return false;
 
@@ -1125,10 +951,7 @@ export function MoveAlertProvider({ children }: PropsWithChildren) {
 
           return {
             ...nextState,
-            nextReminderAt: createNextReminderDateFromAnchor(
-              nextState,
-              now,
-            ).toISOString(),
+            nextReminderAt: createNextReminderDateFromAnchor(nextState, now).toISOString(),
           };
         });
         return true;
@@ -1151,8 +974,7 @@ export function MoveAlertProvider({ children }: PropsWithChildren) {
         });
 
         setState((current) => {
-          const alreadyCompleted =
-            current.completedStretchIds.includes(stretchId);
+          const alreadyCompleted = current.completedStretchIds.includes(stretchId);
 
           return {
             ...current,
@@ -1164,17 +986,11 @@ export function MoveAlertProvider({ children }: PropsWithChildren) {
             completedStretchIds: alreadyCompleted
               ? current.completedStretchIds
               : [...current.completedStretchIds, stretchId],
-            nextReminderAt: createNextReminderDateFromAnchor(
-              current,
-              date,
-            ).toISOString(),
+            nextReminderAt: createNextReminderDateFromAnchor(current, date).toISOString(),
             timeline: withTimelineEvent(
               current.timeline,
               {
-                labelKey: getCompletedTimelineLabelKey(
-                  stretchId,
-                  activityTemplates,
-                ),
+                labelKey: getCompletedTimelineLabelKey(stretchId, activityTemplates),
                 status: 'done',
               },
               date,
@@ -1188,10 +1004,7 @@ export function MoveAlertProvider({ children }: PropsWithChildren) {
         const date = new Date();
 
         setState((current) => {
-          if (
-            !current.reminderEnabled ||
-            isWaitingForSkippedBreak(current, date)
-          ) {
+          if (!current.reminderEnabled || isWaitingForSkippedBreak(current, date)) {
             return current;
           }
 
@@ -1200,10 +1013,7 @@ export function MoveAlertProvider({ children }: PropsWithChildren) {
           return {
             ...current,
             skippedToday: current.skippedToday + 1,
-            nextReminderAt: createNextReminderDateFromAnchor(
-              current,
-              date,
-            ).toISOString(),
+            nextReminderAt: createNextReminderDateFromAnchor(current, date).toISOString(),
             timeline: withTimelineEvent(
               current.timeline,
               {
@@ -1216,11 +1026,7 @@ export function MoveAlertProvider({ children }: PropsWithChildren) {
         });
       },
       setIntervalMinutes: (intervalMinutes) => {
-        if (
-          !Number.isInteger(intervalMinutes) ||
-          intervalMinutes < 10 ||
-          intervalMinutes > 300
-        ) {
+        if (!Number.isInteger(intervalMinutes) || intervalMinutes < 10 || intervalMinutes > 300) {
           return;
         }
 
@@ -1238,10 +1044,7 @@ export function MoveAlertProvider({ children }: PropsWithChildren) {
 
           return {
             ...nextState,
-            nextReminderAt: createNextReminderDateFromAnchor(
-              nextState,
-              now,
-            ).toISOString(),
+            nextReminderAt: createNextReminderDateFromAnchor(nextState, now).toISOString(),
           };
         });
       },
@@ -1304,8 +1107,7 @@ export function MoveAlertProvider({ children }: PropsWithChildren) {
           return normalizeReminderScheduleState(
             {
               ...current,
-              quietHoursDays:
-                nextDays.length > 0 ? nextDays : current.quietHoursDays,
+              quietHoursDays: nextDays.length > 0 ? nextDays : current.quietHoursDays,
             },
             new Date(),
           );
@@ -1336,11 +1138,7 @@ export function MoveAlertProvider({ children }: PropsWithChildren) {
     ],
   );
 
-  return (
-    <MoveAlertContext.Provider value={value}>
-      {children}
-    </MoveAlertContext.Provider>
-  );
+  return <MoveAlertContext.Provider value={value}>{children}</MoveAlertContext.Provider>;
 }
 
 export function useMoveAlert() {

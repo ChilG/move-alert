@@ -58,12 +58,7 @@ export const activityTemplateDescriptionKeys = [
   'stretchItems.deskBackStretch.description',
 ] as const;
 
-export const activityTemplateTones = [
-  'info',
-  'success',
-  'warning',
-  'error',
-] as const;
+export const activityTemplateTones = ['info', 'success', 'warning', 'error'] as const;
 
 export const timelineLabelKeys = [
   'timeline.neckResetCompleted',

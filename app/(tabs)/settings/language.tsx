@@ -29,10 +29,7 @@ export default function SettingsLanguageScreen() {
   }
 
   return (
-    <SettingsScreenShell
-      description={t('settings.languagePageDescription')}
-      title={t('settings.languagePageTitle')}
-    >
+    <SettingsScreenShell description={t('settings.languagePageDescription')} title={t('settings.languagePageTitle')}>
       <SettingsLanguageSection
         description={t('settings.languageDescription')}
         languageEnglishLabel={t('settings.languageEnglish')}
@@ -51,14 +48,10 @@ export default function SettingsLanguageScreen() {
         <AlertDialogBackdrop />
         <AlertDialogContent>
           <AlertDialogHeader>
-            <Text className="text-lg font-extrabold text-typography-950">
-              {t('settings.languageRestartTitle')}
-            </Text>
+            <Text className="text-lg font-extrabold text-typography-950">{t('settings.languageRestartTitle')}</Text>
           </AlertDialogHeader>
           <AlertDialogBody className="mt-3">
-            <Text className="text-sm leading-6 text-typography-600">
-              {t('settings.languageRestartDescription')}
-            </Text>
+            <Text className="text-sm leading-6 text-typography-600">{t('settings.languageRestartDescription')}</Text>
           </AlertDialogBody>
           <AlertDialogFooter>
             <Button
@@ -68,9 +61,7 @@ export default function SettingsLanguageScreen() {
               }}
               size="md"
             >
-              <Text className="font-bold text-typography-0">
-                {t('settings.languageRestartConfirm')}
-              </Text>
+              <Text className="font-bold text-typography-0">{t('settings.languageRestartConfirm')}</Text>
             </Button>
           </AlertDialogFooter>
         </AlertDialogContent>

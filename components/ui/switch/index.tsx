@@ -7,10 +7,7 @@ type SwitchProps = RNSwitchProps & {
   isDisabled?: boolean;
 };
 
-const Switch = React.forwardRef<
-  React.ComponentRef<typeof RNSwitch>,
-  SwitchProps
->(function Switch(
+const Switch = React.forwardRef<React.ComponentRef<typeof RNSwitch>, SwitchProps>(function Switch(
   { disabled, isDisabled = false, value = false, ...props },
   ref,
 ) {

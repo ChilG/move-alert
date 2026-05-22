@@ -2,10 +2,7 @@
 <html lang="th">
   <head>
     <meta charset="utf-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1, viewport-fit=cover"
-    />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <title>Move Alert Account Deletion</title>
     <style>
       :root {
@@ -34,9 +31,7 @@
           BlinkMacSystemFont,
           'Segoe UI',
           sans-serif;
-        background:
-          radial-gradient(circle at top right, #ffe8da, transparent 28%),
-          var(--bg);
+        background: radial-gradient(circle at top right, #ffe8da, transparent 28%), var(--bg);
         color: var(--text);
       }
 
@@ -178,21 +173,17 @@
         <div class="eyebrow">Move Alert</div>
         <h1>Account deletion request</h1>
         <p class="subtitle">
-          Use this page if you want to request deletion of a Move Alert account
-          from outside the app.
+          Use this page if you want to request deletion of a Move Alert account from outside the app.
         </p>
         <p class="updated">Last updated: May 16, 2026</p>
-        <p class="subtitle">
-          หน้านี้ใช้สำหรับส่งคำขอลบบัญชี Move Alert จากภายนอกแอป
-        </p>
+        <p class="subtitle">หน้านี้ใช้สำหรับส่งคำขอลบบัญชี Move Alert จากภายนอกแอป</p>
       </section>
 
       <div class="grid">
         <section class="card">
           <h2>If you can still open the app</h2>
           <p class="muted">
-            Go to <strong>Settings &gt; Delete account</strong> to remove your
-            account immediately from inside the app.
+            Go to <strong>Settings &gt; Delete account</strong> to remove your account immediately from inside the app.
           </p>
           <p class="muted">
             หากคุณยังเข้าแอปได้ ให้ไปที่
@@ -204,20 +195,14 @@
         <section class="card">
           <h2>Submit a deletion request / ส่งคำขอลบบัญชี</h2>
           <p class="muted">
-            Enter the email address used by your Move Alert account. We will
-            record the request for follow-up and deletion processing.
+            Enter the email address used by your Move Alert account. We will record the request for follow-up and
+            deletion processing.
           </p>
 
           <form id="deletion-form">
             <div class="field">
               <label for="email">Account email / อีเมลบัญชี</label>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                autocomplete="email"
-                required
-              />
+              <input id="email" name="email" type="email" autocomplete="email" required />
             </div>
 
             <div class="field">
@@ -225,9 +210,7 @@
               <textarea id="note" name="note"></textarea>
             </div>
 
-            <button class="submit" id="submit-button" type="submit">
-              Submit deletion request
-            </button>
+            <button class="submit" id="submit-button" type="submit">Submit deletion request</button>
           </form>
 
           <div class="message" id="message"></div>
@@ -258,40 +241,31 @@
         const note = String(formData.get('note') || '').trim();
 
         try {
-          const response = await fetch(
-            `${supabaseUrl}/rest/v1/account_deletion_requests`,
-            {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                apikey: supabaseKey,
-                Authorization: `Bearer ${supabaseKey}`,
-                Prefer: 'return=minimal',
-              },
-              body: JSON.stringify([
-                {
-                  email,
-                  locale: navigator.language || 'unknown',
-                  note: note || null,
-                },
-              ]),
+          const response = await fetch(`${supabaseUrl}/rest/v1/account_deletion_requests`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              apikey: supabaseKey,
+              Authorization: `Bearer ${supabaseKey}`,
+              Prefer: 'return=minimal',
             },
-          );
+            body: JSON.stringify([
+              {
+                email,
+                locale: navigator.language || 'unknown',
+                note: note || null,
+              },
+            ]),
+          });
 
           if (!response.ok) {
             throw new Error('Request failed');
           }
 
           form.reset();
-          setMessage(
-            'success',
-            'Request submitted successfully. ส่งคำขอลบบัญชีเรียบร้อยแล้ว',
-          );
+          setMessage('success', 'Request submitted successfully. ส่งคำขอลบบัญชีเรียบร้อยแล้ว');
         } catch (error) {
-          setMessage(
-            'error',
-            'Unable to submit the request right now. กรุณาลองใหม่อีกครั้งภายหลัง',
-          );
+          setMessage('error', 'Unable to submit the request right now. กรุณาลองใหม่อีกครั้งภายหลัง');
         } finally {
           submitButton.disabled = false;
         }

@@ -15,25 +15,20 @@ const th = {
   },
   notifications: {
     channelName: 'การเตือนให้ขยับร่างกาย',
-    channelDescription:
-      'การแจ้งเตือนตามเวลาพร้อมแรงสั่นแบบจังหวะเฉพาะที่เด่นชัดขึ้น',
+    channelDescription: 'การแจ้งเตือนตามเวลาพร้อมแรงสั่นแบบจังหวะเฉพาะที่เด่นชัดขึ้น',
     reminderTitle: 'ได้เวลาขยับร่างกาย',
     reminderBody: 'ลุกขึ้นยืดเส้น คลายตัว และรีเซ็ตท่าทางสักครู่',
   },
   onboarding: {
     remindersTitle: 'ตั้งค่าการแจ้งเตือนครั้งแรก',
-    remindersDescription:
-      'เลือกจังหวะเตือน ช่วงเวลางดแจ้งเตือน และวันที่อยากให้แอปเงียบไว้ก่อนเริ่มใช้งาน',
+    remindersDescription: 'เลือกจังหวะเตือน ช่วงเวลางดแจ้งเตือน และวันที่อยากให้แอปเงียบไว้ก่อนเริ่มใช้งาน',
     remindersUseCurrent: 'ใช้ค่าปัจจุบัน',
     remindersSave: 'บันทึก',
     welcomeTitle: 'ยินดีต้อนรับสู่ Move Alert',
-    welcomeDescription:
-      'ตั้งค่าการเตือนให้เข้ากับวันทำงานของคุณก่อนเริ่มใช้งาน',
+    welcomeDescription: 'ตั้งค่าการเตือนให้เข้ากับวันทำงานของคุณก่อนเริ่มใช้งาน',
     welcomeCardTitle: 'เริ่มจากจังหวะที่เหมาะกับคุณ',
-    welcomeCardDescription:
-      'Move Alert จะช่วยเว้นจังหวะให้ลุกขยับ โดยยังเคารพช่วงเวลาที่คุณไม่อยากถูกรบกวน',
-    welcomeBody:
-      'ใช้เวลาไม่กี่ขั้นตอนในการเลือกรอบเตือน ช่วงเวลางดแจ้งเตือน และวันที่ควรงดแจ้งเตือน',
+    welcomeCardDescription: 'Move Alert จะช่วยเว้นจังหวะให้ลุกขยับ โดยยังเคารพช่วงเวลาที่คุณไม่อยากถูกรบกวน',
+    welcomeBody: 'ใช้เวลาไม่กี่ขั้นตอนในการเลือกรอบเตือน ช่วงเวลางดแจ้งเตือน และวันที่ควรงดแจ้งเตือน',
     intervalTitle: 'รอบการแจ้งเตือน',
     intervalDescription: 'เลือกว่าต้องการให้แอปเตือนให้ขยับทุกกี่นาที',
     quietHoursTitle: 'ช่วงเวลางดแจ้งเตือน',
@@ -89,8 +84,7 @@ const th = {
   stretches: {
     eyebrow: 'ท่ายืดเหยียด',
     title: 'ท่าพักสั้น ๆ สำหรับคนทำงานหน้าจอ',
-    description:
-      'เลือกท่าที่ตรงกับจุดที่รู้สึกตึง เมื่อกดทำเสร็จ ระบบจะอัปเดตความคืบหน้าของวันนี้ในบัญชีของคุณ',
+    description: 'เลือกท่าที่ตรงกับจุดที่รู้สึกตึง เมื่อกดทำเสร็จ ระบบจะอัปเดตความคืบหน้าของวันนี้ในบัญชีของคุณ',
     cooldown: 'รอ {{seconds}} วิ',
     doingCountdown: 'กำลังทำ {{seconds}} วิ',
     completed: 'ทำแล้ว',
@@ -101,15 +95,13 @@ const th = {
   settings: {
     eyebrow: 'ตั้งค่า',
     title: 'ปรับจังหวะพักให้เข้ากับตัวเอง',
-    menuDescription:
-      'เลือกหมวดที่ต้องการ แล้วเข้าไปปรับรายละเอียดในหน้าตั้งค่าย่อย',
+    menuDescription: 'เลือกหมวดที่ต้องการ แล้วเข้าไปปรับรายละเอียดในหน้าตั้งค่าย่อย',
     menuPreferencesGroup: 'การใช้งานแอป',
     menuAccountGroup: 'บัญชี',
     menuSupportGroup: 'นโยบายและเครื่องมือ',
     menuAccountTitle: 'บัญชี',
     menuRemindersTitle: 'การแจ้งเตือน',
-    menuRemindersDescription:
-      'ปรับรอบเตือน เปิดปิดการเตือน และตั้ง quiet hours',
+    menuRemindersDescription: 'ปรับรอบเตือน เปิดปิดการเตือน และตั้ง quiet hours',
     menuAppearanceTitle: 'ธีม',
     menuAppearanceDescription: 'เปลี่ยนโหมดสีของแอปให้ตรงกับการใช้งานของคุณ',
     menuLanguageTitle: 'ภาษา',
@@ -119,22 +111,17 @@ const th = {
     menuDebugTitle: 'ทดสอบการแจ้งเตือน',
     menuDebugDescription: 'ใช้ตรวจเสียงและแรงสั่นของ notification บนอุปกรณ์นี้',
     accountPageTitle: 'บัญชี',
-    accountPageDescription:
-      'จัดการสถานะบัญชี การซิงก์ และตัวเลือกด้านความเป็นส่วนตัว',
+    accountPageDescription: 'จัดการสถานะบัญชี การซิงก์ และตัวเลือกด้านความเป็นส่วนตัว',
     remindersPageTitle: 'การแจ้งเตือน',
-    remindersPageDescription:
-      'ควบคุมการเตือนให้ลุกขยับและเวลาที่แอปควรเว้นการแจ้งเตือน',
+    remindersPageDescription: 'ควบคุมการเตือนให้ลุกขยับและเวลาที่แอปควรเว้นการแจ้งเตือน',
     appearancePageTitle: 'ธีม',
-    appearancePageDescription:
-      'เลือกโหมดสีที่เหมาะกับสภาพแสงและสไตล์การใช้งานของคุณ',
+    appearancePageDescription: 'เลือกโหมดสีที่เหมาะกับสภาพแสงและสไตล์การใช้งานของคุณ',
     languagePageTitle: 'ภาษา',
-    languagePageDescription:
-      'ตั้งค่าภาษาหลักของแอปหรือปล่อยให้ตามระบบของเครื่อง',
+    languagePageDescription: 'ตั้งค่าภาษาหลักของแอปหรือปล่อยให้ตามระบบของเครื่อง',
     legalPageTitle: 'นโยบายและข้อมูลส่วนตัว',
     legalPageDescription: 'รวมลิงก์นโยบายที่ใช้กับในแอปและ Google Play Console',
     debugPageTitle: 'เครื่องมือทดสอบ',
-    debugPageDescription:
-      'รวมเครื่องมือสำหรับตรวจการแจ้งเตือนและรีเซ็ตสถานะ onboarding ระหว่างพัฒนา',
+    debugPageDescription: 'รวมเครื่องมือสำหรับตรวจการแจ้งเตือนและรีเซ็ตสถานะ onboarding ระหว่างพัฒนา',
     signedInAccount: 'บัญชีที่เข้าสู่ระบบ',
     guestSession: 'Guest session',
     unknownUser: 'ผู้ใช้บัญชี Move Alert',
@@ -148,25 +135,20 @@ const th = {
       'การลบบัญชีแบบนี้จะปิดการใช้งานบัญชีทันทีในแอปและเก็บข้อมูลไว้ในสถานะลบเพื่อดำเนินการต่อภายหลัง',
     cancelDeleteAccount: 'ยกเลิก',
     legalTitle: 'นโยบายและสิทธิข้อมูล',
-    legalDescription:
-      'เปิดดูนโยบายความเป็นส่วนตัวและหน้าขอให้ลบบัญชีสำหรับใช้ใน Play Console และภายในแอป',
+    legalDescription: 'เปิดดูนโยบายความเป็นส่วนตัวและหน้าขอให้ลบบัญชีสำหรับใช้ใน Play Console และภายในแอป',
     privacyPolicy: 'นโยบายความเป็นส่วนตัว',
     accountDeletionPolicy: 'หน้าขอลบบัญชี',
     notificationDebugTitle: 'ทดสอบการแจ้งเตือน',
     notificationDebugDescription:
       'ส่งการแจ้งเตือนทันทีผ่าน channel เดียวกับที่ใช้เตือนจริง เพื่อเช็กเสียงและแรงสั่นบนอุปกรณ์นี้',
     notificationDebugSend: 'ส่ง Noti ทดสอบ',
-    notificationDebugSent:
-      'ส่งการแจ้งเตือนทดสอบแล้ว กรุณาเช็กแถบการแจ้งเตือนของอุปกรณ์',
-    notificationDebugPermissionDenied:
-      'แอปยังไม่ได้รับสิทธิ์แจ้งเตือน กรุณาอนุญาตก่อนทดสอบ',
+    notificationDebugSent: 'ส่งการแจ้งเตือนทดสอบแล้ว กรุณาเช็กแถบการแจ้งเตือนของอุปกรณ์',
+    notificationDebugPermissionDenied: 'แอปยังไม่ได้รับสิทธิ์แจ้งเตือน กรุณาอนุญาตก่อนทดสอบ',
     notificationDebugUnsupported: 'ปุ่มทดสอบนี้รองรับเฉพาะบน Android เท่านั้น',
     onboardingDebugTitle: 'ทดสอบ Onboarding',
-    onboardingDebugDescription:
-      'ล้างสถานะว่าเคยตั้งค่าการแจ้งเตือนครั้งแรกแล้ว เพื่อให้ทดสอบ flow onboarding ใหม่ได้',
+    onboardingDebugDescription: 'ล้างสถานะว่าเคยตั้งค่าการแจ้งเตือนครั้งแรกแล้ว เพื่อให้ทดสอบ flow onboarding ใหม่ได้',
     onboardingDebugClear: 'ล้างสถานะ Onboarding',
-    onboardingDebugCleared:
-      'ล้างสถานะแล้ว ปิดและเปิดแอปใหม่เพื่อดูหน้า onboarding อีกครั้ง',
+    onboardingDebugCleared: 'ล้างสถานะแล้ว ปิดและเปิดแอปใหม่เพื่อดูหน้า onboarding อีกครั้ง',
     themeTitle: 'ธีมของแอป',
     themeDescription: 'เลือกรูปแบบสีของแอป หรือให้ตามค่าระบบของเครื่อง',
     themeSystem: 'ระบบ',
@@ -175,8 +157,7 @@ const th = {
     languageTitle: 'ภาษาของแอป',
     languageDescription: 'เลือกภาษาของแอป หรือให้ตามค่าภาษาของเครื่อง',
     languageRestartTitle: 'ต้องเปิดแอปใหม่',
-    languageRestartDescription:
-      'เพื่อให้ภาษาเปลี่ยนครบทุกหน้าของแอป กรุณาปิดแล้วเปิด Move Alert ใหม่อีกครั้ง',
+    languageRestartDescription: 'เพื่อให้ภาษาเปลี่ยนครบทุกหน้าของแอป กรุณาปิดแล้วเปิด Move Alert ใหม่อีกครั้ง',
     languageRestartConfirm: 'รับทราบ',
     languageSystem: 'ระบบ',
     languageThai: 'ไทย',
@@ -196,15 +177,12 @@ const th = {
     quietHoursDays: 'วันที่งดแจ้งเตือน',
     quietHoursInvalidTime: 'กรอกเวลาเป็นรูปแบบ HH:MM',
     systemSettingsTitle: 'การตั้งค่าระบบของเครื่อง',
-    systemSettingsDescription:
-      'เปิดหน้าตั้งค่าของแอปโดยตรง เพื่อปรับสิทธิ์และพฤติกรรมการทำงานเบื้องหลัง',
+    systemSettingsDescription: 'เปิดหน้าตั้งค่าของแอปโดยตรง เพื่อปรับสิทธิ์และพฤติกรรมการทำงานเบื้องหลัง',
     openAppSettings: 'เปิด App settings',
     notificationSettingsTitle: 'การตั้งค่า Notification',
-    notificationSettingsDescription:
-      'ใช้เปิดหน้าตั้งค่าการแจ้งเตือนของ Move Alert โดยตรง',
+    notificationSettingsDescription: 'ใช้เปิดหน้าตั้งค่าการแจ้งเตือนของ Move Alert โดยตรง',
     batterySettingsTitle: 'การตั้งค่า Battery',
-    batterySettingsDescription:
-      'ใช้ตรวจ Battery optimization หรือโหมดประหยัดพลังงานที่อาจทำให้การเตือนมาช้า',
+    batterySettingsDescription: 'ใช้ตรวจ Battery optimization หรือโหมดประหยัดพลังงานที่อาจทำให้การเตือนมาช้า',
     batteryOptimizationIgnored: 'ตั้งค่าแล้ว',
     batteryOptimizationOptimized: 'ยังประหยัดแบตอยู่',
     batteryOptimizationUnsupported: 'ตรวจไม่ได้',
@@ -224,17 +202,14 @@ const th = {
     privacyPolicyUpdated: 'อัปเดตล่าสุด 16 พฤษภาคม 2026',
     accountDeletionTitle: 'ขอลบบัญชี',
     accountDeletionUpdated: 'อัปเดตล่าสุด 16 พฤษภาคม 2026',
-    accountDeletionIntro:
-      'กรอกอีเมลของบัญชีที่ต้องการลบ ระบบจะบันทึกคำขอไว้ให้ทีมผู้ดูแลดำเนินการ',
+    accountDeletionIntro: 'กรอกอีเมลของบัญชีที่ต้องการลบ ระบบจะบันทึกคำขอไว้ให้ทีมผู้ดูแลดำเนินการ',
     accountDeletionEmailLabel: 'อีเมลบัญชี',
     accountDeletionReasonLabel: 'เหตุผลเพิ่มเติม (ไม่บังคับ)',
     accountDeletionSubmit: 'ส่งคำขอลบบัญชี',
-    accountDeletionSuccess:
-      'ส่งคำขอลบบัญชีแล้ว เราจะใช้คำขอนี้เพื่อติดต่อและดำเนินการลบข้อมูลของคุณ',
+    accountDeletionSuccess: 'ส่งคำขอลบบัญชีแล้ว เราจะใช้คำขอนี้เพื่อติดต่อและดำเนินการลบข้อมูลของคุณ',
     accountDeletionError: 'ส่งคำขอไม่สำเร็จ กรุณาลองใหม่อีกครั้งในภายหลัง',
     accountDeletionInAppTitle: 'ถ้าคุณยังเข้าแอปได้',
-    accountDeletionInAppBody:
-      'คุณสามารถไปที่ Settings > Delete account เพื่อทำการลบบัญชีได้ทันทีจากในแอป',
+    accountDeletionInAppBody: 'คุณสามารถไปที่ Settings > Delete account เพื่อทำการลบบัญชีได้ทันทีจากในแอป',
     privacyOverviewTitle: 'ข้อมูลที่เราเก็บ',
     privacyOverviewBody:
       'แอปเก็บข้อมูลอีเมลสำหรับการยืนยันตัวตน รวมถึงการตั้งค่าการเตือนและประวัติการขยับร่างกายที่เชื่อมกับบัญชีของคุณ',
@@ -256,29 +231,25 @@ const th = {
       title: 'คลายคอ',
       target: 'คอและแนวกระดูกสันหลังส่วนบน',
       duration: '45 วินาที',
-      description:
-        'เอียงศีรษะซ้ายขวาช้า ๆ แล้วก้มมองลงเพื่อคลายความตึงจากการมองหน้าจอนาน',
+      description: 'เอียงศีรษะซ้ายขวาช้า ๆ แล้วก้มมองลงเพื่อคลายความตึงจากการมองหน้าจอนาน',
     },
     shoulderRolls: {
       title: 'หมุนไหล่',
       target: 'ไหล่และหน้าอก',
       duration: '60 วินาที',
-      description:
-        'หมุนไหล่ทั้งสองข้างไปด้านหลัง หยุดสั้น ๆ แล้วหมุนไปด้านหน้า พร้อมหายใจสม่ำเสมอ',
+      description: 'หมุนไหล่ทั้งสองข้างไปด้านหลัง หยุดสั้น ๆ แล้วหมุนไปด้านหน้า พร้อมหายใจสม่ำเสมอ',
     },
     wristRelease: {
       title: 'คลายข้อมือ',
       target: 'ข้อมือและท่อนแขน',
       duration: '40 วินาที',
-      description:
-        'เหยียดแขนหนึ่งข้าง ดึงปลายนิ้วเข้าหาตัวเบา ๆ แล้วสลับข้างเพื่อลดความตึงจากการพิมพ์',
+      description: 'เหยียดแขนหนึ่งข้าง ดึงปลายนิ้วเข้าหาตัวเบา ๆ แล้วสลับข้างเพื่อลดความตึงจากการพิมพ์',
     },
     deskBackStretch: {
       title: 'ยืดหลังข้างโต๊ะ',
       target: 'หลังและท่าทาง',
       duration: '90 วินาที',
-      description:
-        'ยืนขึ้น วางมือที่หลังส่วนล่าง แล้วค่อย ๆ เปิดหน้าอกโดยไม่ฝืนร่างกาย',
+      description: 'ยืนขึ้น วางมือที่หลังส่วนล่าง แล้วค่อย ๆ เปิดหน้าอกโดยไม่ฝืนร่างกาย',
     },
   },
   auth: {
@@ -298,21 +269,17 @@ const th = {
       resendVerificationEmail: 'ส่งลิงก์ยืนยันอีเมลใหม่',
       invalidEmail: 'กรุณากรอกอีเมลให้ถูกต้อง',
       passwordTooShort: 'รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร',
-      signUpSuccess:
-        'สมัครสมาชิกสำเร็จ หากระบบเปิดยืนยันอีเมล กรุณาเช็กกล่องจดหมาย',
+      signUpSuccess: 'สมัครสมาชิกสำเร็จ หากระบบเปิดยืนยันอีเมล กรุณาเช็กกล่องจดหมาย',
       invalidEmailBeforeResend: 'กรุณากรอกอีเมลให้ถูกต้องก่อนส่งลิงก์ใหม่',
       resendSuccess: 'ส่งลิงก์ยืนยันอีเมลใหม่แล้ว กรุณาเช็กกล่องจดหมาย',
       continueAsGuest: 'เข้าใช้งานแบบ Guest',
     },
     errors: {
-      verificationExpired:
-        'ลิงก์ยืนยันอีเมลหมดอายุหรือถูกใช้ไปแล้ว กรุณาสมัคร/เข้าสู่ระบบใหม่เพื่อรับลิงก์ล่าสุด',
+      verificationExpired: 'ลิงก์ยืนยันอีเมลหมดอายุหรือถูกใช้ไปแล้ว กรุณาสมัคร/เข้าสู่ระบบใหม่เพื่อรับลิงก์ล่าสุด',
       invalidCredentials: 'อีเมลหรือรหัสผ่านไม่ถูกต้อง',
       emailNotConfirmed: 'กรุณายืนยันอีเมลก่อนเข้าสู่ระบบ',
-      accountDeleted:
-        'บัญชีนี้ถูกปิดการใช้งานแล้ว หากต้องการกลับมาใช้ กรุณาติดต่อผู้ดูแลระบบ',
-      guestModeUnavailable:
-        'ยังไม่สามารถเข้าใช้งานแบบ Guest ได้ กรุณาเปิด Anonymous sign-ins ใน Supabase ก่อน',
+      accountDeleted: 'บัญชีนี้ถูกปิดการใช้งานแล้ว หากต้องการกลับมาใช้ กรุณาติดต่อผู้ดูแลระบบ',
+      guestModeUnavailable: 'ยังไม่สามารถเข้าใช้งานแบบ Guest ได้ กรุณาเปิด Anonymous sign-ins ใน Supabase ก่อน',
     },
   },
 };
@@ -330,30 +297,24 @@ const en: Locale = {
   },
   notifications: {
     channelName: 'Move reminders',
-    channelDescription:
-      'Timed movement reminders with a stronger signature vibration pattern.',
+    channelDescription: 'Timed movement reminders with a stronger signature vibration pattern.',
     reminderTitle: 'Time to move',
     reminderBody: 'Stand up, stretch, and reset your posture for a moment.',
   },
   onboarding: {
     remindersTitle: 'Set up reminders',
-    remindersDescription:
-      'Choose the reminder cadence, quiet hours, and quiet days before you start.',
+    remindersDescription: 'Choose the reminder cadence, quiet hours, and quiet days before you start.',
     remindersUseCurrent: 'Use current',
     remindersSave: 'Save',
     welcomeTitle: 'Welcome to Move Alert',
-    welcomeDescription:
-      'Tune movement reminders to fit your workday before you start.',
+    welcomeDescription: 'Tune movement reminders to fit your workday before you start.',
     welcomeCardTitle: 'Start with a rhythm that fits',
-    welcomeCardDescription:
-      'Move Alert helps you step away and move while respecting the hours you want left alone.',
-    welcomeBody:
-      'A few quick steps will set your reminder interval, quiet hours, and quiet days.',
+    welcomeCardDescription: 'Move Alert helps you step away and move while respecting the hours you want left alone.',
+    welcomeBody: 'A few quick steps will set your reminder interval, quiet hours, and quiet days.',
     intervalTitle: 'Reminder interval',
     intervalDescription: 'Choose how often the app should remind you to move.',
     quietHoursTitle: 'Quiet hours',
-    quietHoursDescription:
-      'Set the time range and days when reminders should pause.',
+    quietHoursDescription: 'Set the time range and days when reminders should pause.',
     doneTitle: 'Setup complete',
     doneDescription: 'Review your choices, then start using Move Alert.',
     stepProgress: 'Step {{current}}/{{total}}',
@@ -417,45 +378,33 @@ const en: Locale = {
   settings: {
     eyebrow: 'Settings',
     title: 'Tune break timing to fit your day',
-    menuDescription:
-      'Choose a category, then adjust the details inside each settings page.',
+    menuDescription: 'Choose a category, then adjust the details inside each settings page.',
     menuPreferencesGroup: 'App preferences',
     menuAccountGroup: 'Account',
     menuSupportGroup: 'Policies and tools',
     menuAccountTitle: 'Account',
     menuRemindersTitle: 'Reminders',
-    menuRemindersDescription:
-      'Adjust reminder cadence, toggle reminders, and configure quiet hours.',
+    menuRemindersDescription: 'Adjust reminder cadence, toggle reminders, and configure quiet hours.',
     menuAppearanceTitle: 'Appearance',
-    menuAppearanceDescription:
-      'Change the app theme to match how and where you use it.',
+    menuAppearanceDescription: 'Change the app theme to match how and where you use it.',
     menuLanguageTitle: 'Language',
-    menuLanguageDescription:
-      'Choose the app language or follow your device language.',
+    menuLanguageDescription: 'Choose the app language or follow your device language.',
     menuLegalTitle: 'Privacy and policies',
-    menuLegalDescription:
-      'Open the privacy policy and the account deletion request page.',
+    menuLegalDescription: 'Open the privacy policy and the account deletion request page.',
     menuDebugTitle: 'Notification debug',
-    menuDebugDescription:
-      'Check the reminder notification sound and vibration on this device.',
+    menuDebugDescription: 'Check the reminder notification sound and vibration on this device.',
     accountPageTitle: 'Account',
-    accountPageDescription:
-      'Manage your account status, sync state, and privacy actions.',
+    accountPageDescription: 'Manage your account status, sync state, and privacy actions.',
     remindersPageTitle: 'Reminders',
-    remindersPageDescription:
-      'Control movement reminders and when the app should stay quiet.',
+    remindersPageDescription: 'Control movement reminders and when the app should stay quiet.',
     appearancePageTitle: 'Appearance',
-    appearancePageDescription:
-      'Choose the color mode that fits your lighting and workflow.',
+    appearancePageDescription: 'Choose the color mode that fits your lighting and workflow.',
     languagePageTitle: 'Language',
-    languagePageDescription:
-      'Set the primary app language or follow the device setting.',
+    languagePageDescription: 'Set the primary app language or follow the device setting.',
     legalPageTitle: 'Privacy and policies',
-    legalPageDescription:
-      'One place for the policy links used in-app and in Google Play.',
+    legalPageDescription: 'One place for the policy links used in-app and in Google Play.',
     debugPageTitle: 'Debug tools',
-    debugPageDescription:
-      'Tools for checking notifications and resetting onboarding state during development.',
+    debugPageDescription: 'Tools for checking notifications and resetting onboarding state during development.',
     signedInAccount: 'Signed-in account',
     guestSession: 'Guest session',
     unknownUser: 'Move Alert account user',
@@ -469,68 +418,55 @@ const en: Locale = {
       'This account deletion flow deactivates the account in the app immediately and keeps the data in a soft-deleted state for follow-up processing.',
     cancelDeleteAccount: 'Cancel',
     legalTitle: 'Policies and data rights',
-    legalDescription:
-      'Open the privacy policy and account deletion page used for Google Play and in-app access.',
+    legalDescription: 'Open the privacy policy and account deletion page used for Google Play and in-app access.',
     privacyPolicy: 'Privacy Policy',
     accountDeletionPolicy: 'Account deletion page',
     notificationDebugTitle: 'Notification debug',
     notificationDebugDescription:
       'Send an immediate notification through the same channel used by real reminders to verify sound and vibration on this device.',
     notificationDebugSend: 'Send test notification',
-    notificationDebugSent:
-      'Test notification sent. Check the device notification tray.',
+    notificationDebugSent: 'Test notification sent. Check the device notification tray.',
     notificationDebugPermissionDenied:
       'Notification permission is not granted yet. Allow notifications before testing.',
-    notificationDebugUnsupported:
-      'This debug action is only supported on Android.',
+    notificationDebugUnsupported: 'This debug action is only supported on Android.',
     onboardingDebugTitle: 'Onboarding debug',
-    onboardingDebugDescription:
-      'Clear the first-time reminder setup state so the onboarding flow can be tested again.',
+    onboardingDebugDescription: 'Clear the first-time reminder setup state so the onboarding flow can be tested again.',
     onboardingDebugClear: 'Clear onboarding state',
-    onboardingDebugCleared:
-      'Onboarding state cleared. Close and reopen the app to see onboarding again.',
+    onboardingDebugCleared: 'Onboarding state cleared. Close and reopen the app to see onboarding again.',
     themeTitle: 'App theme',
-    themeDescription:
-      'Choose the app appearance or follow your device setting.',
+    themeDescription: 'Choose the app appearance or follow your device setting.',
     themeSystem: 'System',
     themeLight: 'Light',
     themeDark: 'Dark',
     languageTitle: 'App language',
-    languageDescription:
-      'Choose the app language or follow your device language.',
+    languageDescription: 'Choose the app language or follow your device language.',
     languageRestartTitle: 'Restart required',
-    languageRestartDescription:
-      'To apply the language across the entire app, close Move Alert and open it again.',
+    languageRestartDescription: 'To apply the language across the entire app, close Move Alert and open it again.',
     languageRestartConfirm: 'OK',
     languageSystem: 'System',
     languageThai: 'Thai',
     languageEnglish: 'English',
     reminderInterval: 'Reminder interval',
-    reminderIntervalDescription:
-      'Choose how often the app should remind you to move.',
+    reminderIntervalDescription: 'Choose how often the app should remind you to move.',
     reminderIntervalCustomLabel: 'Custom',
     reminderIntervalCustomHint: 'Minimum 10 minutes, maximum 5 hours',
     hourShort: 'hr',
     minutes: 'minutes',
     movementReminders: 'Movement reminders',
     quietHours: 'Quiet hours',
-    quietHoursDescription:
-      'The app will not send reminders during this time on selected days.',
+    quietHoursDescription: 'The app will not send reminders during this time on selected days.',
     quietHoursPlaceholder: '17:00',
     quietHoursStart: 'Start',
     quietHoursEnd: 'End',
     quietHoursDays: 'Quiet days',
     quietHoursInvalidTime: 'Use HH:MM time format',
     systemSettingsTitle: 'Device system settings',
-    systemSettingsDescription:
-      'Open the app settings screen directly to adjust permissions and background behavior.',
+    systemSettingsDescription: 'Open the app settings screen directly to adjust permissions and background behavior.',
     openAppSettings: 'Open app settings',
     notificationSettingsTitle: 'Notification settings',
-    notificationSettingsDescription:
-      'Open Move Alert notification settings directly on the device.',
+    notificationSettingsDescription: 'Open Move Alert notification settings directly on the device.',
     batterySettingsTitle: 'Battery settings',
-    batterySettingsDescription:
-      'Check battery optimization or power-saving settings that may delay reminders.',
+    batterySettingsDescription: 'Check battery optimization or power-saving settings that may delay reminders.',
     batteryOptimizationIgnored: 'Allowed',
     batteryOptimizationOptimized: 'Optimized',
     batteryOptimizationUnsupported: 'Unavailable',
@@ -557,11 +493,9 @@ const en: Locale = {
     accountDeletionSubmit: 'Submit deletion request',
     accountDeletionSuccess:
       'Your deletion request has been submitted. We will use this request to process removal of your account data.',
-    accountDeletionError:
-      'Unable to submit your request right now. Please try again later.',
+    accountDeletionError: 'Unable to submit your request right now. Please try again later.',
     accountDeletionInAppTitle: 'If you can still access the app',
-    accountDeletionInAppBody:
-      'Go to Settings > Delete account to remove your account immediately from inside the app.',
+    accountDeletionInAppBody: 'Go to Settings > Delete account to remove your account immediately from inside the app.',
     privacyOverviewTitle: 'What we collect',
     privacyOverviewBody:
       'The app stores your account email for authentication and keeps reminder settings plus movement history linked to your account.',
@@ -583,15 +517,13 @@ const en: Locale = {
       title: 'Neck reset',
       target: 'Neck and upper spine',
       duration: '45 seconds',
-      description:
-        'Slowly tilt your head left and right, then look down to release tension from long screen sessions.',
+      description: 'Slowly tilt your head left and right, then look down to release tension from long screen sessions.',
     },
     shoulderRolls: {
       title: 'Shoulder rolls',
       target: 'Shoulders and chest',
       duration: '60 seconds',
-      description:
-        'Roll both shoulders backward, pause briefly, then roll forward while breathing steadily.',
+      description: 'Roll both shoulders backward, pause briefly, then roll forward while breathing steadily.',
     },
     wristRelease: {
       title: 'Wrist release',
@@ -625,10 +557,8 @@ const en: Locale = {
       resendVerificationEmail: 'Resend verification email',
       invalidEmail: 'Enter a valid email address.',
       passwordTooShort: 'Password must be at least 6 characters.',
-      signUpSuccess:
-        'Account created. If email verification is enabled, check your inbox.',
-      invalidEmailBeforeResend:
-        'Enter a valid email address before resending the link.',
+      signUpSuccess: 'Account created. If email verification is enabled, check your inbox.',
+      invalidEmailBeforeResend: 'Enter a valid email address before resending the link.',
       resendSuccess: 'Verification email sent. Check your inbox.',
       continueAsGuest: 'Continue as guest',
     },
@@ -637,10 +567,8 @@ const en: Locale = {
         'The email verification link has expired or was already used. Sign up or sign in again to get the latest link.',
       invalidCredentials: 'Email or password is incorrect.',
       emailNotConfirmed: 'Confirm your email before signing in.',
-      accountDeleted:
-        'This account has been deactivated. Contact support if you need it restored.',
-      guestModeUnavailable:
-        'Guest mode is unavailable. Enable Anonymous sign-ins in Supabase first.',
+      accountDeleted: 'This account has been deactivated. Contact support if you need it restored.',
+      guestModeUnavailable: 'Guest mode is unavailable. Enable Anonymous sign-ins in Supabase first.',
     },
   },
 };
@@ -651,18 +579,12 @@ export type SupportedLanguage = z.infer<typeof supportedLanguageSchema>;
 const fallbackLanguage: SupportedLanguage = 'th';
 const translations: Record<SupportedLanguage, Locale> = { en, th };
 
-type DotPrefix<
-  TPrefix extends string,
-  TKey extends string,
-> = `${TPrefix}.${TKey}`;
+type DotPrefix<TPrefix extends string, TKey extends string> = `${TPrefix}.${TKey}`;
 
 type LocaleKey<TValue, TPrefix extends string = ''> = TValue extends string
   ? TPrefix
   : {
-      [TKey in keyof TValue & string]: LocaleKey<
-        TValue[TKey],
-        TPrefix extends '' ? TKey : DotPrefix<TPrefix, TKey>
-      >;
+      [TKey in keyof TValue & string]: LocaleKey<TValue[TKey], TPrefix extends '' ? TKey : DotPrefix<TPrefix, TKey>>;
     }[keyof TValue & string];
 
 type TranslationKey = LocaleKey<Locale>;
@@ -681,21 +603,14 @@ export function getCurrentLanguage(): SupportedLanguage {
   const languageCode = locale?.languageCode?.toLowerCase();
   const languageTagLanguage = locale?.languageTag.toLowerCase().split('-')[0];
 
-  return (
-    parseSupportedLanguage(languageCode) ??
-    parseSupportedLanguage(languageTagLanguage) ??
-    fallbackLanguage
-  );
+  return parseSupportedLanguage(languageCode) ?? parseSupportedLanguage(languageTagLanguage) ?? fallbackLanguage;
 }
 
 export function setLanguageModeOverride(mode: LanguageMode) {
   languageModeOverride = mode;
 }
 
-function lookupTranslation(
-  key: TranslationKey,
-  language: SupportedLanguage = getCurrentLanguage(),
-) {
+function lookupTranslation(key: TranslationKey, language: SupportedLanguage = getCurrentLanguage()) {
   return key.split('.').reduce<unknown>((value, segment) => {
     if (!value || typeof value !== 'object') return undefined;
 
@@ -704,8 +619,7 @@ function lookupTranslation(
 }
 
 export function t(key: TranslationKey) {
-  const value =
-    lookupTranslation(key) ?? lookupTranslation(key, fallbackLanguage);
+  const value = lookupTranslation(key) ?? lookupTranslation(key, fallbackLanguage);
 
   if (typeof value !== 'string') {
     return key;
@@ -714,13 +628,9 @@ export function t(key: TranslationKey) {
   return value;
 }
 
-export function tf(
-  key: TranslationKey,
-  values: Record<string, string | number>,
-) {
+export function tf(key: TranslationKey, values: Record<string, string | number>) {
   return Object.entries(values).reduce(
-    (message, [name, value]) =>
-      message.replaceAll(`{{${name}}}`, String(value)),
+    (message, [name, value]) => message.replaceAll(`{{${name}}}`, String(value)),
     t(key),
   );
 }

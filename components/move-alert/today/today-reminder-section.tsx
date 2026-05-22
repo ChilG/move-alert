@@ -2,10 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { View } from 'react-native';
 
 import { t, tf } from '@/components/move-alert/i18n';
-import {
-  getButtonForegroundColor,
-  useThemeColors,
-} from '@/components/move-alert/theme-colors';
+import { getButtonForegroundColor, useThemeColors } from '@/components/move-alert/theme-colors';
 import { Badge, BadgeText } from '@/components/ui/badge';
 import { Button, ButtonText } from '@/components/ui/button';
 import { HStack } from '@/components/ui/hstack';
@@ -31,11 +28,7 @@ type TodayReminderSectionProps = {
   onToggleReminder: () => void;
 };
 
-export function TodayReminderSection({
-  model,
-  onSkipBreak,
-  onToggleReminder,
-}: TodayReminderSectionProps) {
+export function TodayReminderSection({ model, onSkipBreak, onToggleReminder }: TodayReminderSectionProps) {
   const colors = useThemeColors();
   const {
     canSkipBreak,
@@ -66,18 +59,11 @@ export function TodayReminderSection({
             </View>
           ) : isReminderEnabled ? (
             <View className="mt-2 flex-row items-end">
-              <Text className="text-6xl font-extrabold text-typography-950">
-                {reminderMinutes}
-              </Text>
-              <Text className="pb-1 pl-2 text-base font-bold text-typography-500">
-                {t('common.minutesShort')}
-              </Text>
+              <Text className="text-6xl font-extrabold text-typography-950">{reminderMinutes}</Text>
+              <Text className="pb-1 pl-2 text-base font-bold text-typography-500">{t('common.minutesShort')}</Text>
             </View>
           ) : (
-            <Text
-              className="mt-2 text-5xl font-extrabold text-typography-950"
-              style={{ lineHeight: 56 }}
-            >
+            <Text className="mt-2 text-5xl font-extrabold text-typography-950" style={{ lineHeight: 56 }}>
               {t('today.remindersPausedValue')}
             </Text>
           )}
@@ -93,15 +79,8 @@ export function TodayReminderSection({
             </Text>
           )}
         </View>
-        <Badge
-          action={isReminderEnabled && !isQuietNow ? 'success' : 'warning'}
-          className="px-3 py-1"
-        >
-          <BadgeText>
-            {isReminderEnabled && !isQuietNow
-              ? t('common.active')
-              : t('common.paused')}
-          </BadgeText>
+        <Badge action={isReminderEnabled && !isQuietNow ? 'success' : 'warning'} className="px-3 py-1">
+          <BadgeText>{isReminderEnabled && !isQuietNow ? t('common.active') : t('common.paused')}</BadgeText>
         </Badge>
       </HStack>
 
@@ -118,26 +97,18 @@ export function TodayReminderSection({
       </View>
 
       <HStack className="mt-5" space="md">
-        <Button
-          className="flex-1 rounded-xl"
-          onPress={onToggleReminder}
-          size="lg"
-        >
+        <Button className="flex-1 rounded-xl" onPress={onToggleReminder} size="lg">
           <Ionicons
             color={getButtonForegroundColor(colors, 'primary', 'solid')}
             name={isReminderEnabled ? 'pause-outline' : 'play-outline'}
             size={18}
           />
-          <ButtonText>
-            {isReminderEnabled ? t('today.pause') : t('today.start')}
-          </ButtonText>
+          <ButtonText>{isReminderEnabled ? t('today.pause') : t('today.start')}</ButtonText>
         </Button>
 
         <Button
           action="default"
-          className={`flex-1 rounded-xl ${
-            canSkipBreak ? 'bg-background-0' : 'bg-background-muted'
-          }`}
+          className={`flex-1 rounded-xl ${canSkipBreak ? 'bg-background-0' : 'bg-background-muted'}`}
           disabled={!canSkipBreak}
           onPress={onSkipBreak}
           size="lg"
@@ -148,11 +119,7 @@ export function TodayReminderSection({
             name="close-circle-outline"
             size={18}
           />
-          <Text
-            className={`font-bold ${
-              canSkipBreak ? 'text-typography-700' : 'text-typography-400'
-            }`}
-          >
+          <Text className={`font-bold ${canSkipBreak ? 'text-typography-700' : 'text-typography-400'}`}>
             {t('today.skip')}
           </Text>
         </Button>

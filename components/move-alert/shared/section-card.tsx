@@ -7,11 +7,5 @@ type SectionCardProps = PropsWithChildren<{
 }>;
 
 export function SectionCard({ children, className }: SectionCardProps) {
-  return (
-    <Box
-      className={`rounded-3xl bg-background-0 p-5 shadow-soft-1 ${className ?? ''}`}
-    >
-      {children}
-    </Box>
-  );
+  return <Box className={`rounded-3xl bg-background-0 p-5 shadow-soft-1 ${className ?? ''}`}>{children}</Box>;
 }

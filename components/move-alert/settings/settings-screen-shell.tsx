@@ -13,11 +13,7 @@ type SettingsScreenShellProps = PropsWithChildren<{
   title: string;
 }>;
 
-export function SettingsScreenShell({
-  children,
-  description,
-  title,
-}: SettingsScreenShellProps) {
+export function SettingsScreenShell({ children, description, title }: SettingsScreenShellProps) {
   const router = useRouter();
   const colors = useThemeColors();
 
@@ -35,11 +31,7 @@ export function SettingsScreenShell({
               router.back();
             }}
           >
-            <Ionicons
-              color={colors.textDefault}
-              name="chevron-back"
-              size={22}
-            />
+            <Ionicons color={colors.textDefault} name="chevron-back" size={22} />
           </Pressable>
         }
       />

@@ -22,43 +22,25 @@ type BadgeProps = ViewProps &
     className?: string;
   };
 
-const Badge = React.forwardRef<React.ComponentRef<typeof View>, BadgeProps>(
-  function Badge(
-    {
-      action = 'muted',
-      children,
-      className,
-      size = 'md',
-      variant = 'solid',
-      ...props
-    },
-    ref,
-  ) {
-    return (
-      <BadgeContext.Provider value={{ action, size }}>
-        <View
-          ref={ref}
-          {...props}
-          className={badgeStyle({ action, class: className, size, variant })}
-        >
-          {children}
-        </View>
-      </BadgeContext.Provider>
-    );
-  },
-);
+const Badge = React.forwardRef<React.ComponentRef<typeof View>, BadgeProps>(function Badge(
+  { action = 'muted', children, className, size = 'md', variant = 'solid', ...props },
+  ref,
+) {
+  return (
+    <BadgeContext.Provider value={{ action, size }}>
+      <View ref={ref} {...props} className={badgeStyle({ action, class: className, size, variant })}>
+        {children}
+      </View>
+    </BadgeContext.Provider>
+  );
+});
 
 type BadgeTextProps = React.ComponentProps<typeof Text>;
 
 function BadgeText({ className, ...props }: BadgeTextProps) {
   const { action, size } = useContext(BadgeContext);
 
-  return (
-    <Text
-      {...props}
-      className={badgeTextStyle({ action, class: className, size })}
-    />
-  );
+  return <Text {...props} className={badgeTextStyle({ action, class: className, size })} />;
 }
 
 Badge.displayName = 'Badge';

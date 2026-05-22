@@ -48,10 +48,7 @@ function printCheck(ok, label, detail) {
 }
 
 function sdkRootCandidates() {
-  const candidates = [
-    process.env.ANDROID_HOME,
-    process.env.ANDROID_SDK_ROOT,
-  ].filter(Boolean);
+  const candidates = [process.env.ANDROID_HOME, process.env.ANDROID_SDK_ROOT].filter(Boolean);
 
   if (process.platform === 'darwin') {
     candidates.push(path.join(os.homedir(), 'Library', 'Android', 'sdk'));
@@ -99,9 +96,7 @@ function checkAndroid() {
 
   printCheck(Boolean(sdkRoot), 'Android SDK root', sdkRoot);
   if (!sdkRoot) {
-    failures.push(
-      'Install Android Studio and Android SDK, or set ANDROID_HOME.',
-    );
+    failures.push('Install Android Studio and Android SDK, or set ANDROID_HOME.');
     return { failures, warnings };
   }
 
@@ -128,9 +123,7 @@ function checkAndroid() {
   if (missingPackages.length > 0) {
     const sdkManager = findSdkManager(sdkRoot);
     const packages = missingPackages.map((pkg) => `"${pkg.install}"`).join(' ');
-    const command = sdkManager
-      ? `${sdkManager} ${packages}`
-      : `sdkmanager ${packages}`;
+    const command = sdkManager ? `${sdkManager} ${packages}` : `sdkmanager ${packages}`;
     failures.push(`Install missing Android SDK packages:\n  ${command}`);
   }
 
@@ -146,16 +139,10 @@ function checkAndroid() {
       if (attachedDevices.length === 0) {
         warnings.push('No Android device/emulator is connected right now.');
       } else {
-        printCheck(
-          true,
-          'Android device/emulator',
-          `${attachedDevices.length} found`,
-        );
+        printCheck(true, 'Android device/emulator', `${attachedDevices.length} found`);
       }
     } else {
-      warnings.push(
-        'Could not query adb devices. Start an emulator or reconnect the device.',
-      );
+      warnings.push('Could not query adb devices. Start an emulator or reconnect the device.');
     }
   }
 
@@ -178,25 +165,19 @@ function checkIos() {
   const xcodeReady = commandWorks('xcodebuild', ['-version']);
   printCheck(xcodeReady, 'Xcode command line tools');
   if (!xcodeReady) {
-    failures.push(
-      'Install Xcode and run: sudo xcode-select --switch /Applications/Xcode.app',
-    );
+    failures.push('Install Xcode and run: sudo xcode-select --switch /Applications/Xcode.app');
   }
 
   const simctlReady = commandWorks('xcrun', ['simctl', 'help']);
   printCheck(simctlReady, 'iOS Simulator tools');
   if (!simctlReady) {
-    warnings.push(
-      'Simulator tools are not responding. Open Xcode or reboot if simulator builds fail.',
-    );
+    warnings.push('Simulator tools are not responding. Open Xcode or reboot if simulator builds fail.');
   }
 
   const podReady = commandWorks('pod', ['--version']);
   printCheck(podReady, 'CocoaPods');
   if (!podReady) {
-    warnings.push(
-      'CocoaPods is not on PATH. If iOS pods fail, run: npx pod-install',
-    );
+    warnings.push('CocoaPods is not on PATH. If iOS pods fail, run: npx pod-install');
   }
 
   return { failures, warnings };

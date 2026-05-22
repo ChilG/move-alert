@@ -2,10 +2,7 @@ import { useCallback, useState } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
 
 import { t } from '@/components/move-alert/i18n';
-import {
-  reminderIntervals,
-  weekDays,
-} from '@/components/move-alert/move-alert-data';
+import { reminderIntervals, weekDays } from '@/components/move-alert/move-alert-data';
 import { useMoveAlert } from '@/components/move-alert/move-alert-state';
 import {
   getBatteryOptimizationStatusAsync,
@@ -23,9 +20,7 @@ import {
 } from '@/components/move-alert/settings/system-settings';
 import { SettingsToggleSection } from '@/components/move-alert/settings/settings-toggle-section';
 
-function getBatteryOptimizationStatusLabel(
-  status: BatteryOptimizationStatus | 'loading',
-) {
+function getBatteryOptimizationStatusLabel(status: BatteryOptimizationStatus | 'loading') {
   switch (status) {
     case 'ignored':
       return t('settings.batteryOptimizationIgnored');
@@ -39,9 +34,9 @@ function getBatteryOptimizationStatusLabel(
 }
 
 export default function SettingsRemindersScreen() {
-  const [batteryOptimizationStatus, setBatteryOptimizationStatus] = useState<
-    BatteryOptimizationStatus | 'loading'
-  >('loading');
+  const [batteryOptimizationStatus, setBatteryOptimizationStatus] = useState<BatteryOptimizationStatus | 'loading'>(
+    'loading',
+  );
   const {
     setIntervalMinutes,
     setQuietHoursEndTime,
@@ -70,10 +65,7 @@ export default function SettingsRemindersScreen() {
   );
 
   return (
-    <SettingsScreenShell
-      description={t('settings.remindersPageDescription')}
-      title={t('settings.remindersPageTitle')}
-    >
+    <SettingsScreenShell description={t('settings.remindersPageDescription')} title={t('settings.remindersPageTitle')}>
       <SettingsToggleSection
         isQuietHoursEnabled={state.quietHoursEnabled}
         isReminderEnabled={state.reminderEnabled}

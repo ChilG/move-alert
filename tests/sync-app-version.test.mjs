@@ -4,10 +4,7 @@ import { mkdtemp, readFile, writeFile } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 
-import {
-  syncAppVersionFiles,
-  syncExpoVersionConfig,
-} from '../scripts/sync-app-version.mjs';
+import { syncAppVersionFiles, syncExpoVersionConfig } from '../scripts/sync-app-version.mjs';
 
 test('syncExpoVersionConfig returns a new app config with the package version', () => {
   const appConfig = {
@@ -52,11 +49,7 @@ test('syncAppVersionFiles updates app.json from package.json', async () => {
   const packageJsonPath = path.join(tempDir, 'package.json');
   const appJsonPath = path.join(tempDir, 'app.json');
 
-  await writeFile(
-    packageJsonPath,
-    `${JSON.stringify({ name: 'move-alert', version: '2.3.4' }, null, 2)}\n`,
-    'utf8',
-  );
+  await writeFile(packageJsonPath, `${JSON.stringify({ name: 'move-alert', version: '2.3.4' }, null, 2)}\n`, 'utf8');
   await writeFile(
     appJsonPath,
     `${JSON.stringify(
@@ -101,11 +94,7 @@ test('syncAppVersionFiles skips rewriting when versions already match', async ()
     2,
   )}\n`;
 
-  await writeFile(
-    packageJsonPath,
-    `${JSON.stringify({ name: 'move-alert', version: '3.0.0' }, null, 2)}\n`,
-    'utf8',
-  );
+  await writeFile(packageJsonPath, `${JSON.stringify({ name: 'move-alert', version: '3.0.0' }, null, 2)}\n`, 'utf8');
   await writeFile(appJsonPath, appJsonText, 'utf8');
 
   const result = await syncAppVersionFiles({

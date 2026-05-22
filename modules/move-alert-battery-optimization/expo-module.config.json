@@ -1,8 +1,6 @@
 {
   "platforms": ["android"],
   "android": {
-    "modules": [
-      "com.chilgoe.movealert.batteryoptimization.MoveAlertBatteryOptimizationModule"
-    ]
+    "modules": ["com.chilgoe.movealert.batteryoptimization.MoveAlertBatteryOptimizationModule"]
   }
 }

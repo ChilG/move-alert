@@ -5,24 +5,13 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { AuthFormCard } from '@/components/move-alert/auth/auth-form-card';
 import { AuthHero } from '@/components/move-alert/auth/auth-hero';
 import { useAuth } from '@/components/move-alert/auth-state';
-import {
-  getAuthEmailSchema,
-  getAuthFormSchema,
-  getValidationMessage,
-} from '@/components/move-alert/auth-validation';
+import { getAuthEmailSchema, getAuthFormSchema, getValidationMessage } from '@/components/move-alert/auth-validation';
 import { t } from '@/components/move-alert/i18n';
 
 type AuthMode = 'sign-in' | 'sign-up';
 
 export function AuthScreen() {
-  const {
-    errorMessage,
-    isLoading,
-    resendEmailVerification,
-    signIn,
-    signInAsGuest,
-    signUp,
-  } = useAuth();
+  const { errorMessage, isLoading, resendEmailVerification, signIn, signInAsGuest, signUp } = useAuth();
   const [email, setEmail] = useState('');
   const [formMessage, setFormMessage] = useState<string | null>(null);
   const [mode, setMode] = useState<AuthMode>('sign-in');
@@ -30,12 +19,8 @@ export function AuthScreen() {
 
   const isSignIn = mode === 'sign-in';
 
-  const submitLabel = isSignIn
-    ? t('auth.screen.signInSubmit')
-    : t('auth.screen.signUpSubmit');
-  const title = isSignIn
-    ? t('auth.screen.signInTitle')
-    : t('auth.screen.signUpTitle');
+  const submitLabel = isSignIn ? t('auth.screen.signInSubmit') : t('auth.screen.signUpSubmit');
+  const title = isSignIn ? t('auth.screen.signInTitle') : t('auth.screen.signUpTitle');
 
   async function submitAuthForm() {
     setFormMessage(null);
@@ -113,11 +98,7 @@ export function AuthScreen() {
           guestLabel={t('auth.screen.continueAsGuest')}
           emailPlaceholder={t('auth.screen.emailPlaceholder')}
           submitLabel={submitLabel}
-          switchModeLabel={
-            isSignIn
-              ? t('auth.screen.switchToSignUp')
-              : t('auth.screen.switchToSignIn')
-          }
+          switchModeLabel={isSignIn ? t('auth.screen.switchToSignUp') : t('auth.screen.switchToSignIn')}
         />
       </KeyboardAvoidingView>
     </SafeAreaView>

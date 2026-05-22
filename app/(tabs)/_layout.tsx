@@ -14,24 +14,10 @@ const iconMap = {
   settings: ['options', 'options-outline'],
 } satisfies Record<string, [TabIconName, TabIconName]>;
 
-function TabIcon({
-  color,
-  focused,
-  route,
-}: {
-  color: string;
-  focused: boolean;
-  route: keyof typeof iconMap;
-}) {
+function TabIcon({ color, focused, route }: { color: string; focused: boolean; route: keyof typeof iconMap }) {
   const [activeIcon, inactiveIcon] = iconMap[route];
 
-  return (
-    <Ionicons
-      color={color}
-      name={focused ? activeIcon : inactiveIcon}
-      size={22}
-    />
-  );
+  return <Ionicons color={color} name={focused ? activeIcon : inactiveIcon} size={22} />;
 }
 
 export default function TabsLayout() {
@@ -64,27 +50,21 @@ export default function TabsLayout() {
         name="index"
         options={{
           title: t('tabs.today'),
-          tabBarIcon: ({ color, focused }) => (
-            <TabIcon color={color} focused={focused} route="index" />
-          ),
+          tabBarIcon: ({ color, focused }) => <TabIcon color={color} focused={focused} route="index" />,
         }}
       />
       <Tabs.Screen
         name="stretches"
         options={{
           title: t('tabs.stretches'),
-          tabBarIcon: ({ color, focused }) => (
-            <TabIcon color={color} focused={focused} route="stretches" />
-          ),
+          tabBarIcon: ({ color, focused }) => <TabIcon color={color} focused={focused} route="stretches" />,
         }}
       />
       <Tabs.Screen
         name="settings"
         options={{
           title: t('tabs.settings'),
-          tabBarIcon: ({ color, focused }) => (
-            <TabIcon color={color} focused={focused} route="settings" />
-          ),
+          tabBarIcon: ({ color, focused }) => <TabIcon color={color} focused={focused} route="settings" />,
         }}
       />
     </Tabs>

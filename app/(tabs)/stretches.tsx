@@ -8,8 +8,7 @@ import { StretchCard } from '@/components/move-alert/stretches/stretch-card';
 import { VStack } from '@/components/ui/vstack';
 
 export default function StretchesScreen() {
-  const { activityTemplates, completeStretch, state, stretchCooldown } =
-    useMoveAlert();
+  const { activityTemplates, completeStretch, state, stretchCooldown } = useMoveAlert();
   const [now, setNow] = useState(Date.now());
 
   useEffect(() => {
@@ -26,13 +25,8 @@ export default function StretchesScreen() {
     };
   }, [stretchCooldown]);
 
-  const cooldownRemainingSeconds = stretchCooldown
-    ? Math.max(Math.ceil((stretchCooldown.endsAt - now) / 1000), 0)
-    : 0;
-  const activeCooldownStretchId =
-    cooldownRemainingSeconds > 0
-      ? (stretchCooldown?.activeStretchId ?? null)
-      : null;
+  const cooldownRemainingSeconds = stretchCooldown ? Math.max(Math.ceil((stretchCooldown.endsAt - now) / 1000), 0) : 0;
+  const activeCooldownStretchId = cooldownRemainingSeconds > 0 ? (stretchCooldown?.activeStretchId ?? null) : null;
 
   return (
     <ScreenScrollView>

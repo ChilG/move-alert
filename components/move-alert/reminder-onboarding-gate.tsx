@@ -11,12 +11,7 @@ export function ReminderOnboardingGate() {
   const hasCheckedStorageRef = useRef(false);
 
   useEffect(() => {
-    if (
-      hasCheckedStorageRef.current ||
-      syncStatus === 'idle' ||
-      syncStatus === 'loading' ||
-      syncStatus === 'saving'
-    ) {
+    if (hasCheckedStorageRef.current || syncStatus === 'idle' || syncStatus === 'loading' || syncStatus === 'saving') {
       return;
     }
 

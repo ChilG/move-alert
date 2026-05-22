@@ -2,8 +2,7 @@ import Constants from 'expo-constants';
 import * as Linking from 'expo-linking';
 import { Platform } from 'react-native';
 
-const APP_PACKAGE_NAME =
-  Constants.expoConfig?.android?.package ?? 'com.chilgoe.movealert';
+const APP_PACKAGE_NAME = Constants.expoConfig?.android?.package ?? 'com.chilgoe.movealert';
 
 async function openAppSettingsAsync() {
   await Linking.openSettings();
@@ -38,9 +37,7 @@ export async function openReminderBatterySettingsAsync() {
   }
 
   try {
-    await Linking.sendIntent(
-      'android.settings.IGNORE_BATTERY_OPTIMIZATION_SETTINGS',
-    );
+    await Linking.sendIntent('android.settings.IGNORE_BATTERY_OPTIMIZATION_SETTINGS');
   } catch {
     try {
       await Linking.sendIntent('android.settings.BATTERY_SAVER_SETTINGS');

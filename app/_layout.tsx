@@ -7,10 +7,7 @@ import { LanguagePreferenceProvider } from '@/components/move-alert/language-sta
 import { AuthProvider, useAuth } from '@/components/move-alert/auth-state';
 import { MoveAlertProvider } from '@/components/move-alert/move-alert-state';
 import { ReminderOnboardingGate } from '@/components/move-alert/reminder-onboarding-gate';
-import {
-  ThemePreferenceProvider,
-  useThemePreference,
-} from '@/components/move-alert/theme-state';
+import { ThemePreferenceProvider, useThemePreference } from '@/components/move-alert/theme-state';
 import { GluestackUIProvider } from '@/components/ui/gluestack-ui-provider';
 import '@/global.css';
 

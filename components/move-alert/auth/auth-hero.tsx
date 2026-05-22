@@ -21,9 +21,7 @@ export function AuthHero({ subtitle, title }: AuthHeroProps) {
       <Heading size="2xl" style={{ lineHeight: 36 }}>
         {title}
       </Heading>
-      <Text className="mt-2 text-center text-base leading-6 text-typography-600">
-        {subtitle}
-      </Text>
+      <Text className="mt-2 text-center text-base leading-6 text-typography-600">{subtitle}</Text>
     </View>
   );
 }

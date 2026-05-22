@@ -44,18 +44,8 @@ export function QuietHoursControls({
   return (
     <VStack className={className} space="md">
       <HStack space={timeInputSpace}>
-        <QuietTimeInput
-          label={startLabel}
-          onCommit={onSetStartTime}
-          placeholder={inputPlaceholder}
-          value={startTime}
-        />
-        <QuietTimeInput
-          label={endLabel}
-          onCommit={onSetEndTime}
-          placeholder={inputPlaceholder}
-          value={endTime}
-        />
+        <QuietTimeInput label={startLabel} onCommit={onSetStartTime} placeholder={inputPlaceholder} value={startTime} />
+        <QuietTimeInput label={endLabel} onCommit={onSetEndTime} placeholder={inputPlaceholder} value={endTime} />
       </HStack>
 
       <VStack space="sm">

@@ -12,9 +12,7 @@ import {
 } from '@/components/move-alert/reminder-notification-helpers';
 
 const REMINDER_NOTIFICATION_CHANNEL_ID = 'move-reminders-signature-v2';
-const REMINDER_VIBRATION_PATTERN = [
-  0, 720, 140, 260, 120, 260, 160, 860, 180, 320,
-];
+const REMINDER_VIBRATION_PATTERN = [0, 720, 140, 260, 120, 260, 160, 860, 180, 320];
 const REMINDER_COLOR = '#16A34A';
 let reminderSyncPromise = Promise.resolve();
 let hasInitializedNotificationHandler = false;
@@ -24,12 +22,8 @@ type NotificationsModule = typeof import('expo-notifications');
 type ScheduledNotificationRequest = Awaited<
   ReturnType<NotificationsModule['getAllScheduledNotificationsAsync']>
 >[number];
-type PresentedNotification = Awaited<
-  ReturnType<NotificationsModule['getPresentedNotificationsAsync']>
->[number];
-type NotificationResponse = NonNullable<
-  Awaited<ReturnType<NotificationsModule['getLastNotificationResponseAsync']>>
->;
+type PresentedNotification = Awaited<ReturnType<NotificationsModule['getPresentedNotificationsAsync']>>[number];
+type NotificationResponse = NonNullable<Awaited<ReturnType<NotificationsModule['getLastNotificationResponseAsync']>>>;
 
 function isAndroidDevice() {
   return Platform.OS === 'android';
@@ -71,26 +65,22 @@ async function ensureReminderChannelAsync() {
 
   if (!notificationsModule) return false;
 
-  await notificationsModule.setNotificationChannelAsync(
-    REMINDER_NOTIFICATION_CHANNEL_ID,
-    {
-      audioAttributes: {
-        contentType: notificationsModule.AndroidAudioContentType.SONIFICATION,
-        usage: notificationsModule.AndroidAudioUsage.ALARM,
-      },
-      bypassDnd: false,
-      description: t('notifications.channelDescription'),
-      enableVibrate: true,
-      importance: notificationsModule.AndroidImportance.MAX,
-      lightColor: REMINDER_COLOR,
-      lockscreenVisibility:
-        notificationsModule.AndroidNotificationVisibility.PUBLIC,
-      name: t('notifications.channelName'),
-      showBadge: false,
-      sound: 'default',
-      vibrationPattern: REMINDER_VIBRATION_PATTERN,
+  await notificationsModule.setNotificationChannelAsync(REMINDER_NOTIFICATION_CHANNEL_ID, {
+    audioAttributes: {
+      contentType: notificationsModule.AndroidAudioContentType.SONIFICATION,
+      usage: notificationsModule.AndroidAudioUsage.ALARM,
     },
-  );
+    bypassDnd: false,
+    description: t('notifications.channelDescription'),
+    enableVibrate: true,
+    importance: notificationsModule.AndroidImportance.MAX,
+    lightColor: REMINDER_COLOR,
+    lockscreenVisibility: notificationsModule.AndroidNotificationVisibility.PUBLIC,
+    name: t('notifications.channelName'),
+    showBadge: false,
+    sound: 'default',
+    vibrationPattern: REMINDER_VIBRATION_PATTERN,
+  });
 
   return true;
 }
@@ -105,8 +95,7 @@ async function ensureReminderPermissionsAsync() {
   if (permissions.granted) return true;
   if (!permissions.canAskAgain) return false;
 
-  const requestedPermissions =
-    await notificationsModule.requestPermissionsAsync();
+  const requestedPermissions = await notificationsModule.requestPermissionsAsync();
 
   return requestedPermissions.granted;
 }
@@ -132,16 +121,11 @@ async function cancelReminderNotificationsAsync() {
 
   if (!notificationsModule) return;
 
-  const scheduledNotifications =
-    await notificationsModule.getAllScheduledNotificationsAsync();
-  const reminderNotifications = scheduledNotifications.filter((request) =>
-    isReminderNotification(request),
-  );
+  const scheduledNotifications = await notificationsModule.getAllScheduledNotificationsAsync();
+  const reminderNotifications = scheduledNotifications.filter((request) => isReminderNotification(request));
 
   await Promise.all(
-    reminderNotifications.map((request) =>
-      notificationsModule.cancelScheduledNotificationAsync(request.identifier),
-    ),
+    reminderNotifications.map((request) => notificationsModule.cancelScheduledNotificationAsync(request.identifier)),
   );
 }
 
@@ -150,22 +134,17 @@ async function dismissPresentedReminderNotificationsAsync() {
 
   if (!notificationsModule) return;
 
-  const presentedNotifications =
-    await notificationsModule.getPresentedNotificationsAsync();
+  const presentedNotifications = await notificationsModule.getPresentedNotificationsAsync();
   const reminderNotificationIds = getPresentedReminderNotificationIds(
     presentedNotifications as PresentedNotification[],
   );
 
   await Promise.all(
-    reminderNotificationIds.map((identifier) =>
-      notificationsModule.dismissNotificationAsync(identifier),
-    ),
+    reminderNotificationIds.map((identifier) => notificationsModule.dismissNotificationAsync(identifier)),
   );
 }
 
-async function scheduleReminderNotificationsAsync(
-  state: ReminderNotificationState,
-) {
+async function scheduleReminderNotificationsAsync(state: ReminderNotificationState) {
   const notificationsModule = await loadNotificationsAsync();
 
   if (!notificationsModule) return;
@@ -193,9 +172,7 @@ async function scheduleReminderNotificationsAsync(
   );
 }
 
-async function runReminderNotificationsSyncAsync(
-  state: ReminderNotificationState | null,
-) {
+async function runReminderNotificationsSyncAsync(state: ReminderNotificationState | null) {
   if (!isNotificationRuntimeSupported()) return;
 
   const channelReady = await ensureReminderChannelAsync();
@@ -213,19 +190,13 @@ async function runReminderNotificationsSyncAsync(
   await scheduleReminderNotificationsAsync(state);
 }
 
-export function syncReminderNotificationsAsync(
-  state: ReminderNotificationState | null,
-) {
-  reminderSyncPromise = reminderSyncPromise
-    .catch(() => {})
-    .then(() => runReminderNotificationsSyncAsync(state));
+export function syncReminderNotificationsAsync(state: ReminderNotificationState | null) {
+  reminderSyncPromise = reminderSyncPromise.catch(() => {}).then(() => runReminderNotificationsSyncAsync(state));
 
   return reminderSyncPromise;
 }
 
-export async function subscribeToReminderNotificationResponsesAsync(
-  onReminderPress: () => void,
-) {
+export async function subscribeToReminderNotificationResponsesAsync(onReminderPress: () => void) {
   const notificationsModule = await loadNotificationsAsync();
 
   if (!notificationsModule) {
@@ -259,11 +230,9 @@ export async function subscribeToReminderNotificationResponsesAsync(
 
   await handleResponse(await notifications.getLastNotificationResponseAsync());
 
-  const subscription = notifications.addNotificationResponseReceivedListener(
-    (response) => {
-      void handleResponse(response);
-    },
-  );
+  const subscription = notifications.addNotificationResponseReceivedListener((response) => {
+    void handleResponse(response);
+  });
 
   return () => {
     subscription.remove();

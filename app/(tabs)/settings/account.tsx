@@ -7,10 +7,8 @@ import { SettingsScreenShell } from '@/components/move-alert/settings/settings-s
 import { SettingsAccountSection } from '@/components/move-alert/settings/settings-account-section';
 
 export default function SettingsAccountScreen() {
-  const { deleteAccount, isGuest, isLoading, isLoginDisabled, signOut, user } =
-    useAuth();
-  const [isDeleteConfirmationVisible, setIsDeleteConfirmationVisible] =
-    useState(false);
+  const { deleteAccount, isGuest, isLoading, isLoginDisabled, signOut, user } = useAuth();
+  const [isDeleteConfirmationVisible, setIsDeleteConfirmationVisible] = useState(false);
   const { errorMessage, isSyncing, syncStatus } = useMoveAlert();
   const syncLabel = isSyncing
     ? t('settings.syncing')
@@ -19,10 +17,7 @@ export default function SettingsAccountScreen() {
       : t('settings.synced');
 
   return (
-    <SettingsScreenShell
-      description={t('settings.accountPageDescription')}
-      title={t('settings.accountPageTitle')}
-    >
+    <SettingsScreenShell description={t('settings.accountPageDescription')} title={t('settings.accountPageTitle')}>
       <SettingsAccountSection
         cancelDeleteAccountLabel={t('settings.cancelDeleteAccount')}
         deleteAccountConfirmLabel={t('settings.deleteAccountConfirm')}
@@ -48,11 +43,7 @@ export default function SettingsAccountScreen() {
         signedInAccountLabel={t('settings.signedInAccount')}
         signOutLabel={t('settings.signOut')}
         syncLabel={syncLabel}
-        userEmail={
-          isGuest
-            ? t('settings.guestSession')
-            : (user?.email ?? t('settings.unknownUser'))
-        }
+        userEmail={isGuest ? t('settings.guestSession') : (user?.email ?? t('settings.unknownUser'))}
       />
     </SettingsScreenShell>
   );

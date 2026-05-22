@@ -2,10 +2,7 @@
 <html lang="th">
   <head>
     <meta charset="utf-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1, viewport-fit=cover"
-    />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <title>Move Alert Verification</title>
     <style>
       :root {
@@ -32,9 +29,7 @@
           BlinkMacSystemFont,
           'Segoe UI',
           sans-serif;
-        background:
-          radial-gradient(circle at top right, #ddf4e5, transparent 28%),
-          var(--bg);
+        background: radial-gradient(circle at top right, #ddf4e5, transparent 28%), var(--bg);
         color: var(--text);
       }
 
@@ -126,21 +121,15 @@
         <div class="eyebrow">Move Alert</div>
         <h1>Verify and return to the app</h1>
         <p class="subtitle">
-          Your verification link is ready. We will open Move Alert so the app
-          can finish account verification.
+          Your verification link is ready. We will open Move Alert so the app can finish account verification.
         </p>
         <p class="subtitle">
-          ลิงก์ยืนยันของคุณพร้อมแล้ว ระบบจะพาคุณกลับเข้าแอป Move Alert
-          เพื่อยืนยันบัญชีให้เสร็จสมบูรณ์
+          ลิงก์ยืนยันของคุณพร้อมแล้ว ระบบจะพาคุณกลับเข้าแอป Move Alert เพื่อยืนยันบัญชีให้เสร็จสมบูรณ์
         </p>
 
         <div class="actions">
-          <a class="button primary" id="open-app-button" href="#">
-            Open Move Alert
-          </a>
-          <a class="button secondary" href="./index.html">
-            Back to legal pages
-          </a>
+          <a class="button primary" id="open-app-button" href="#"> Open Move Alert </a>
+          <a class="button secondary" href="./index.html"> Back to legal pages </a>
         </div>
 
         <p class="status" id="status">Redirecting to the app...</p>
@@ -157,8 +146,7 @@
       openAppButton.href = appUrl;
 
       if (!query && !hash) {
-        statusNode.textContent =
-          'No verification payload was found in this link. กรุณากลับไปกดลิงก์จากอีเมลอีกครั้ง';
+        statusNode.textContent = 'No verification payload was found in this link. กรุณากลับไปกดลิงก์จากอีเมลอีกครั้ง';
       } else {
         window.setTimeout(() => {
           window.location.href = appUrl;

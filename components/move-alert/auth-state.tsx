@@ -1,21 +1,10 @@
 import type { Session, User } from '@supabase/supabase-js';
 import * as Linking from 'expo-linking';
-import {
-  createContext,
-  useContext,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+import { createContext, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import type { PropsWithChildren } from 'react';
 import { Platform } from 'react-native';
 
-import {
-  getAuthEmailSchema,
-  getAuthFormSchema,
-  getValidationMessage,
-} from '@/components/move-alert/auth-validation';
+import { getAuthEmailSchema, getAuthFormSchema, getValidationMessage } from '@/components/move-alert/auth-validation';
 import { t } from '@/components/move-alert/i18n';
 import { supabase } from '@/lib/supabase';
 
@@ -41,11 +30,7 @@ const AuthContext = createContext<AuthState | null>(null);
 const isLoginDisabled = true;
 
 async function isSoftDeletedAccount(userId: string) {
-  const { data, error } = await supabase
-    .from('deleted_accounts')
-    .select('user_id')
-    .eq('user_id', userId)
-    .maybeSingle();
+  const { data, error } = await supabase.from('deleted_accounts').select('user_id').eq('user_id', userId).maybeSingle();
 
   if (error) {
     throw error;
@@ -67,10 +52,7 @@ async function startGuestSession() {
 }
 
 function toFriendlyAuthMessage(message: string) {
-  if (
-    message.toLowerCase().includes('otp_expired') ||
-    message.toLowerCase().includes('invalid or has expired')
-  ) {
+  if (message.toLowerCase().includes('otp_expired') || message.toLowerCase().includes('invalid or has expired')) {
     return t('auth.errors.verificationExpired');
   }
 
@@ -100,10 +82,7 @@ function getEmailRedirectTo() {
   const hostedLegalBaseUrl = process.env.EXPO_PUBLIC_LEGAL_BASE_URL;
 
   if (Platform.OS !== 'web' && hostedLegalBaseUrl) {
-    return new URL(
-      'verify-account.html',
-      `${hostedLegalBaseUrl.replace(/\/$/, '')}/`,
-    ).toString();
+    return new URL('verify-account.html', `${hostedLegalBaseUrl.replace(/\/$/, '')}/`).toString();
   }
 
   if (Platform.OS === 'web' && typeof window !== 'undefined') {
@@ -151,9 +130,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
       const code = params.get('code');
 
       if (errorDescription || errorCode) {
-        setErrorMessage(
-          toFriendlyAuthMessage(errorDescription ?? errorCode ?? ''),
-        );
+        setErrorMessage(toFriendlyAuthMessage(errorDescription ?? errorCode ?? ''));
         return;
       }
 
@@ -287,13 +264,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
           return;
         }
 
-        setErrorMessage(
-          toFriendlyAuthMessage(
-            error instanceof Error
-              ? error.message
-              : 'Unable to verify account.',
-          ),
-        );
+        setErrorMessage(toFriendlyAuthMessage(error instanceof Error ? error.message : 'Unable to verify account.'));
       }
     }
 
@@ -409,11 +380,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
           }
         } catch (signInError) {
           setErrorMessage(
-            toFriendlyAuthMessage(
-              signInError instanceof Error
-                ? signInError.message
-                : 'Unable to verify account.',
-            ),
+            toFriendlyAuthMessage(signInError instanceof Error ? signInError.message : 'Unable to verify account.'),
           );
           setIsLoading(false);
           return false;

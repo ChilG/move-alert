@@ -1,9 +1,5 @@
 import type { TimelineItem, WeekDay } from './move-alert-data';
-import {
-  getNextReminderDate,
-  isQuietHoursActive,
-  minuteInMs,
-} from './today/today-helpers';
+import { getNextReminderDate, isQuietHoursActive, minuteInMs } from './today/today-helpers';
 
 export const REMINDER_NOTIFICATION_SCOPE = 'move-reminder';
 export const REMINDER_HORIZON_DAYS = 3;
@@ -64,25 +60,17 @@ function isReminderNotificationData(
   return options?.includeDebug ? true : data.isDebug !== true;
 }
 
-export function isReminderScheduledNotification(
-  request: ScheduledReminderNotificationLike,
-) {
+export function isReminderScheduledNotification(request: ScheduledReminderNotificationLike) {
   return isReminderNotificationData(request.content.data);
 }
 
-export function isReminderNotificationResponse(
-  response: ReminderNotificationResponseLike,
-) {
+export function isReminderNotificationResponse(response: ReminderNotificationResponseLike) {
   return isReminderNotificationData(response.notification.request.content.data);
 }
 
-export function getPresentedReminderNotificationIds(
-  notifications: PresentedReminderNotificationLike[],
-) {
+export function getPresentedReminderNotificationIds(notifications: PresentedReminderNotificationLike[]) {
   return notifications
-    .filter((notification) =>
-      isReminderNotificationData(notification.request.content.data),
-    )
+    .filter((notification) => isReminderNotificationData(notification.request.content.data))
     .map((notification) => notification.request.identifier);
 }
 
@@ -90,14 +78,9 @@ export function getReminderNotificationIdentifier(date: Date) {
   return `${REMINDER_NOTIFICATION_SCOPE}:${date.getTime()}`;
 }
 
-export function buildReminderDates(
-  state: ReminderNotificationState,
-  now: Date,
-) {
+export function buildReminderDates(state: ReminderNotificationState, now: Date) {
   const nextReminderDate = getNextReminderDate(state, now);
-  const horizonDate = new Date(
-    now.getTime() + REMINDER_HORIZON_DAYS * 24 * 60 * minuteInMs,
-  );
+  const horizonDate = new Date(now.getTime() + REMINDER_HORIZON_DAYS * 24 * 60 * minuteInMs);
   const intervalMs = Math.max(state.intervalMinutes, 1) * minuteInMs;
   const reminderDates: Date[] = [];
 

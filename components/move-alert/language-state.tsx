@@ -1,13 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {
-  Fragment,
-  createContext,
-  PropsWithChildren,
-  useCallback,
-  useContext,
-  useEffect,
-  useState,
-} from 'react';
+import { Fragment, createContext, PropsWithChildren, useCallback, useContext, useEffect, useState } from 'react';
 
 import {
   getCurrentLanguage,
@@ -35,14 +27,11 @@ export function LanguagePreferenceProvider({ children }: PropsWithChildren) {
     let isMounted = true;
 
     async function loadLanguageMode() {
-      const storedLanguageMode =
-        await AsyncStorage.getItem(LANGUAGE_STORAGE_KEY);
+      const storedLanguageMode = await AsyncStorage.getItem(LANGUAGE_STORAGE_KEY);
 
       if (
         isMounted &&
-        (storedLanguageMode === 'system' ||
-          storedLanguageMode === 'th' ||
-          storedLanguageMode === 'en')
+        (storedLanguageMode === 'system' || storedLanguageMode === 'th' || storedLanguageMode === 'en')
       ) {
         setLanguageModeState(storedLanguageMode);
       }
@@ -67,9 +56,7 @@ export function LanguagePreferenceProvider({ children }: PropsWithChildren) {
   const resolvedLanguage = getCurrentLanguage();
 
   return (
-    <LanguagePreferenceContext.Provider
-      value={{ languageMode, resolvedLanguage, setLanguageMode }}
-    >
+    <LanguagePreferenceContext.Provider value={{ languageMode, resolvedLanguage, setLanguageMode }}>
       <Fragment key={resolvedLanguage}>{children}</Fragment>
     </LanguagePreferenceContext.Provider>
   );

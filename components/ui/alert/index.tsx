@@ -20,33 +20,25 @@ type AlertProps = ViewProps &
     className?: string;
   };
 
-const Alert = React.forwardRef<React.ComponentRef<typeof View>, AlertProps>(
-  function Alert(
-    { action = 'muted', children, className, variant = 'solid', ...props },
-    ref,
-  ) {
-    return (
-      <AlertContext.Provider value={{ action }}>
-        <View
-          ref={ref}
-          {...props}
-          className={alertStyle({ action, class: className, variant })}
-        >
-          {children}
-        </View>
-      </AlertContext.Provider>
-    );
-  },
-);
+const Alert = React.forwardRef<React.ComponentRef<typeof View>, AlertProps>(function Alert(
+  { action = 'muted', children, className, variant = 'solid', ...props },
+  ref,
+) {
+  return (
+    <AlertContext.Provider value={{ action }}>
+      <View ref={ref} {...props} className={alertStyle({ action, class: className, variant })}>
+        {children}
+      </View>
+    </AlertContext.Provider>
+  );
+});
 
 type AlertTextProps = React.ComponentProps<typeof Text>;
 
 function AlertText({ className, ...props }: AlertTextProps) {
   const { action } = useContext(AlertContext);
 
-  return (
-    <Text {...props} className={alertTextStyle({ action, class: className })} />
-  );
+  return <Text {...props} className={alertTextStyle({ action, class: className })} />;
 }
 
 Alert.displayName = 'Alert';

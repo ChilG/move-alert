@@ -2,17 +2,11 @@ import { PropsWithChildren } from 'react';
 import { ScrollView, ScrollViewProps } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-type ScreenScrollViewProps = PropsWithChildren<
-  Omit<ScrollViewProps, 'contentContainerStyle'>
-> & {
+type ScreenScrollViewProps = PropsWithChildren<Omit<ScrollViewProps, 'contentContainerStyle'>> & {
   bottomOffset?: number;
 };
 
-export function ScreenScrollView({
-  bottomOffset = 96,
-  children,
-  ...props
-}: ScreenScrollViewProps) {
+export function ScreenScrollView({ bottomOffset = 96, children, ...props }: ScreenScrollViewProps) {
   const insets = useSafeAreaInsets();
 
   return (

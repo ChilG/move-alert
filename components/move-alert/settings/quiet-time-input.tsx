@@ -25,15 +25,8 @@ function formatQuietTimeDigits(digits: string) {
   return `${digits.slice(0, 2)}:${digits.slice(2)}`;
 }
 
-export function QuietTimeInput({
-  label,
-  onCommit,
-  placeholder,
-  value,
-}: QuietTimeInputProps) {
-  const [draftDigits, setDraftDigits] = useState(() =>
-    getQuietTimeDigits(value),
-  );
+export function QuietTimeInput({ label, onCommit, placeholder, value }: QuietTimeInputProps) {
+  const [draftDigits, setDraftDigits] = useState(() => getQuietTimeDigits(value));
   const colors = useThemeColors();
   const draftValue = formatQuietTimeDigits(draftDigits);
   const isValid = isValidQuietTime(draftValue);
@@ -56,11 +49,7 @@ export function QuietTimeInput({
   return (
     <VStack className="flex-1" space="xs">
       <Text className="text-sm font-bold text-typography-600">{label}</Text>
-      <Input
-        className="rounded-2xl"
-        isInvalid={draftDigits.length === 4 && !isValid}
-        size="lg"
-      >
+      <Input className="rounded-2xl" isInvalid={draftDigits.length === 4 && !isValid} size="lg">
         <InputField
           inputMode="numeric"
           maxLength={5}
@@ -76,9 +65,7 @@ export function QuietTimeInput({
         />
       </Input>
       {draftDigits.length === 4 && !isValid ? (
-        <Text className="mt-2 text-xs font-semibold text-error-700">
-          {t('settings.quietHoursInvalidTime')}
-        </Text>
+        <Text className="mt-2 text-xs font-semibold text-error-700">{t('settings.quietHoursInvalidTime')}</Text>
       ) : null}
     </VStack>
   );

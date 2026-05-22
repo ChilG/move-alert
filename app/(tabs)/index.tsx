@@ -11,8 +11,7 @@ import { Box } from '@/components/ui/box';
 import { VStack } from '@/components/ui/vstack';
 
 export default function TodayScreen() {
-  const { reminderSectionModel, skipBreak, state, toggleReminder } =
-    useTodayScreenState();
+  const { reminderSectionModel, skipBreak, state, toggleReminder } = useTodayScreenState();
 
   return (
     <ScreenScrollView>
@@ -22,20 +21,13 @@ export default function TodayScreen() {
         title={t('today.title')}
         trailing={
           <Box className="h-16 w-16 items-center justify-center rounded-2xl">
-            <Image
-              source={require('@/assets/images/icon.png')}
-              style={{ width: 56, height: 56, borderRadius: 10 }}
-            />
+            <Image source={require('@/assets/images/icon.png')} style={{ width: 56, height: 56, borderRadius: 10 }} />
           </Box>
         }
       />
 
       <VStack className="mt-6" space="lg">
-        <TodayReminderSection
-          model={reminderSectionModel}
-          onSkipBreak={skipBreak}
-          onToggleReminder={toggleReminder}
-        />
+        <TodayReminderSection model={reminderSectionModel} onSkipBreak={skipBreak} onToggleReminder={toggleReminder} />
 
         <TodayMetricsSection
           completedToday={state.completedToday}
@@ -46,10 +38,7 @@ export default function TodayScreen() {
           streakValue={tf('today.streakValue', { days: state.streakDays })}
         />
 
-        <TodayTimelineSection
-          timeline={state.timeline}
-          title={t('today.timelineTitle')}
-        />
+        <TodayTimelineSection timeline={state.timeline} title={t('today.timelineTitle')} />
       </VStack>
     </ScreenScrollView>
   );

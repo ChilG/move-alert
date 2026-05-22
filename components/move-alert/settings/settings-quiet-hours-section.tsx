@@ -43,12 +43,8 @@ export function SettingsQuietHoursSection({
     <SectionCard className="mt-5">
       <View className="flex-row items-center justify-between">
         <View className="flex-1 pr-4">
-          <Text className="text-lg font-extrabold text-typography-900">
-            {title}
-          </Text>
-          <Text className="mt-1 text-sm leading-5 text-typography-500">
-            {description}
-          </Text>
+          <Text className="text-lg font-extrabold text-typography-900">{title}</Text>
+          <Text className="mt-1 text-sm leading-5 text-typography-500">{description}</Text>
         </View>
         <Ionicons color="#525252" name="moon-outline" size={26} />
       </View>

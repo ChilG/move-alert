@@ -32,8 +32,7 @@ export function StretchCard({
 }: StretchCardProps) {
   const colors = useThemeColors();
   const isActiveCooldown = activeCooldownStretchId === stretch.id;
-  const isCoolingDown =
-    activeCooldownStretchId !== null && activeCooldownStretchId !== stretch.id;
+  const isCoolingDown = activeCooldownStretchId !== null && activeCooldownStretchId !== stretch.id;
   const isDisabled = isDone || isCoolingDown || isActiveCooldown;
   const isRepeatDisabled = isActiveCooldown || activeCooldownStretchId !== null;
   const buttonClassName = isActiveCooldown
@@ -81,11 +80,7 @@ export function StretchCard({
   return (
     <SectionCard>
       <HStack space="lg">
-        <View
-          className={`h-14 w-14 items-center justify-center rounded-2xl ${
-            toneClass[stretch.tone]
-          }`}
-        >
+        <View className={`h-14 w-14 items-center justify-center rounded-2xl ${toneClass[stretch.tone]}`}>
           <Ionicons
             color={
               stretch.tone === 'error'
@@ -104,50 +99,32 @@ export function StretchCard({
         <View className="flex-1">
           <HStack className="items-start justify-between" space="md">
             <View className="flex-1">
-              <Text className="text-lg font-extrabold text-typography-900">
-                {t(stretch.titleKey)}
-              </Text>
-              <Text className="mt-1 text-sm font-semibold text-typography-500">
-                {t(stretch.targetKey)}
-              </Text>
+              <Text className="text-lg font-extrabold text-typography-900">{t(stretch.titleKey)}</Text>
+              <Text className="mt-1 text-sm font-semibold text-typography-500">{t(stretch.targetKey)}</Text>
             </View>
             <Badge className="px-3 py-1">
               <BadgeText>{t(stretch.durationKey)}</BadgeText>
             </Badge>
           </HStack>
 
-          <Text className="mt-3 text-base leading-6 text-typography-600">
-            {t(stretch.descriptionKey)}
-          </Text>
+          <Text className="mt-3 text-base leading-6 text-typography-600">{t(stretch.descriptionKey)}</Text>
 
           {isDone ? (
             <HStack className="mt-3" space="sm">
               <Button
                 action={isRepeatDisabled ? 'default' : 'primary'}
                 accessibilityState={{ disabled: isRepeatDisabled }}
-                className={`flex-1 rounded-xl ${
-                  isRepeatDisabled ? 'bg-background-muted' : 'bg-primary-500'
-                }`}
+                className={`flex-1 rounded-xl ${isRepeatDisabled ? 'bg-background-muted' : 'bg-primary-500'}`}
                 disabled={isRepeatDisabled}
                 onPress={() => onComplete(stretch.id)}
                 size="lg"
               >
                 <Ionicons
-                  color={
-                    isRepeatDisabled ? colors.textDisabled : colors.textInverse
-                  }
-                  name={
-                    isRepeatDisabled ? 'time-outline' : 'refresh-circle-outline'
-                  }
+                  color={isRepeatDisabled ? colors.textDisabled : colors.textInverse}
+                  name={isRepeatDisabled ? 'time-outline' : 'refresh-circle-outline'}
                   size={18}
                 />
-                <Text
-                  className={`font-bold ${
-                    isRepeatDisabled
-                      ? 'text-typography-500'
-                      : 'text-typography-0'
-                  }`}
-                >
+                <Text className={`font-bold ${isRepeatDisabled ? 'text-typography-500' : 'text-typography-0'}`}>
                   {isRepeatDisabled
                     ? tf('stretches.cooldown', {
                         seconds: cooldownRemainingSeconds,
@@ -163,11 +140,7 @@ export function StretchCard({
                 disabled
                 size="lg"
               >
-                <Ionicons
-                  color={colors.success}
-                  name="checkmark-circle"
-                  size={22}
-                />
+                <Ionicons color={colors.success} name="checkmark-circle" size={22} />
               </Button>
             </HStack>
           ) : (
@@ -179,14 +152,8 @@ export function StretchCard({
               onPress={() => onComplete(stretch.id)}
               size="lg"
             >
-              <Ionicons
-                color={buttonIconColor}
-                name={buttonIconName}
-                size={18}
-              />
-              <Text className={`font-bold ${buttonTextClassName}`}>
-                {buttonLabel}
-              </Text>
+              <Ionicons color={buttonIconColor} name={buttonIconName} size={18} />
+              <Text className={`font-bold ${buttonTextClassName}`}>{buttonLabel}</Text>
             </Button>
           )}
         </View>

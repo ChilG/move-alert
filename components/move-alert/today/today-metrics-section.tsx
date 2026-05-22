@@ -28,32 +28,20 @@ export function TodayMetricsSection({
     <HStack className="mb-5" space="md">
       <Box className="flex-1 rounded-2xl bg-info-50 p-4">
         <Ionicons color={colors.info} name="bar-chart-outline" size={24} />
-        <Text className="mt-3 text-sm font-semibold text-info-700">
-          {doneLabel}
-        </Text>
-        <Text className="mt-1 text-2xl font-extrabold text-info-900">
-          {completedToday}
-        </Text>
+        <Text className="mt-3 text-sm font-semibold text-info-700">{doneLabel}</Text>
+        <Text className="mt-1 text-2xl font-extrabold text-info-900">{completedToday}</Text>
       </Box>
 
       <Box className="flex-1 rounded-2xl bg-success-50 p-4">
         <Ionicons color={colors.success} name="flame-outline" size={24} />
-        <Text className="mt-3 text-sm font-semibold text-success-700">
-          {streakLabel}
-        </Text>
-        <Text className="mt-1 text-2xl font-extrabold text-success-900">
-          {streakValue}
-        </Text>
+        <Text className="mt-3 text-sm font-semibold text-success-700">{streakLabel}</Text>
+        <Text className="mt-1 text-2xl font-extrabold text-success-900">{streakValue}</Text>
       </Box>
 
       <Box className="flex-1 rounded-2xl bg-warning-50 p-4">
         <Ionicons color={colors.warning} name="time-outline" size={24} />
-        <Text className="mt-3 text-sm font-semibold text-warning-700">
-          {skippedLabel}
-        </Text>
-        <Text className="mt-1 text-2xl font-extrabold text-warning-900">
-          {skippedToday}
-        </Text>
+        <Text className="mt-3 text-sm font-semibold text-warning-700">{skippedLabel}</Text>
+        <Text className="mt-1 text-2xl font-extrabold text-warning-900">{skippedToday}</Text>
       </Box>
     </HStack>
   );

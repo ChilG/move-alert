@@ -1,9 +1,4 @@
-import {
-  StretchItem,
-  type TimelineItem,
-  weekDays,
-  type WeekDay,
-} from '../move-alert-data';
+import { StretchItem, type TimelineItem, weekDays, type WeekDay } from '../move-alert-data';
 
 export const minuteInMs = 60 * 1000;
 export const secondInMs = 1000;
@@ -22,9 +17,7 @@ export type ReminderScheduleState = QuietHoursState & {
 };
 
 export function formatReminderTime(date: Date) {
-  return `${String(date.getHours()).padStart(2, '0')}:${String(
-    date.getMinutes(),
-  ).padStart(2, '0')}`;
+  return `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
 }
 
 export function parseReminderTime(time: string, date: Date) {
@@ -32,13 +25,7 @@ export function parseReminderTime(time: string, date: Date) {
 
   if (!parsedTime) return null;
 
-  return new Date(
-    date.getFullYear(),
-    date.getMonth(),
-    date.getDate(),
-    Number(parsedTime[1]),
-    Number(parsedTime[2]),
-  );
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate(), Number(parsedTime[1]), Number(parsedTime[2]));
 }
 
 function getTimeMinutes(time: string) {
@@ -61,11 +48,7 @@ export function isQuietHoursActive(state: QuietHoursState, date: Date) {
   const currentMinutes = date.getHours() * 60 + date.getMinutes();
   const currentDay = date.getDay() as WeekDay;
 
-  if (
-    startMinutes === null ||
-    endMinutes === null ||
-    !weekDays.includes(currentDay)
-  ) {
+  if (startMinutes === null || endMinutes === null || !weekDays.includes(currentDay)) {
     return false;
   }
 
@@ -74,17 +57,12 @@ export function isQuietHoursActive(state: QuietHoursState, date: Date) {
   }
 
   if (startMinutes < endMinutes) {
-    return (
-      state.quietHoursDays.includes(currentDay) &&
-      currentMinutes >= startMinutes &&
-      currentMinutes < endMinutes
-    );
+    return state.quietHoursDays.includes(currentDay) && currentMinutes >= startMinutes && currentMinutes < endMinutes;
   }
 
   return currentMinutes >= startMinutes
     ? state.quietHoursDays.includes(currentDay)
-    : state.quietHoursDays.includes(getPreviousWeekDay(currentDay)) &&
-        currentMinutes < endMinutes;
+    : state.quietHoursDays.includes(getPreviousWeekDay(currentDay)) && currentMinutes < endMinutes;
 }
 
 function parseStoredReminderDate(value: string | null) {
@@ -101,9 +79,7 @@ function getLegacyNextReminderDate(timeline: MoveAlertTimeline, date: Date) {
     null,
   );
 
-  return nextTimelineItem
-    ? parseReminderTime(nextTimelineItem.time, date)
-    : null;
+  return nextTimelineItem ? parseReminderTime(nextTimelineItem.time, date) : null;
 }
 
 function getReminderIntervalMs(intervalMinutes: number) {
@@ -118,10 +94,7 @@ function advanceReminderDate(
   const intervalMs = getReminderIntervalMs(state.intervalMinutes);
   let nextReminderDate = reminderDate;
 
-  while (
-    nextReminderDate.getTime() <= date.getTime() ||
-    isQuietHoursActive(state, nextReminderDate)
-  ) {
+  while (nextReminderDate.getTime() <= date.getTime() || isQuietHoursActive(state, nextReminderDate)) {
     nextReminderDate = new Date(nextReminderDate.getTime() + intervalMs);
   }
 
@@ -134,9 +107,7 @@ export function createNextReminderDateFromAnchor(
 ) {
   return advanceReminderDate(
     state,
-    new Date(
-      anchorDate.getTime() + getReminderIntervalMs(state.intervalMinutes),
-    ),
+    new Date(anchorDate.getTime() + getReminderIntervalMs(state.intervalMinutes)),
     anchorDate,
   );
 }
@@ -145,9 +116,7 @@ export function getNextReminderDate(state: ReminderScheduleState, date: Date) {
   const storedReminderDate = parseStoredReminderDate(state.nextReminderAt);
   const legacyTimelineDate = getLegacyNextReminderDate(state.timeline, date);
   const scheduledDate =
-    storedReminderDate ??
-    legacyTimelineDate ??
-    new Date(date.getTime() + getReminderIntervalMs(state.intervalMinutes));
+    storedReminderDate ?? legacyTimelineDate ?? new Date(date.getTime() + getReminderIntervalMs(state.intervalMinutes));
 
   return advanceReminderDate(state, scheduledDate, date);
 }
@@ -165,9 +134,7 @@ export function getSuggestedStretch(
   completedStretchIds: string[],
   seedDate: Date,
 ): StretchItem | null {
-  const availableStretches = activityTemplates.filter(
-    (stretch) => !completedStretchIds.includes(stretch.id),
-  );
+  const availableStretches = activityTemplates.filter((stretch) => !completedStretchIds.includes(stretch.id));
 
   if (availableStretches.length === 0) return null;
 
@@ -183,15 +150,9 @@ export function getSuggestedStretch(
   return availableStretches[getSeededIndex(seed, availableStretches.length)];
 }
 
-export function isWaitingForSkippedBreak(
-  state: ReminderScheduleState,
-  date: Date,
-) {
+export function isWaitingForSkippedBreak(state: ReminderScheduleState, date: Date) {
   const latestHistoryItem = state.timeline.at(-1);
   const nextBreakDate = getNextReminderDate(state, date);
 
-  return (
-    latestHistoryItem?.labelKey === 'timeline.breakSkipped' &&
-    nextBreakDate.getTime() > date.getTime()
-  );
+  return latestHistoryItem?.labelKey === 'timeline.breakSkipped' && nextBreakDate.getTime() > date.getTime();
 }

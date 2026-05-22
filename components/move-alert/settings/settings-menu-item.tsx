@@ -14,13 +14,7 @@ type SettingsMenuItemProps = {
   value?: string;
 };
 
-export function SettingsMenuItem({
-  description,
-  icon,
-  onPress,
-  title,
-  value,
-}: SettingsMenuItemProps) {
+export function SettingsMenuItem({ description, icon, onPress, title, value }: SettingsMenuItemProps) {
   const colors = useThemeColors();
 
   return (
@@ -34,21 +28,14 @@ export function SettingsMenuItem({
         </View>
 
         <View className="flex-1">
-          <Text className="text-base font-extrabold text-typography-900">
-            {title}
-          </Text>
-          <Text className="mt-1 text-sm leading-5 text-typography-500">
-            {description}
-          </Text>
+          <Text className="text-base font-extrabold text-typography-900">{title}</Text>
+          <Text className="mt-1 text-sm leading-5 text-typography-500">{description}</Text>
         </View>
       </HStack>
 
       <HStack className="ml-4 items-center" space="sm">
         {value ? (
-          <Text
-            className="max-w-[112px] text-right text-sm font-semibold text-typography-500"
-            numberOfLines={2}
-          >
+          <Text className="max-w-[112px] text-right text-sm font-semibold text-typography-500" numberOfLines={2}>
             {value}
           </Text>
         ) : null}

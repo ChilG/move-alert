@@ -1,10 +1,7 @@
 import { useState } from 'react';
 import { Ionicons } from '@expo/vector-icons';
 
-import {
-  getButtonForegroundColor,
-  useThemeColors,
-} from '@/components/move-alert/theme-colors';
+import { getButtonForegroundColor, useThemeColors } from '@/components/move-alert/theme-colors';
 import { Alert, AlertText } from '@/components/ui/alert';
 import { Button, ButtonSpinner, ButtonText } from '@/components/ui/button';
 import { Input, InputField } from '@/components/ui/input';
@@ -63,9 +60,7 @@ export function AuthFormCard({
 
   return (
     <SectionCard>
-      <Text className="text-sm font-bold uppercase text-info-600">
-        {providerLabel}
-      </Text>
+      <Text className="text-sm font-bold uppercase text-info-600">{providerLabel}</Text>
 
       <VStack className="mt-4" space="md">
         <Input className="rounded-2xl" size="xl">
@@ -92,19 +87,13 @@ export function AuthFormCard({
             value={password}
           />
           <Pressable
-            accessibilityLabel={
-              isPasswordVisible ? hidePasswordLabel : showPasswordLabel
-            }
+            accessibilityLabel={isPasswordVisible ? hidePasswordLabel : showPasswordLabel}
             className="h-full items-center justify-center px-4"
             onPress={() => {
               setIsPasswordVisible((current) => !current);
             }}
           >
-            <Ionicons
-              color={colors.textMuted}
-              name={isPasswordVisible ? 'eye-off-outline' : 'eye-outline'}
-              size={20}
-            />
+            <Ionicons color={colors.textMuted} name={isPasswordVisible ? 'eye-off-outline' : 'eye-outline'} size={20} />
           </Pressable>
         </Input>
       </VStack>
@@ -115,20 +104,11 @@ export function AuthFormCard({
         </Alert>
       ) : null}
 
-      <Button
-        className="mt-5 rounded-2xl"
-        disabled={isLoading}
-        onPress={onSubmit}
-        size="xl"
-      >
+      <Button className="mt-5 rounded-2xl" disabled={isLoading} onPress={onSubmit} size="xl">
         {isLoading ? (
           <ButtonSpinner />
         ) : (
-          <Ionicons
-            color={getButtonForegroundColor(colors, 'primary', 'solid')}
-            name="log-in-outline"
-            size={20}
-          />
+          <Ionicons color={getButtonForegroundColor(colors, 'primary', 'solid')} name="log-in-outline" size={20} />
         )}
         <ButtonText>{submitLabel}</ButtonText>
       </Button>
@@ -141,21 +121,11 @@ export function AuthFormCard({
         size="xl"
         variant="outline"
       >
-        <Ionicons
-          color={getButtonForegroundColor(colors, 'default', 'outline')}
-          name="walk-outline"
-          size={20}
-        />
+        <Ionicons color={getButtonForegroundColor(colors, 'default', 'outline')} name="walk-outline" size={20} />
         <ButtonText>{guestLabel}</ButtonText>
       </Button>
 
-      <Button
-        action="primary"
-        className="mt-3 self-center"
-        disabled={isLoading}
-        onPress={onToggleMode}
-        variant="link"
-      >
+      <Button action="primary" className="mt-3 self-center" disabled={isLoading} onPress={onToggleMode} variant="link">
         <ButtonText>{switchModeLabel}</ButtonText>
       </Button>
 

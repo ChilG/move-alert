@@ -34,12 +34,8 @@ export function SettingsIntervalSection({
     <SectionCard className="mt-6">
       <View className="flex-row items-center justify-between">
         <View>
-          <Text className="text-lg font-extrabold text-typography-900">
-            {title}
-          </Text>
-          <Text className="mt-1 text-sm text-typography-500">
-            {description}
-          </Text>
+          <Text className="text-lg font-extrabold text-typography-900">{title}</Text>
+          <Text className="mt-1 text-sm text-typography-500">{description}</Text>
         </View>
         <Ionicons color={colors.textDefault} name="alarm-outline" size={26} />
       </View>

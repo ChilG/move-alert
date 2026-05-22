@@ -36,18 +36,9 @@ test('isQuietHoursActive handles overnight quiet hours across midnight', () => {
     quietHoursEnabled: true,
   });
 
-  assert.equal(
-    isQuietHoursActive(state, new Date('2026-05-20T18:30:00+07:00')),
-    true,
-  );
-  assert.equal(
-    isQuietHoursActive(state, new Date('2026-05-21T08:30:00+07:00')),
-    true,
-  );
-  assert.equal(
-    isQuietHoursActive(state, new Date('2026-05-21T09:30:00+07:00')),
-    false,
-  );
+  assert.equal(isQuietHoursActive(state, new Date('2026-05-20T18:30:00+07:00')), true);
+  assert.equal(isQuietHoursActive(state, new Date('2026-05-21T08:30:00+07:00')), true);
+  assert.equal(isQuietHoursActive(state, new Date('2026-05-21T09:30:00+07:00')), false);
 });
 
 test('getNextReminderDate rolls stale next entries forward to the next interval slot', () => {
@@ -88,9 +79,7 @@ test('buildReminderDates excludes reminders during quiet hours', () => {
 
   assert.equal(reminderDates[0]?.toISOString(), '2026-05-20T09:30:00.000Z');
   assert.equal(reminderDates[1]?.toISOString(), '2026-05-21T02:00:00.000Z');
-  assert.ok(
-    reminderDates.every((date) => !isQuietHoursActive(quietHoursState, date)),
-  );
+  assert.ok(reminderDates.every((date) => !isQuietHoursActive(quietHoursState, date)));
 });
 
 test('notification helpers target only real reminder notifications', () => {
@@ -101,9 +90,7 @@ test('notification helpers target only real reminder notifications', () => {
           scope: REMINDER_NOTIFICATION_SCOPE,
         },
       },
-      identifier: getReminderNotificationIdentifier(
-        new Date('2026-05-20T09:00:00+07:00'),
-      ),
+      identifier: getReminderNotificationIdentifier(new Date('2026-05-20T09:00:00+07:00')),
     }),
     true,
   );

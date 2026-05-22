@@ -13,9 +13,7 @@ function getNativeModule() {
   if (nativeModule !== undefined) return nativeModule;
 
   try {
-    nativeModule = requireNativeModule<MoveAlertBatteryOptimizationModule>(
-      'MoveAlertBatteryOptimization',
-    );
+    nativeModule = requireNativeModule<MoveAlertBatteryOptimizationModule>('MoveAlertBatteryOptimization');
   } catch {
     nativeModule = null;
   }
@@ -23,12 +21,8 @@ function getNativeModule() {
   return nativeModule;
 }
 
-function parseBatteryOptimizationStatus(
-  status: unknown,
-): BatteryOptimizationStatus {
-  return status === 'ignored' || status === 'optimized'
-    ? status
-    : 'unsupported';
+function parseBatteryOptimizationStatus(status: unknown): BatteryOptimizationStatus {
+  return status === 'ignored' || status === 'optimized' ? status : 'unsupported';
 }
 
 export async function getBatteryOptimizationStatusAsync(): Promise<BatteryOptimizationStatus> {

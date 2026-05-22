@@ -13,10 +13,7 @@ type TodayTimelineSectionProps = {
   title: string;
 };
 
-export function TodayTimelineSection({
-  timeline,
-  title,
-}: TodayTimelineSectionProps) {
+export function TodayTimelineSection({ timeline, title }: TodayTimelineSectionProps) {
   const colors = useThemeColors();
   const statusColor = {
     done: colors.success,
@@ -26,15 +23,11 @@ export function TodayTimelineSection({
 
   return (
     <>
-      <Text className="mb-3 text-lg font-extrabold text-typography-900">
-        {title}
-      </Text>
+      <Text className="mb-3 text-lg font-extrabold text-typography-900">{title}</Text>
 
       <SectionCard>
         {timeline.length === 0 ? (
-          <Text className="text-base text-typography-500">
-            {t('today.timelineEmpty')}
-          </Text>
+          <Text className="text-base text-typography-500">{t('today.timelineEmpty')}</Text>
         ) : (
           timeline.map((item, index) => (
             <View
@@ -42,22 +35,13 @@ export function TodayTimelineSection({
               key={`${item.time}-${item.labelKey}-${item.status}-${index}`}
             >
               <View className="w-14">
-                <Text className="text-sm font-bold text-typography-500">
-                  {item.time}
-                </Text>
+                <Text className="text-sm font-bold text-typography-500">{item.time}</Text>
               </View>
               <View className="items-center pt-1.5">
-                <View
-                  className="h-3 w-3 rounded-full"
-                  style={{ backgroundColor: statusColor[item.status] }}
-                />
-                {index < timeline.length - 1 ? (
-                  <View className="mt-2 h-8 w-px bg-outline-100" />
-                ) : null}
+                <View className="h-3 w-3 rounded-full" style={{ backgroundColor: statusColor[item.status] }} />
+                {index < timeline.length - 1 ? <View className="mt-2 h-8 w-px bg-outline-100" /> : null}
               </View>
-              <Text className="flex-1 text-base text-typography-700">
-                {t(item.labelKey)}
-              </Text>
+              <Text className="flex-1 text-base text-typography-700">{t(item.labelKey)}</Text>
             </View>
           ))
         )}

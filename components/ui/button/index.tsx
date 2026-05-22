@@ -1,16 +1,9 @@
 import React, { createContext, useContext } from 'react';
-import {
-  ActivityIndicator,
-  PressableProps,
-  Pressable as RNPressable,
-} from 'react-native';
+import { ActivityIndicator, PressableProps, Pressable as RNPressable } from 'react-native';
 
 import type { VariantProps } from '@gluestack-ui/utils/nativewind-utils';
 
-import {
-  getButtonForegroundColor,
-  useThemeColors,
-} from '@/components/move-alert/theme-colors';
+import { getButtonForegroundColor, useThemeColors } from '@/components/move-alert/theme-colors';
 import { Text } from '@/components/ui/text';
 
 import { buttonStyle, buttonTextStyle } from './styles';
@@ -35,20 +28,8 @@ type ButtonProps = PressableProps &
     isDisabled?: boolean;
   };
 
-const Button = React.forwardRef<
-  React.ComponentRef<typeof RNPressable>,
-  ButtonProps
->(function Button(
-  {
-    action = 'primary',
-    children,
-    className,
-    disabled,
-    isDisabled = false,
-    size = 'md',
-    variant = 'solid',
-    ...props
-  },
+const Button = React.forwardRef<React.ComponentRef<typeof RNPressable>, ButtonProps>(function Button(
+  { action = 'primary', children, className, disabled, isDisabled = false, size = 'md', variant = 'solid', ...props },
   ref,
 ) {
   const isButtonDisabled = disabled ?? isDisabled;
@@ -94,17 +75,10 @@ function ButtonText({ className, ...props }: ButtonTextProps) {
   );
 }
 
-function ButtonSpinner({
-  color,
-  size = 'small',
-}: {
-  color?: string;
-  size?: 'small' | 'large';
-}) {
+function ButtonSpinner({ color, size = 'small' }: { color?: string; size?: 'small' | 'large' }) {
   const { action, variant } = useContext(ButtonContext);
   const colors = useThemeColors();
-  const resolvedColor =
-    color ?? getButtonForegroundColor(colors, action, variant);
+  const resolvedColor = color ?? getButtonForegroundColor(colors, action, variant);
 
   return <ActivityIndicator color={resolvedColor} size={size} />;
 }

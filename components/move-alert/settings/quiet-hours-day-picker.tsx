@@ -13,12 +13,7 @@ type QuietHoursDayPickerProps = {
   selectedDays: WeekDay[];
 };
 
-export function QuietHoursDayPicker({
-  days,
-  labelSize = 'sm',
-  onSelectDay,
-  selectedDays,
-}: QuietHoursDayPickerProps) {
+export function QuietHoursDayPicker({ days, labelSize = 'sm', onSelectDay, selectedDays }: QuietHoursDayPickerProps) {
   return (
     <HStack className="flex-wrap" space="sm">
       {days.map((day) => {
@@ -27,19 +22,13 @@ export function QuietHoursDayPicker({
         return (
           <Button
             action={isSelected ? 'primary' : 'default'}
-            className={`w-full max-w-20 rounded-2xl border ${
-              isSelected
-                ? 'border-green-500 bg-green-500'
-                : 'border-outline-200 bg-background-muted'
-            }`}
+            className={`w-full max-w-20 rounded-2xl border ${isSelected ? 'border-green-500 bg-green-500' : 'border-outline-200 bg-background-muted'}`}
             key={day}
             onPress={() => onSelectDay(day)}
             size="lg"
           >
             <Text
-              className={`text-center font-extrabold ${
-                labelSize === 'xs' ? 'text-xs' : 'text-sm'
-              } ${isSelected ? 'text-white' : 'text-typography-800'}`}
+              className={`text-center font-extrabold ${labelSize === 'xs' ? 'text-xs' : 'text-sm'} ${isSelected ? 'text-white' : 'text-typography-800'}`}
             >
               {t(weekDayLabelKey[day])}
             </Text>

@@ -1,11 +1,7 @@
 'use client';
 import React from 'react';
 import { createSlider } from '@gluestack-ui/core/slider/creator';
-import {
-  tva,
-  useStyleContext,
-  withStyleContext,
-} from '@gluestack-ui/utils/nativewind-utils';
+import { tva, useStyleContext, withStyleContext } from '@gluestack-ui/utils/nativewind-utils';
 import type { VariantProps } from '@gluestack-ui/utils/nativewind-utils';
 import { cssInterop } from 'nativewind';
 import { Pressable, View } from 'react-native';
@@ -150,20 +146,10 @@ const sliderFilledTrackStyle = tva({
   },
 });
 
-type ISliderProps = React.ComponentProps<typeof UISlider> &
-  VariantProps<typeof sliderStyle>;
+type ISliderProps = React.ComponentProps<typeof UISlider> & VariantProps<typeof sliderStyle>;
 
-const Slider = React.forwardRef<
-  React.ComponentRef<typeof UISlider>,
-  ISliderProps
->(function Slider(
-  {
-    className,
-    size = 'md',
-    orientation = 'horizontal',
-    isReversed = false,
-    ...props
-  },
+const Slider = React.forwardRef<React.ComponentRef<typeof UISlider>, ISliderProps>(function Slider(
+  { className, size = 'md', orientation = 'horizontal', isReversed = false, ...props },
   ref,
 ) {
   return (
@@ -182,13 +168,12 @@ const Slider = React.forwardRef<
   );
 });
 
-type ISliderThumbProps = React.ComponentProps<typeof UISlider.Thumb> &
-  VariantProps<typeof sliderThumbStyle>;
+type ISliderThumbProps = React.ComponentProps<typeof UISlider.Thumb> & VariantProps<typeof sliderThumbStyle>;
 
-const SliderThumb = React.forwardRef<
-  React.ComponentRef<typeof UISlider.Thumb>,
-  ISliderThumbProps
->(function SliderThumb({ className, size, ...props }, ref) {
+const SliderThumb = React.forwardRef<React.ComponentRef<typeof UISlider.Thumb>, ISliderThumbProps>(function SliderThumb(
+  { className, size, ...props },
+  ref,
+) {
   const { size: parentSize } = useStyleContext(SCOPE);
 
   return (
@@ -206,18 +191,13 @@ const SliderThumb = React.forwardRef<
   );
 });
 
-type ISliderTrackProps = React.ComponentProps<typeof UISlider.Track> &
-  VariantProps<typeof sliderTrackStyle>;
+type ISliderTrackProps = React.ComponentProps<typeof UISlider.Track> & VariantProps<typeof sliderTrackStyle>;
 
-const SliderTrack = React.forwardRef<
-  React.ComponentRef<typeof UISlider.Track>,
-  ISliderTrackProps
->(function SliderTrack({ className, ...props }, ref) {
-  const {
-    orientation: parentOrientation,
-    size: parentSize,
-    isReversed,
-  } = useStyleContext(SCOPE);
+const SliderTrack = React.forwardRef<React.ComponentRef<typeof UISlider.Track>, ISliderTrackProps>(function SliderTrack(
+  { className, ...props },
+  ref,
+) {
+  const { orientation: parentOrientation, size: parentSize, isReversed } = useStyleContext(SCOPE);
 
   return (
     <UISlider.Track
@@ -235,29 +215,26 @@ const SliderTrack = React.forwardRef<
   );
 });
 
-type ISliderFilledTrackProps = React.ComponentProps<
-  typeof UISlider.FilledTrack
-> &
+type ISliderFilledTrackProps = React.ComponentProps<typeof UISlider.FilledTrack> &
   VariantProps<typeof sliderFilledTrackStyle>;
 
-const SliderFilledTrack = React.forwardRef<
-  React.ComponentRef<typeof UISlider.FilledTrack>,
-  ISliderFilledTrackProps
->(function SliderFilledTrack({ className, ...props }, ref) {
-  const { orientation: parentOrientation } = useStyleContext(SCOPE);
+const SliderFilledTrack = React.forwardRef<React.ComponentRef<typeof UISlider.FilledTrack>, ISliderFilledTrackProps>(
+  function SliderFilledTrack({ className, ...props }, ref) {
+    const { orientation: parentOrientation } = useStyleContext(SCOPE);
 
-  return (
-    <UISlider.FilledTrack
-      ref={ref}
-      {...props}
-      className={sliderFilledTrackStyle({
-        parentVariants: {
-          orientation: parentOrientation,
-        },
-        class: className,
-      })}
-    />
-  );
-});
+    return (
+      <UISlider.FilledTrack
+        ref={ref}
+        {...props}
+        className={sliderFilledTrackStyle({
+          parentVariants: {
+            orientation: parentOrientation,
+          },
+          class: className,
+        })}
+      />
+    );
+  },
+);
 
 export { Slider, SliderThumb, SliderTrack, SliderFilledTrack };

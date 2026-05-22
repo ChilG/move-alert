@@ -34,9 +34,7 @@ export function SettingsThemeSection({
 
   return (
     <SectionCard className="mt-6">
-      <Text className="text-lg font-extrabold text-typography-900">
-        {title}
-      </Text>
+      <Text className="text-lg font-extrabold text-typography-900">{title}</Text>
       <Text className="mt-1 text-sm text-typography-500">{description}</Text>
 
       <HStack className="mt-5" space="md">
@@ -46,9 +44,7 @@ export function SettingsThemeSection({
           return (
             <Button
               action={isSelected ? 'primary' : 'default'}
-              className={`flex-1 rounded-2xl ${
-                isSelected ? '' : 'bg-background-muted'
-              }`}
+              className={`flex-1 rounded-2xl ${isSelected ? '' : 'bg-background-muted'}`}
               key={option}
               onPress={() => {
                 void onSelectTheme(option);
@@ -56,9 +52,7 @@ export function SettingsThemeSection({
               size="xl"
             >
               <Text
-                className={`text-center text-sm font-extrabold ${
-                  isSelected ? 'text-typography-0' : 'text-typography-700'
-                }`}
+                className={`text-center text-sm font-extrabold ${isSelected ? 'text-typography-0' : 'text-typography-700'}`}
               >
                 {labels[option]}
               </Text>

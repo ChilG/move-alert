@@ -17,15 +17,8 @@ type AlertDialogProps = React.PropsWithChildren<{
 function AlertDialog({ children, isOpen, onClose }: AlertDialogProps) {
   return (
     <AlertDialogContext.Provider value={{ onClose }}>
-      <Modal
-        animationType="fade"
-        onRequestClose={onClose}
-        transparent
-        visible={isOpen}
-      >
-        <View className="flex-1 items-center justify-center px-5">
-          {children}
-        </View>
+      <Modal animationType="fade" onRequestClose={onClose} transparent visible={isOpen}>
+        <View className="flex-1 items-center justify-center px-5">{children}</View>
       </Modal>
     </AlertDialogContext.Provider>
   );
@@ -36,10 +29,7 @@ type AlertDialogBackdropProps = {
   closeOnPress?: boolean;
 };
 
-function AlertDialogBackdrop({
-  className,
-  closeOnPress = true,
-}: AlertDialogBackdropProps) {
+function AlertDialogBackdrop({ className, closeOnPress = true }: AlertDialogBackdropProps) {
   const { onClose } = useContext(AlertDialogContext);
 
   return (
@@ -56,9 +46,7 @@ type DialogSectionProps = React.PropsWithChildren<{
 
 function AlertDialogContent({ children, className }: DialogSectionProps) {
   return (
-    <Box
-      className={`w-full max-w-[360px] rounded-3xl bg-background-0 p-5 shadow-soft-2 ${className ?? ''}`}
-    >
+    <Box className={`w-full max-w-[360px] rounded-3xl bg-background-0 p-5 shadow-soft-2 ${className ?? ''}`}>
       {children}
     </Box>
   );
@@ -73,18 +61,7 @@ function AlertDialogBody({ children, className }: DialogSectionProps) {
 }
 
 function AlertDialogFooter({ children, className }: DialogSectionProps) {
-  return (
-    <View className={`mt-5 flex-row justify-end gap-3 ${className ?? ''}`}>
-      {children}
-    </View>
-  );
+  return <View className={`mt-5 flex-row justify-end gap-3 ${className ?? ''}`}>{children}</View>;
 }
 
-export {
-  AlertDialog,
-  AlertDialogBackdrop,
-  AlertDialogBody,
-  AlertDialogContent,
-  AlertDialogFooter,
-  AlertDialogHeader,
-};
+export { AlertDialog, AlertDialogBackdrop, AlertDialogBody, AlertDialogContent, AlertDialogFooter, AlertDialogHeader };
