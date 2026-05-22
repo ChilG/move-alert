@@ -39,6 +39,9 @@ yarn-error.*
 .env.test.local
 .env.production.local
 
+# local Codex config
+.codex/config.toml
+
 # typescript
 *.tsbuildinfo
 .tmp-test-build/

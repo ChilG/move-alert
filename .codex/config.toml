@@ -1,6 +1,0 @@
-[mcp_servers.gluestack]
-command = "node"
-args = ["/Users/chilgoe/Documents/2026/move-alert/.mcp/gluestack-mcp/index.js"]
-
-[mcp_servers.supabase]
-url = "https://mcp.supabase.com/mcp"
