@@ -19,6 +19,36 @@ const th = {
     reminderTitle: 'ได้เวลาขยับร่างกาย',
     reminderBody: 'ลุกขึ้นยืดเส้น คลายตัว และรีเซ็ตท่าทางสักครู่',
   },
+  onboarding: {
+    remindersTitle: 'ตั้งค่าการแจ้งเตือนครั้งแรก',
+    remindersDescription:
+      'เลือกจังหวะเตือน ช่วงเวลางดแจ้งเตือน และวันที่อยากให้แอปเงียบไว้ก่อนเริ่มใช้งาน',
+    remindersUseCurrent: 'ใช้ค่าปัจจุบัน',
+    remindersSave: 'บันทึก',
+    welcomeTitle: 'ยินดีต้อนรับสู่ Move Alert',
+    welcomeDescription:
+      'ตั้งค่าการเตือนให้เข้ากับวันทำงานของคุณก่อนเริ่มใช้งาน',
+    welcomeCardTitle: 'เริ่มจากจังหวะที่เหมาะกับคุณ',
+    welcomeCardDescription:
+      'Move Alert จะช่วยเว้นจังหวะให้ลุกขยับ โดยยังเคารพช่วงเวลาที่คุณไม่อยากถูกรบกวน',
+    welcomeBody:
+      'ใช้เวลาไม่กี่ขั้นตอนในการเลือกรอบเตือน ช่วงเวลางดแจ้งเตือน และวันที่ควรงดแจ้งเตือน',
+    intervalTitle: 'รอบการแจ้งเตือน',
+    intervalDescription: 'เลือกว่าต้องการให้แอปเตือนให้ขยับทุกกี่นาที',
+    quietHoursTitle: 'ช่วงเวลางดแจ้งเตือน',
+    quietHoursDescription:
+      'กำหนดช่วงเวลาและวันที่แอปควรหยุดแจ้งเตือนชั่วคราว',
+    doneTitle: 'ตั้งค่าเสร็จสิ้น',
+    doneDescription: 'ตรวจค่าที่เลือกไว้ แล้วเริ่มใช้งาน Move Alert ได้เลย',
+    stepProgress: 'ขั้นตอน {{current}}/{{total}}',
+    useCurrent: 'ใช้ค่าปัจจุบัน',
+    back: 'ย้อนกลับ',
+    next: 'ถัดไป',
+    finish: 'เริ่มใช้งาน',
+    doneIntervalSummary: 'ทุก {{minutes}} นาที',
+    doneQuietHoursSummary: '{{start}}-{{end}} ในวัน {{days}}',
+    doneQuietHoursDisabled: 'ไม่เปิดใช้งาน',
+  },
   weekdays: {
     sunday: 'อา',
     monday: 'จ',
@@ -102,9 +132,9 @@ const th = {
       'ตั้งค่าภาษาหลักของแอปหรือปล่อยให้ตามระบบของเครื่อง',
     legalPageTitle: 'นโยบายและข้อมูลส่วนตัว',
     legalPageDescription: 'รวมลิงก์นโยบายที่ใช้กับในแอปและ Google Play Console',
-    debugPageTitle: 'ทดสอบการแจ้งเตือน',
+    debugPageTitle: 'เครื่องมือทดสอบ',
     debugPageDescription:
-      'ส่ง notification ทันทีเพื่อตรวจพฤติกรรมจริงของอุปกรณ์นี้',
+      'รวมเครื่องมือสำหรับตรวจการแจ้งเตือนและรีเซ็ตสถานะ onboarding ระหว่างพัฒนา',
     signedInAccount: 'บัญชีที่เข้าสู่ระบบ',
     guestSession: 'Guest session',
     unknownUser: 'ผู้ใช้บัญชี Move Alert',
@@ -132,6 +162,12 @@ const th = {
       'แอปยังไม่ได้รับสิทธิ์แจ้งเตือน กรุณาอนุญาตก่อนทดสอบ',
     notificationDebugUnsupported:
       'ปุ่มทดสอบนี้รองรับเฉพาะบน Android เท่านั้น',
+    onboardingDebugTitle: 'ทดสอบ Onboarding',
+    onboardingDebugDescription:
+      'ล้างสถานะว่าเคยตั้งค่าการแจ้งเตือนครั้งแรกแล้ว เพื่อให้ทดสอบ flow onboarding ใหม่ได้',
+    onboardingDebugClear: 'ล้างสถานะ Onboarding',
+    onboardingDebugCleared:
+      'ล้างสถานะแล้ว ปิดและเปิดแอปใหม่เพื่อดูหน้า onboarding อีกครั้ง',
     themeTitle: 'ธีมของแอป',
     themeDescription: 'เลือกรูปแบบสีของแอป หรือให้ตามค่าระบบของเครื่อง',
     themeSystem: 'ระบบ',
@@ -299,6 +335,36 @@ const en: Locale = {
     reminderTitle: 'Time to move',
     reminderBody: 'Stand up, stretch, and reset your posture for a moment.',
   },
+  onboarding: {
+    remindersTitle: 'Set up reminders',
+    remindersDescription:
+      'Choose the reminder cadence, quiet hours, and quiet days before you start.',
+    remindersUseCurrent: 'Use current',
+    remindersSave: 'Save',
+    welcomeTitle: 'Welcome to Move Alert',
+    welcomeDescription:
+      'Tune movement reminders to fit your workday before you start.',
+    welcomeCardTitle: 'Start with a rhythm that fits',
+    welcomeCardDescription:
+      'Move Alert helps you step away and move while respecting the hours you want left alone.',
+    welcomeBody:
+      'A few quick steps will set your reminder interval, quiet hours, and quiet days.',
+    intervalTitle: 'Reminder interval',
+    intervalDescription: 'Choose how often the app should remind you to move.',
+    quietHoursTitle: 'Quiet hours',
+    quietHoursDescription:
+      'Set the time range and days when reminders should pause.',
+    doneTitle: 'Setup complete',
+    doneDescription: 'Review your choices, then start using Move Alert.',
+    stepProgress: 'Step {{current}}/{{total}}',
+    useCurrent: 'Use current',
+    back: 'Back',
+    next: 'Next',
+    finish: 'Start',
+    doneIntervalSummary: 'Every {{minutes}} minutes',
+    doneQuietHoursSummary: '{{start}}-{{end}} on {{days}}',
+    doneQuietHoursDisabled: 'Off',
+  },
   weekdays: {
     sunday: 'Sun',
     monday: 'Mon',
@@ -387,9 +453,9 @@ const en: Locale = {
     legalPageTitle: 'Privacy and policies',
     legalPageDescription:
       'One place for the policy links used in-app and in Google Play.',
-    debugPageTitle: 'Notification debug',
+    debugPageTitle: 'Debug tools',
     debugPageDescription:
-      'Send an immediate notification to verify real device behavior.',
+      'Tools for checking notifications and resetting onboarding state during development.',
     signedInAccount: 'Signed-in account',
     guestSession: 'Guest session',
     unknownUser: 'Move Alert account user',
@@ -417,6 +483,12 @@ const en: Locale = {
       'Notification permission is not granted yet. Allow notifications before testing.',
     notificationDebugUnsupported:
       'This debug action is only supported on Android.',
+    onboardingDebugTitle: 'Onboarding debug',
+    onboardingDebugDescription:
+      'Clear the first-time reminder setup state so the onboarding flow can be tested again.',
+    onboardingDebugClear: 'Clear onboarding state',
+    onboardingDebugCleared:
+      'Onboarding state cleared. Close and reopen the app to see onboarding again.',
     themeTitle: 'App theme',
     themeDescription:
       'Choose the app appearance or follow your device setting.',

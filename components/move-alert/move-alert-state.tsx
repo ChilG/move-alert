@@ -55,6 +55,14 @@ type MoveAlertState = {
   timeline: TimelineItem[];
 };
 
+type ReminderPreferencesInput = {
+  intervalMinutes: number;
+  quietHoursDays: WeekDay[];
+  quietHoursEnabled: boolean;
+  quietHoursEndTime: string;
+  quietHoursStartTime: string;
+};
+
 type StretchCooldown = {
   activeStretchId: string;
   endsAt: number;
@@ -67,6 +75,9 @@ type MoveAlertContextValue = {
   dailyGoal: number;
   state: MoveAlertState;
   progressPercent: number;
+  configureReminderPreferences: (
+    preferences: ReminderPreferencesInput,
+  ) => boolean;
   completeStretch: (stretchId: string) => void;
   errorMessage: string | null;
   isSyncing: boolean;
@@ -289,6 +300,33 @@ function normalizeQuietHoursDays(days: number[]) {
   const uniqueDays = Array.from(new Set(validDays));
 
   return uniqueDays.length > 0 ? uniqueDays : initialState.quietHoursDays;
+}
+
+function normalizeReminderPreferencesInput(
+  preferences: ReminderPreferencesInput,
+) {
+  const quietHoursStartTime = normalizeDatabaseTime(
+    preferences.quietHoursStartTime,
+  );
+  const quietHoursEndTime = normalizeDatabaseTime(preferences.quietHoursEndTime);
+
+  if (
+    !Number.isInteger(preferences.intervalMinutes) ||
+    preferences.intervalMinutes < 10 ||
+    preferences.intervalMinutes > 300 ||
+    !quietHoursStartTime ||
+    !quietHoursEndTime
+  ) {
+    return null;
+  }
+
+  return {
+    intervalMinutes: preferences.intervalMinutes,
+    quietHoursDays: normalizeQuietHoursDays(preferences.quietHoursDays),
+    quietHoursEnabled: preferences.quietHoursEnabled,
+    quietHoursEndTime,
+    quietHoursStartTime,
+  };
 }
 
 function normalizeReminderDateTime(value: string | null) {
@@ -1069,6 +1107,24 @@ export function MoveAlertProvider({ children }: PropsWithChildren) {
       dailyGoal,
       state,
       progressPercent,
+      configureReminderPreferences: (preferences) => {
+        const normalizedPreferences =
+          normalizeReminderPreferencesInput(preferences);
+
+        if (!normalizedPreferences) return false;
+
+        tapFeedback();
+        setState((current) =>
+          normalizeReminderScheduleState(
+            {
+              ...current,
+              ...normalizedPreferences,
+            },
+            new Date(),
+          ),
+        );
+        return true;
+      },
       completeStretch: (stretchId) => {
         const date = new Date();
         const cooldownMs = getStretchCooldownMs(stretchId, activityTemplates);

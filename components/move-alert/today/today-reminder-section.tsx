@@ -18,6 +18,7 @@ export type TodayReminderSectionModel = {
   canSkipBreak: boolean;
   isQuietNow: boolean;
   isReminderEnabled: boolean;
+  isScheduleLoading: boolean;
   nextReminderTime: string;
   progressPercent: number;
   progressSummary: string;
@@ -40,6 +41,7 @@ export function TodayReminderSection({
     canSkipBreak,
     isQuietNow,
     isReminderEnabled,
+    isScheduleLoading,
     nextReminderTime,
     progressPercent,
     progressSummary,
@@ -57,7 +59,12 @@ export function TodayReminderSection({
                 : t('today.nextReminder')
               : t('today.reminderInterval')}
           </Text>
-          {isReminderEnabled ? (
+          {isReminderEnabled && isScheduleLoading ? (
+            <View className="mt-3 flex-row items-end">
+              <View className="h-16 w-28 rounded-xl bg-background-muted" />
+              <View className="mb-1 ml-2 h-5 w-12 rounded-lg bg-background-muted" />
+            </View>
+          ) : isReminderEnabled ? (
             <View className="mt-2 flex-row items-end">
               <Text className="text-6xl font-extrabold text-typography-950">
                 {reminderMinutes}
@@ -74,13 +81,17 @@ export function TodayReminderSection({
               {t('today.remindersPausedValue')}
             </Text>
           )}
-          <Text className="mt-2 text-sm font-semibold text-typography-500">
-            {isReminderEnabled
-              ? isQuietNow
-                ? t('today.quietHoursActive')
-                : tf('today.nextReminderAt', { time: nextReminderTime })
-              : t('today.remindersPaused')}
-          </Text>
+          {isReminderEnabled && isScheduleLoading ? (
+            <View className="mt-3 h-4 w-36 rounded-lg bg-background-muted" />
+          ) : (
+            <Text className="mt-2 text-sm font-semibold text-typography-500">
+              {isReminderEnabled
+                ? isQuietNow
+                  ? t('today.quietHoursActive')
+                  : tf('today.nextReminderAt', { time: nextReminderTime })
+                : t('today.remindersPaused')}
+            </Text>
+          )}
         </View>
         <Badge
           action={isReminderEnabled && !isQuietNow ? 'success' : 'warning'}

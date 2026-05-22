@@ -34,6 +34,7 @@ export function useTodayScreenState() {
     : state.intervalMinutes;
   const nextReminderTime = formatReminderTime(nextReminderDate);
   const isQuietNow = isQuietHoursActive(state, currentTime);
+  const isScheduleLoading = moveAlert.syncStatus === 'loading';
   const canSkipBreak =
     state.reminderEnabled &&
     !isQuietNow &&
@@ -47,6 +48,7 @@ export function useTodayScreenState() {
       canSkipBreak,
       isQuietNow,
       isReminderEnabled: state.reminderEnabled,
+      isScheduleLoading,
       nextReminderTime,
       progressPercent: moveAlert.progressPercent,
       progressSummary,
@@ -55,6 +57,7 @@ export function useTodayScreenState() {
     [
       canSkipBreak,
       isQuietNow,
+      isScheduleLoading,
       moveAlert.progressPercent,
       nextReminderTime,
       progressSummary,

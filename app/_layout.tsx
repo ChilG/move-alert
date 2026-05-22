@@ -6,6 +6,7 @@ import { AuthScreen } from '@/components/move-alert/auth-screen';
 import { LanguagePreferenceProvider } from '@/components/move-alert/language-state';
 import { AuthProvider, useAuth } from '@/components/move-alert/auth-state';
 import { MoveAlertProvider } from '@/components/move-alert/move-alert-state';
+import { ReminderOnboardingGate } from '@/components/move-alert/reminder-onboarding-gate';
 import {
   ThemePreferenceProvider,
   useThemePreference,
@@ -24,7 +25,12 @@ function AppStack() {
     return isLoginDisabled ? <AppLoadingScreen /> : <AuthScreen />;
   }
 
-  return <Stack screenOptions={{ headerShown: false }} />;
+  return (
+    <>
+      <Stack screenOptions={{ headerShown: false }} />
+      <ReminderOnboardingGate />
+    </>
+  );
 }
 
 function RootLayoutContent() {
