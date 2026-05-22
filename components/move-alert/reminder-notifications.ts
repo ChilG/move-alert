@@ -2,18 +2,16 @@ import { Platform } from 'react-native';
 
 import { t } from '@/components/move-alert/i18n';
 import {
-  type TimelineItem,
-  type WeekDay,
-} from '@/components/move-alert/move-alert-data';
-import {
-  getNextReminderDate,
-  isQuietHoursActive,
-  minuteInMs,
-} from '@/components/move-alert/today/today-helpers';
+  buildReminderDates,
+  getPresentedReminderNotificationIds,
+  getReminderNotificationIdentifier,
+  isReminderNotificationResponse,
+  isReminderScheduledNotification,
+  REMINDER_NOTIFICATION_SCOPE,
+  type ReminderNotificationState,
+} from '@/components/move-alert/reminder-notification-helpers';
 
 const REMINDER_NOTIFICATION_CHANNEL_ID = 'move-reminders-signature-v2';
-const REMINDER_NOTIFICATION_SCOPE = 'move-reminder';
-const REMINDER_HORIZON_DAYS = 3;
 const REMINDER_VIBRATION_PATTERN = [
   0, 720, 140, 260, 120, 260, 160, 860, 180, 320,
 ];
@@ -22,19 +20,12 @@ let reminderSyncPromise = Promise.resolve();
 let hasInitializedNotificationHandler = false;
 export type DebugReminderResult = 'permission-denied' | 'sent' | 'unsupported';
 
-type ReminderNotificationState = {
-  intervalMinutes: number;
-  quietHoursDays: WeekDay[];
-  quietHoursEnabled: boolean;
-  quietHoursEndTime: string;
-  quietHoursStartTime: string;
-  reminderEnabled: boolean;
-  timeline: TimelineItem[];
-};
-
 type NotificationsModule = typeof import('expo-notifications');
 type ScheduledNotificationRequest = Awaited<
   ReturnType<NotificationsModule['getAllScheduledNotificationsAsync']>
+>[number];
+type PresentedNotification = Awaited<
+  ReturnType<NotificationsModule['getPresentedNotificationsAsync']>
 >[number];
 type NotificationResponse = NonNullable<
   Awaited<ReturnType<NotificationsModule['getLastNotificationResponseAsync']>>
@@ -72,15 +63,7 @@ async function loadNotificationsAsync(): Promise<NotificationsModule | null> {
 }
 
 function isReminderNotification(request: ScheduledNotificationRequest) {
-  return request.content.data?.scope === REMINDER_NOTIFICATION_SCOPE;
-}
-
-function isReminderNotificationResponse(response: NotificationResponse) {
-  return (
-    response.notification.request.content.data?.scope ===
-      REMINDER_NOTIFICATION_SCOPE &&
-    response.notification.request.content.data?.isDebug !== true
-  );
+  return isReminderScheduledNotification(request);
 }
 
 async function ensureReminderChannelAsync() {
@@ -162,29 +145,22 @@ async function cancelReminderNotificationsAsync() {
   );
 }
 
-function buildReminderDates(state: ReminderNotificationState, now: Date) {
-  const nextReminderDate = getNextReminderDate(
-    state.timeline,
-    state.intervalMinutes,
-    now,
-  );
-  const horizonDate = new Date(
-    now.getTime() + REMINDER_HORIZON_DAYS * 24 * 60 * minuteInMs,
-  );
-  const intervalMs = Math.max(state.intervalMinutes, 1) * minuteInMs;
-  const reminderDates: Date[] = [];
+async function dismissPresentedReminderNotificationsAsync() {
+  const notificationsModule = await loadNotificationsAsync();
 
-  for (
-    let candidateDate = nextReminderDate;
-    candidateDate.getTime() <= horizonDate.getTime();
-    candidateDate = new Date(candidateDate.getTime() + intervalMs)
-  ) {
-    if (!isQuietHoursActive(state, candidateDate)) {
-      reminderDates.push(candidateDate);
-    }
-  }
+  if (!notificationsModule) return;
 
-  return reminderDates;
+  const presentedNotifications =
+    await notificationsModule.getPresentedNotificationsAsync();
+  const reminderNotificationIds = getPresentedReminderNotificationIds(
+    presentedNotifications as PresentedNotification[],
+  );
+
+  await Promise.all(
+    reminderNotificationIds.map((identifier) =>
+      notificationsModule.dismissNotificationAsync(identifier),
+    ),
+  );
 }
 
 async function scheduleReminderNotificationsAsync(
@@ -206,7 +182,7 @@ async function scheduleReminderNotificationsAsync(
             scheduledAt: date.toISOString(),
           },
         },
-        identifier: `${REMINDER_NOTIFICATION_SCOPE}:${date.getTime()}`,
+        identifier: getReminderNotificationIdentifier(date),
         trigger: {
           channelId: REMINDER_NOTIFICATION_CHANNEL_ID,
           date,
@@ -226,6 +202,7 @@ async function runReminderNotificationsSyncAsync(
 
   if (!channelReady) return;
   await cancelReminderNotificationsAsync();
+  await dismissPresentedReminderNotificationsAsync();
 
   if (!state?.reminderEnabled) return;
 
@@ -275,6 +252,8 @@ export async function subscribeToReminderNotificationResponsesAsync(
 
     handledResponseIds.add(responseId);
     onReminderPress();
+    await notifications.dismissNotificationAsync(responseId);
+    await dismissPresentedReminderNotificationsAsync();
     await notifications.clearLastNotificationResponseAsync();
   }
 

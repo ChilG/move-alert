@@ -19,6 +19,10 @@ import { useAuth } from '@/components/move-alert/auth-state';
 import { useLanguagePreference } from '@/components/move-alert/language-state';
 import { supabase } from '@/lib/supabase';
 import {
+  createNextReminderDateFromAnchor,
+  getNextReminderDate,
+} from './today/today-helpers';
+import {
   activityTemplateDescriptionKeys,
   activityTemplateDurationKeys,
   activityTemplateTargetKeys,
@@ -40,6 +44,7 @@ type MoveAlertState = {
   skippedToday: number;
   streakDays: number;
   intervalMinutes: number;
+  nextReminderAt: string | null;
   reminderEnabled: boolean;
   quietHoursEnabled: boolean;
   quietHoursStartTime: string;
@@ -86,6 +91,7 @@ const initialState: MoveAlertState = {
   skippedToday: 0,
   streakDays: 0,
   intervalMinutes: 45,
+  nextReminderAt: null,
   reminderEnabled: true,
   quietHoursEnabled: true,
   quietHoursStartTime: DEFAULT_QUIET_HOURS_START_TIME,
@@ -100,8 +106,10 @@ const moveAlertSettingsRowSchema = z.object({
   interval_minutes: z
     .number()
     .int()
-    .min(1)
+    .min(10)
+    .max(300)
     .catch(initialState.intervalMinutes),
+  next_reminder_at: z.string().nullable().catch(initialState.nextReminderAt),
   quiet_hours_enabled: z.boolean().catch(initialState.quietHoursEnabled),
   quiet_hours_end_time: z.string().catch(initialState.quietHoursEndTime),
   quiet_hours_start_time: z.string().catch(initialState.quietHoursStartTime),
@@ -158,27 +166,6 @@ function formatTimelineTime(date: Date) {
   ).padStart(2, '0')}`;
 }
 
-function parseTimelineTime(time: string, date: Date) {
-  const parsedTime = /^([01]\d|2[0-3]):([0-5]\d)$/.exec(time);
-
-  if (!parsedTime) return null;
-
-  return new Date(
-    date.getFullYear(),
-    date.getMonth(),
-    date.getDate(),
-    Number(parsedTime[1]),
-    Number(parsedTime[2]),
-  );
-}
-
-function getNextBreakTime(intervalMinutes: number, date: Date) {
-  const nextBreak = new Date(date);
-  nextBreak.setMinutes(nextBreak.getMinutes() + intervalMinutes);
-
-  return formatTimelineTime(nextBreak);
-}
-
 function getCompletedTimelineLabelKey(
   stretchId: string,
   activityTemplates: StretchItem[],
@@ -199,65 +186,27 @@ function getStretchCooldownMs(
   return stretch ? stretch.durationSeconds * 1000 : null;
 }
 
-function withNextMovementBreak(
-  timelineItems: TimelineItem[],
-  intervalMinutes: number,
-  date: Date,
-) {
-  const timelineHistoryLimit = 5;
-  const historyItems = timelineItems.filter((item) => item.status !== 'next');
-  const visibleHistoryItems = historyItems.slice(-timelineHistoryLimit);
-
-  return [
-    ...visibleHistoryItems,
-    {
-      labelKey: 'timeline.nextMovementBreak',
-      status: 'next',
-      time: getNextBreakTime(intervalMinutes, date),
-    },
-  ] satisfies TimelineItem[];
-}
-
 function withTimelineEvent(
-  state: MoveAlertState,
+  timelineItems: TimelineItem[],
   event: Pick<TimelineItem, 'labelKey' | 'status'>,
   date: Date,
 ) {
-  return withNextMovementBreak(
-    [
-      ...state.timeline,
-      {
-        ...event,
-        time: formatTimelineTime(date),
-      },
-    ],
-    state.intervalMinutes,
-    date,
-  );
-}
-
-function getLatestTimelineItemByStatus(
-  timelineItems: TimelineItem[],
-  status: TimelineItem['status'],
-) {
-  return timelineItems.reduce<TimelineItem | null>(
-    (latestItem, item) => (item.status === status ? item : latestItem),
-    null,
-  );
+  const timelineHistoryLimit = 5;
+  return [
+    ...timelineItems,
+    {
+      ...event,
+      time: formatTimelineTime(date),
+    },
+  ].slice(-timelineHistoryLimit) satisfies TimelineItem[];
 }
 
 function isWaitingForSkippedBreak(state: MoveAlertState, date: Date) {
-  const latestHistoryItem = state.timeline
-    .filter((item) => item.status !== 'next')
-    .at(-1);
-  const nextBreakItem = getLatestTimelineItemByStatus(state.timeline, 'next');
-  const nextBreakDate = nextBreakItem
-    ? parseTimelineTime(nextBreakItem.time, date)
-    : null;
+  const latestHistoryItem = state.timeline.at(-1);
+  const nextBreakDate = getNextReminderDate(state, date);
 
   return (
     latestHistoryItem?.labelKey === 'timeline.breakSkipped' &&
-    nextBreakDate !== null &&
     nextBreakDate.getTime() > date.getTime()
   );
 }
@@ -273,6 +222,7 @@ function getLocalDateKey(date = new Date()) {
 function toSettingsRow(userId: string, state: MoveAlertState) {
   return {
     interval_minutes: state.intervalMinutes,
+    next_reminder_at: state.nextReminderAt,
     quiet_hours_days: state.quietHoursDays,
     quiet_hours_end_time: state.quietHoursEndTime,
     quiet_hours_enabled: state.quietHoursEnabled,
@@ -341,6 +291,57 @@ function normalizeQuietHoursDays(days: number[]) {
   return uniqueDays.length > 0 ? uniqueDays : initialState.quietHoursDays;
 }
 
+function normalizeReminderDateTime(value: string | null) {
+  if (!value) return null;
+
+  const parsedDate = new Date(value);
+
+  return Number.isNaN(parsedDate.getTime()) ? null : parsedDate.toISOString();
+}
+
+function getLegacyNextReminderAt(
+  timeline: TimelineItem[],
+  date: Date,
+) {
+  const nextTimelineItem = timeline.findLast((item) => item.status === 'next');
+  const parsedTime = nextTimelineItem
+    ? /^([01]\d|2[0-3]):([0-5]\d)$/.exec(nextTimelineItem.time)
+    : null;
+
+  if (!parsedTime) return null;
+
+  return new Date(
+    date.getFullYear(),
+    date.getMonth(),
+    date.getDate(),
+    Number(parsedTime[1]),
+    Number(parsedTime[2]),
+  ).toISOString();
+}
+
+function normalizeReminderScheduleState(
+  state: MoveAlertState,
+  date: Date,
+) {
+  if (!state.reminderEnabled) {
+    return state.nextReminderAt === null
+      ? state
+      : {
+          ...state,
+          nextReminderAt: null,
+        };
+  }
+
+  const nextReminderAt = getNextReminderDate(state, date).toISOString();
+
+  return state.nextReminderAt === nextReminderAt
+    ? state
+    : {
+        ...state,
+        nextReminderAt,
+      };
+}
+
 function getCompletedStretchCounts(
   rows: z.infer<typeof completedStretchRowSchema>[],
 ) {
@@ -378,7 +379,7 @@ function fromDatabaseRows({
     .array(timelineItemRowSchema)
     .catch([])
     .parse(timelineRows);
-  const timeline = parsedTimelineRows
+  const normalizedTimeline = parsedTimelineRows
     .map((item) => {
       const time = normalizeDatabaseTime(item.item_time);
 
@@ -391,6 +392,7 @@ function fromDatabaseRows({
         : null;
     })
     .filter((item): item is TimelineItem => item !== null);
+  const timeline = normalizedTimeline.filter((item) => item.status !== 'next');
   const completedStretchCounts = getCompletedStretchCounts(
     parsedCompletedStretchRows,
   );
@@ -406,6 +408,9 @@ function fromDatabaseRows({
     quietHoursStartTime,
     quietHoursEndTime,
   );
+  const nextReminderAt =
+    normalizeReminderDateTime(parsedSettings?.next_reminder_at ?? null) ??
+    getLegacyNextReminderAt(normalizedTimeline, new Date());
 
   return {
     completedToday:
@@ -414,6 +419,7 @@ function fromDatabaseRows({
     completedStretchIds: Object.keys(completedStretchCounts),
     intervalMinutes:
       parsedSettings?.interval_minutes ?? initialState.intervalMinutes,
+    nextReminderAt,
     quietHoursDays: normalizeQuietHoursDays(
       parsedSettings?.quiet_hours_days ?? initialState.quietHoursDays,
     ),
@@ -436,6 +442,13 @@ function serializeValue(value: unknown) {
 
 function getErrorMessage(error: unknown) {
   return error instanceof Error ? error.message : 'Unable to sync move alert.';
+}
+
+function isMissingNextReminderAtColumnError(message: string) {
+  return (
+    message.includes('next_reminder_at') &&
+    (message.includes('column') || message.includes('schema cache'))
+  );
 }
 
 function migrateLegacyQuietHoursRange(startTime: string, endTime: string) {
@@ -474,6 +487,23 @@ function fromActivityTemplateRows(rows: unknown[]): StretchItem[] {
 }
 
 async function loadMoveAlertState(userId: string, summaryDate: string) {
+  const settingsColumns = [
+    'interval_minutes',
+    'next_reminder_at',
+    'reminder_enabled',
+    'quiet_hours_enabled',
+    'quiet_hours_start_time',
+    'quiet_hours_end_time',
+    'quiet_hours_days',
+  ].join(', ');
+  const legacySettingsColumns = [
+    'interval_minutes',
+    'reminder_enabled',
+    'quiet_hours_enabled',
+    'quiet_hours_start_time',
+    'quiet_hours_end_time',
+    'quiet_hours_days',
+  ].join(', ');
   const [
     activityTemplatesResult,
     settingsResult,
@@ -500,16 +530,7 @@ async function loadMoveAlertState(userId: string, summaryDate: string) {
       .order('position', { ascending: true }),
     supabase
       .from('move_alert_settings')
-      .select(
-        [
-          'interval_minutes',
-          'reminder_enabled',
-          'quiet_hours_enabled',
-          'quiet_hours_start_time',
-          'quiet_hours_end_time',
-          'quiet_hours_days',
-        ].join(', '),
-      )
+      .select(settingsColumns)
       .eq('user_id', userId)
       .maybeSingle(),
     supabase
@@ -539,12 +560,27 @@ async function loadMoveAlertState(userId: string, summaryDate: string) {
     completedStretchesResult.error ??
     timelineResult.error;
 
-  if (error) throw new Error(error.message);
+  if (error && !isMissingNextReminderAtColumnError(error.message)) {
+    throw new Error(error.message);
+  }
+
+  const fallbackSettingsResult =
+    settingsResult.error && isMissingNextReminderAtColumnError(settingsResult.error.message)
+      ? await supabase
+          .from('move_alert_settings')
+          .select(legacySettingsColumns)
+          .eq('user_id', userId)
+          .maybeSingle()
+      : settingsResult;
+
+  if (fallbackSettingsResult.error) {
+    throw new Error(fallbackSettingsResult.error.message);
+  }
 
   const completedStretchRows = completedStretchesResult.data ?? [];
   const timelineRows = timelineResult.data ?? [];
   const hasStoredState =
-    Boolean(settingsResult.data) ||
+    Boolean(fallbackSettingsResult.data) ||
     Boolean(dailySummaryResult.data) ||
     completedStretchRows.length > 0 ||
     timelineRows.length > 0;
@@ -557,7 +593,7 @@ async function loadMoveAlertState(userId: string, summaryDate: string) {
     state: fromDatabaseRows({
       completedStretchRows,
       dailySummaryRow: dailySummaryResult.data,
-      settingsRow: settingsResult.data,
+      settingsRow: fallbackSettingsResult.data,
       timelineRows,
     }),
   };
@@ -568,17 +604,31 @@ async function saveMoveAlertState(
   summaryDate: string,
   state: MoveAlertState,
 ) {
-  const [settingsResult, dailySummaryResult] = await Promise.all([
-    supabase
-      .from('move_alert_settings')
-      .upsert(toSettingsRow(userId, state), { onConflict: 'user_id' }),
-    supabase
-      .from('move_alert_daily_summaries')
-      .upsert(toDailySummaryRow(userId, summaryDate, state), {
-        onConflict: 'user_id,summary_date',
-      }),
-  ]);
-  const upsertError = settingsResult.error ?? dailySummaryResult.error;
+  const dailySummaryPromise = supabase
+    .from('move_alert_daily_summaries')
+    .upsert(toDailySummaryRow(userId, summaryDate, state), {
+      onConflict: 'user_id,summary_date',
+    });
+  const settingsPayload = toSettingsRow(userId, state);
+  const settingsResult = await supabase
+    .from('move_alert_settings')
+    .upsert(settingsPayload, { onConflict: 'user_id' });
+  const fallbackSettingsResult =
+    settingsResult.error &&
+    isMissingNextReminderAtColumnError(settingsResult.error.message)
+      ? await supabase
+          .from('move_alert_settings')
+          .upsert(
+            {
+              ...settingsPayload,
+              next_reminder_at: undefined,
+            },
+            { onConflict: 'user_id' },
+          )
+      : settingsResult;
+  const dailySummaryResult = await dailySummaryPromise;
+  const upsertError =
+    fallbackSettingsResult.error ?? dailySummaryResult.error;
 
   if (upsertError) throw new Error(upsertError.message);
 
@@ -779,8 +829,13 @@ export function MoveAlertProvider({ children }: PropsWithChildren) {
         if (!isMounted) return;
 
         const nextActivityTemplates = result.activityTemplates;
-        const nextState = result.exists ? result.state : initialState;
+        const loadedState = result.exists ? result.state : initialState;
+        const nextState = normalizeReminderScheduleState(
+          loadedState,
+          new Date(),
+        );
         const nextSerializedState = serializeValue(nextState);
+        const loadedSerializedState = serializeValue(loadedState);
         const currentSerializedState = currentSerializedStateRef.current;
         const shouldAdoptRemoteState =
           lastSyncedStateRef.current === null ||
@@ -804,7 +859,10 @@ export function MoveAlertProvider({ children }: PropsWithChildren) {
         loadedUserIdRef.current = activeUserId;
         loadedDateKeyRef.current = activeSummaryDate;
 
-        if (!result.exists && createIfMissing) {
+        if (
+          (!result.exists && createIfMissing) ||
+          loadedSerializedState !== nextSerializedState
+        ) {
           await saveMoveAlertState(activeUserId, activeSummaryDate, nextState);
 
           if (!isMounted) return;
@@ -941,6 +999,7 @@ export function MoveAlertProvider({ children }: PropsWithChildren) {
 
     void syncReminderNotificationsAsync({
       intervalMinutes: state.intervalMinutes,
+      nextReminderAt: state.nextReminderAt,
       quietHoursDays: state.quietHoursDays,
       quietHoursEnabled: state.quietHoursEnabled,
       quietHoursEndTime: state.quietHoursEndTime,
@@ -951,6 +1010,7 @@ export function MoveAlertProvider({ children }: PropsWithChildren) {
   }, [
     resolvedLanguage,
     state.intervalMinutes,
+    state.nextReminderAt,
     state.quietHoursDays,
     state.quietHoursEnabled,
     state.quietHoursEndTime,
@@ -966,8 +1026,9 @@ export function MoveAlertProvider({ children }: PropsWithChildren) {
     setState((current) => ({
       ...current,
       completedToday: current.completedToday + 1,
+      nextReminderAt: createNextReminderDateFromAnchor(current, date).toISOString(),
       timeline: withTimelineEvent(
-        current,
+        current.timeline,
         {
           labelKey: 'timeline.movementBreakCompleted',
           status: 'done',
@@ -1039,8 +1100,12 @@ export function MoveAlertProvider({ children }: PropsWithChildren) {
             completedStretchIds: alreadyCompleted
               ? current.completedStretchIds
               : [...current.completedStretchIds, stretchId],
-            timeline: withTimelineEvent(
+            nextReminderAt: createNextReminderDateFromAnchor(
               current,
+              date,
+            ).toISOString(),
+            timeline: withTimelineEvent(
+              current.timeline,
               {
                 labelKey: getCompletedTimelineLabelKey(
                   stretchId,
@@ -1071,8 +1136,12 @@ export function MoveAlertProvider({ children }: PropsWithChildren) {
           return {
             ...current,
             skippedToday: current.skippedToday + 1,
-            timeline: withTimelineEvent(
+            nextReminderAt: createNextReminderDateFromAnchor(
               current,
+              date,
+            ).toISOString(),
+            timeline: withTimelineEvent(
+              current.timeline,
               {
                 labelKey: 'timeline.breakSkipped',
                 status: 'skipped',
@@ -1083,18 +1152,34 @@ export function MoveAlertProvider({ children }: PropsWithChildren) {
         });
       },
       setIntervalMinutes: (intervalMinutes) => {
-        if (!Number.isInteger(intervalMinutes) || intervalMinutes < 1) return;
+        if (
+          !Number.isInteger(intervalMinutes) ||
+          intervalMinutes < 10 ||
+          intervalMinutes > 300
+        ) {
+          return;
+        }
 
         tapFeedback();
-        setState((current) => ({
-          ...current,
-          intervalMinutes,
-          timeline: withNextMovementBreak(
-            current.timeline,
+        setState((current) => {
+          const now = new Date();
+          const nextState = {
+            ...current,
             intervalMinutes,
-            new Date(),
-          ),
-        }));
+          };
+
+          if (!nextState.reminderEnabled) {
+            return normalizeReminderScheduleState(nextState, now);
+          }
+
+          return {
+            ...nextState,
+            nextReminderAt: createNextReminderDateFromAnchor(
+              nextState,
+              now,
+            ).toISOString(),
+          };
+        });
       },
       setQuietHoursEndTime: (time) => {
         const normalizedTime = normalizeDatabaseTime(time);
@@ -1102,10 +1187,15 @@ export function MoveAlertProvider({ children }: PropsWithChildren) {
         if (!normalizedTime) return;
 
         tapFeedback();
-        setState((current) => ({
-          ...current,
-          quietHoursEndTime: normalizedTime,
-        }));
+        setState((current) =>
+          normalizeReminderScheduleState(
+            {
+              ...current,
+              quietHoursEndTime: normalizedTime,
+            },
+            new Date(),
+          ),
+        );
       },
       setQuietHoursStartTime: (time) => {
         const normalizedTime = normalizeDatabaseTime(time);
@@ -1113,17 +1203,27 @@ export function MoveAlertProvider({ children }: PropsWithChildren) {
         if (!normalizedTime) return;
 
         tapFeedback();
-        setState((current) => ({
-          ...current,
-          quietHoursStartTime: normalizedTime,
-        }));
+        setState((current) =>
+          normalizeReminderScheduleState(
+            {
+              ...current,
+              quietHoursStartTime: normalizedTime,
+            },
+            new Date(),
+          ),
+        );
       },
       toggleReminder: () => {
         tapFeedback();
-        setState((current) => ({
-          ...current,
-          reminderEnabled: !current.reminderEnabled,
-        }));
+        setState((current) =>
+          normalizeReminderScheduleState(
+            {
+              ...current,
+              reminderEnabled: !current.reminderEnabled,
+            },
+            new Date(),
+          ),
+        );
       },
       stretchCooldown,
       syncStatus,
@@ -1137,19 +1237,27 @@ export function MoveAlertProvider({ children }: PropsWithChildren) {
             ? current.quietHoursDays.filter((quietDay) => quietDay !== day)
             : [...current.quietHoursDays, day].sort((a, b) => a - b);
 
-          return {
-            ...current,
-            quietHoursDays:
-              nextDays.length > 0 ? nextDays : current.quietHoursDays,
-          };
+          return normalizeReminderScheduleState(
+            {
+              ...current,
+              quietHoursDays:
+                nextDays.length > 0 ? nextDays : current.quietHoursDays,
+            },
+            new Date(),
+          );
         });
       },
       toggleQuietHours: () => {
         tapFeedback();
-        setState((current) => ({
-          ...current,
-          quietHoursEnabled: !current.quietHoursEnabled,
-        }));
+        setState((current) =>
+          normalizeReminderScheduleState(
+            {
+              ...current,
+              quietHoursEnabled: !current.quietHoursEnabled,
+            },
+            new Date(),
+          ),
+        );
       },
     }),
     [

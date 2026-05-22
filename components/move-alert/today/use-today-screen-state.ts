@@ -17,16 +17,15 @@ export function useTodayScreenState() {
   const moveAlert = useMoveAlert();
   useLanguagePreference();
   const { dailyGoal, state } = moveAlert;
-  const { timeline } = state;
   const [currentTime, setCurrentTime] = useState(() => new Date());
 
   const nextReminderDate = useMemo(
-    () => getNextReminderDate(timeline, state.intervalMinutes, currentTime),
-    [currentTime, state.intervalMinutes, timeline],
+    () => getNextReminderDate(state, currentTime),
+    [currentTime, state],
   );
   const minutesUntilNextReminder = Math.max(
     1,
-    Math.ceil(
+    Math.floor(
       (nextReminderDate.getTime() - currentTime.getTime()) / minuteInMs,
     ),
   );
@@ -38,7 +37,7 @@ export function useTodayScreenState() {
   const canSkipBreak =
     state.reminderEnabled &&
     !isQuietNow &&
-    !isWaitingForSkippedBreak(timeline, currentTime);
+    !isWaitingForSkippedBreak(state, currentTime);
   const progressSummary = tf('today.progressSummary', {
     completed: state.completedToday,
     goal: dailyGoal,

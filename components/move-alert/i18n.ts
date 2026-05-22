@@ -149,10 +149,10 @@ const th = {
     reminderInterval: 'รอบการแจ้งเตือน',
     reminderIntervalDescription: 'เลือกความถี่ที่แอปควรเตือนให้ขยับร่างกาย',
     reminderIntervalCustomLabel: 'กำหนดเอง',
-    reminderIntervalCustomPlaceholder: 'อย่างน้อย 1 นาที',
-    reminderIntervalCustomHint: 'ต่ำสุด 1 นาที',
+    reminderIntervalCustomPlaceholder: '10-300 นาที',
+    reminderIntervalCustomHint: 'ต่ำสุด 10 นาที สูงสุด 5 ชั่วโมง',
     reminderIntervalCustomInvalid:
-      'กรอกตัวเลขจำนวนเต็มตั้งแต่ 1 นาทีขึ้นไป',
+      'กรอกตัวเลขจำนวนเต็มตั้งแต่ 10 ถึง 300 นาที',
     minutes: 'นาที',
     movementReminders: 'แจ้งเตือนให้ขยับ',
     quietHours: 'ช่วงเวลางดแจ้งเตือน',
@@ -162,6 +162,16 @@ const th = {
     quietHoursEnd: 'สิ้นสุด',
     quietHoursDays: 'วันที่งดแจ้งเตือน',
     quietHoursInvalidTime: 'กรอกเวลาเป็นรูปแบบ HH:MM',
+    systemSettingsTitle: 'การตั้งค่าระบบของเครื่อง',
+    systemSettingsDescription:
+      'เปิดหน้าตั้งค่าของแอปโดยตรง เพื่อปรับสิทธิ์และพฤติกรรมการทำงานเบื้องหลัง',
+    openAppSettings: 'เปิด App settings',
+    notificationSettingsTitle: 'การตั้งค่า Notification',
+    notificationSettingsDescription:
+      'ใช้เปิดหน้าตั้งค่าการแจ้งเตือนของ Move Alert โดยตรง',
+    batterySettingsTitle: 'การตั้งค่า Battery',
+    batterySettingsDescription:
+      'ใช้ตรวจ Battery optimization หรือโหมดประหยัดพลังงานที่อาจทำให้การเตือนมาช้า',
   },
   timeline: {
     neckResetCompleted: 'ทำท่ายืดคอแล้ว',
@@ -427,10 +437,10 @@ const en: Locale = {
     reminderIntervalDescription:
       'Choose how often the app should remind you to move.',
     reminderIntervalCustomLabel: 'Custom',
-    reminderIntervalCustomPlaceholder: 'At least 1 minute',
-    reminderIntervalCustomHint: 'Minimum 1 minute',
+    reminderIntervalCustomPlaceholder: '10-300 minutes',
+    reminderIntervalCustomHint: 'Minimum 10 minutes, maximum 5 hours',
     reminderIntervalCustomInvalid:
-      'Enter a whole number of at least 1 minute.',
+      'Enter a whole number from 10 to 300 minutes.',
     minutes: 'minutes',
     movementReminders: 'Movement reminders',
     quietHours: 'Quiet hours',
@@ -441,6 +451,16 @@ const en: Locale = {
     quietHoursEnd: 'End',
     quietHoursDays: 'Quiet days',
     quietHoursInvalidTime: 'Use HH:MM time format',
+    systemSettingsTitle: 'Device system settings',
+    systemSettingsDescription:
+      'Open the app settings screen directly to adjust permissions and background behavior.',
+    openAppSettings: 'Open app settings',
+    notificationSettingsTitle: 'Notification settings',
+    notificationSettingsDescription:
+      'Open Move Alert notification settings directly on the device.',
+    batterySettingsTitle: 'Battery settings',
+    batterySettingsDescription:
+      'Check battery optimization or power-saving settings that may delay reminders.',
   },
   timeline: {
     neckResetCompleted: 'Neck reset completed',

@@ -38,6 +38,27 @@ EXPO_PUBLIC_LEGAL_BASE_URL=https://<username>.github.io/move-alert
   - Android output: `aab`
   - version code auto-increments on EAS
 
+## Versioning
+
+- User-facing app version lives in both `package.json` and `app.json`
+- Android `versionCode` for production builds still auto-increments on EAS
+- Before every store release, bump the app version once from `package.json`
+- The release scripts automatically sync the same version into `app.json`
+
+Common commands:
+
+```bash
+npm run release:patch
+npm run release:minor
+npm run release:major
+```
+
+If `package.json` was edited manually, sync Expo config again with:
+
+```bash
+npm run version
+```
+
 ## Legal pages
 
 The legal pages are committed directly in the repository root:
@@ -62,6 +83,44 @@ These URLs are also the ones used inside the app.
 
 ## Android build and release
 
+### R8 / stack trace deobfuscation
+
+Google Play may recommend keeping deobfuscation data so crashes from release
+builds can be decoded back to readable stack traces.
+
+Current project status:
+
+- R8/ProGuard support is already wired in `android/app/build.gradle`
+- Release minification is only enabled when `android.enableMinifyInReleaseBuilds=true`
+- The current default in `android/gradle.properties` does **not** enable it yet
+
+If minification is enabled for a production release:
+
+1. Build the Android release bundle
+2. Save the generated `mapping.txt` for that exact release/version code
+3. Keep it together with the uploaded `.aab`
+4. Use it later to deobfuscate Play Console or Crashlytics stack traces
+
+Android saves the file at:
+
+```bash
+android/app/build/outputs/mapping/release/mapping.txt
+```
+
+Example retrace command from the Android docs:
+
+```bash
+$ANDROID_HOME/cmdline-tools/latest/bin/retrace \
+  android/app/build/outputs/mapping/release/mapping.txt \
+  trace.txt
+```
+
+Important:
+
+- `mapping.txt` is overwritten on each new release build
+- Save a copy for every shipped build if minification is on
+- If minification stays off, this step is not needed for that build
+
 ### First release
 
 1. Configure EAS once:
@@ -70,18 +129,25 @@ These URLs are also the ones used inside the app.
 eas build:configure
 ```
 
-2. Create the production bundle:
+2. Bump the app version:
+
+```bash
+npm run release:patch
+```
+
+3. Create the production bundle:
 
 ```bash
 eas build --platform android --profile production
 ```
 
-3. Download the generated `.aab`
-4. Upload the first `.aab` **manually** in Play Console
+4. Download the generated `.aab`
+5. Upload the first `.aab` **manually** in Play Console
 
 ### Later releases
 
 ```bash
+npm run release:patch
 eas build --platform android --profile production
 eas submit --platform android --profile production
 ```

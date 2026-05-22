@@ -11,7 +11,7 @@ export function parseReminderInterval(value: string) {
 
   const parsedValue = Number(normalizedValue);
 
-  if (!Number.isInteger(parsedValue) || parsedValue < 1) {
+  if (!Number.isInteger(parsedValue) || parsedValue < 10 || parsedValue > 300) {
     return null;
   }
 

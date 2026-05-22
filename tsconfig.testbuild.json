@@ -1,0 +1,16 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "noEmit": false,
+    "outDir": "./.tmp-test-build",
+    "target": "es2022"
+  },
+  "include": [
+    "components/move-alert/move-alert-data.ts",
+    "components/move-alert/today/today-helpers.ts",
+    "components/move-alert/reminder-notification-helpers.ts"
+  ]
+}

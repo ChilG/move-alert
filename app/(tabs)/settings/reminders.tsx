@@ -5,8 +5,15 @@ import {
 } from '@/components/move-alert/move-alert-data';
 import { useMoveAlert } from '@/components/move-alert/move-alert-state';
 import { SettingsIntervalSection } from '@/components/move-alert/settings/settings-interval-section';
+import { SettingsMenuItem } from '@/components/move-alert/settings/settings-menu-item';
+import { SettingsMenuSection } from '@/components/move-alert/settings/settings-menu-section';
 import { SettingsQuietHoursSection } from '@/components/move-alert/settings/settings-quiet-hours-section';
 import { SettingsScreenShell } from '@/components/move-alert/settings/settings-screen-shell';
+import {
+  openReminderAppSettingsAsync,
+  openReminderBatterySettingsAsync,
+  openReminderNotificationSettingsAsync,
+} from '@/components/move-alert/settings/system-settings';
 import { SettingsToggleSection } from '@/components/move-alert/settings/settings-toggle-section';
 
 export default function SettingsRemindersScreen() {
@@ -64,6 +71,33 @@ export default function SettingsRemindersScreen() {
           title={t('settings.quietHours')}
         />
       ) : null}
+
+      <SettingsMenuSection title={t('settings.systemSettingsTitle')}>
+        <SettingsMenuItem
+          description={t('settings.systemSettingsDescription')}
+          icon="settings-outline"
+          onPress={() => {
+            void openReminderAppSettingsAsync();
+          }}
+          title={t('settings.openAppSettings')}
+        />
+        <SettingsMenuItem
+          description={t('settings.notificationSettingsDescription')}
+          icon="notifications-outline"
+          onPress={() => {
+            void openReminderNotificationSettingsAsync();
+          }}
+          title={t('settings.notificationSettingsTitle')}
+        />
+        <SettingsMenuItem
+          description={t('settings.batterySettingsDescription')}
+          icon="battery-half-outline"
+          onPress={() => {
+            void openReminderBatterySettingsAsync();
+          }}
+          title={t('settings.batterySettingsTitle')}
+        />
+      </SettingsMenuSection>
     </SettingsScreenShell>
   );
 }

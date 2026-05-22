@@ -3,15 +3,12 @@ import {
   type TimelineItem,
   weekDays,
   type WeekDay,
-} from '@/components/move-alert/move-alert-data';
-import { useMoveAlert } from '@/components/move-alert/move-alert-state';
+} from '../move-alert-data';
 
 export const minuteInMs = 60 * 1000;
 export const secondInMs = 1000;
 
-export type MoveAlertTimeline = ReturnType<
-  typeof useMoveAlert
->['state']['timeline'];
+export type MoveAlertTimeline = TimelineItem[];
 export type QuietHoursState = {
   quietHoursDays: WeekDay[];
   quietHoursEnabled: boolean;
@@ -20,6 +17,7 @@ export type QuietHoursState = {
 };
 export type ReminderScheduleState = QuietHoursState & {
   intervalMinutes: number;
+  nextReminderAt: string | null;
   timeline: TimelineItem[];
 };
 
@@ -92,39 +90,73 @@ export function isQuietHoursActive(
         currentMinutes < endMinutes;
 }
 
-export function getNextReminderDate(
+function parseStoredReminderDate(value: string | null) {
+  if (!value) return null;
+
+  const parsedDate = new Date(value);
+
+  return Number.isNaN(parsedDate.getTime()) ? null : parsedDate;
+}
+
+function getLegacyNextReminderDate(
   timeline: MoveAlertTimeline,
-  intervalMinutes: number,
   date: Date,
 ) {
   const nextTimelineItem = timeline.reduce<(typeof timeline)[number] | null>(
     (nextItem, item) => (item.status === 'next' ? item : nextItem),
     null,
   );
-  const intervalMs = Math.max(intervalMinutes, 1) * minuteInMs;
-  const timelineDate = nextTimelineItem
+
+  return nextTimelineItem
     ? parseReminderTime(nextTimelineItem.time, date)
     : null;
-  const scheduledDate = timelineDate ?? new Date(date.getTime() + intervalMs);
-
-  if (scheduledDate.getTime() > date.getTime()) {
-    return scheduledDate;
-  }
-
-  const intervalsElapsed =
-    Math.floor((date.getTime() - scheduledDate.getTime()) / intervalMs) + 1;
-
-  return new Date(scheduledDate.getTime() + intervalsElapsed * intervalMs);
 }
 
-function getLatestTimelineItemByStatus(
-  timeline: MoveAlertTimeline,
-  status: MoveAlertTimeline[number]['status'],
+function getReminderIntervalMs(intervalMinutes: number) {
+  return Math.max(intervalMinutes, 1) * minuteInMs;
+}
+
+function advanceReminderDate(
+  state: Pick<ReminderScheduleState, 'intervalMinutes'> & QuietHoursState,
+  reminderDate: Date,
+  date: Date,
 ) {
-  return timeline.reduce<MoveAlertTimeline[number] | null>(
-    (latestItem, item) => (item.status === status ? item : latestItem),
-    null,
+  const intervalMs = getReminderIntervalMs(state.intervalMinutes);
+  let nextReminderDate = reminderDate;
+
+  while (
+    nextReminderDate.getTime() <= date.getTime() ||
+    isQuietHoursActive(state, nextReminderDate)
+  ) {
+    nextReminderDate = new Date(nextReminderDate.getTime() + intervalMs);
+  }
+
+  return nextReminderDate;
+}
+
+export function createNextReminderDateFromAnchor(
+  state: Pick<ReminderScheduleState, 'intervalMinutes'> & QuietHoursState,
+  anchorDate: Date,
+) {
+  return advanceReminderDate(
+    state,
+    new Date(anchorDate.getTime() + getReminderIntervalMs(state.intervalMinutes)),
+    anchorDate,
   );
+}
+
+export function getNextReminderDate(
+  state: ReminderScheduleState,
+  date: Date,
+) {
+  const storedReminderDate = parseStoredReminderDate(state.nextReminderAt);
+  const legacyTimelineDate = getLegacyNextReminderDate(state.timeline, date);
+  const scheduledDate =
+    storedReminderDate ??
+    legacyTimelineDate ??
+    new Date(date.getTime() + getReminderIntervalMs(state.intervalMinutes));
+
+  return advanceReminderDate(state, scheduledDate, date);
 }
 
 function getSeededIndex(seed: string, itemCount: number) {
@@ -159,20 +191,14 @@ export function getSuggestedStretch(
 }
 
 export function isWaitingForSkippedBreak(
-  timeline: MoveAlertTimeline,
+  state: ReminderScheduleState,
   date: Date,
 ) {
-  const latestHistoryItem = timeline
-    .filter((item) => item.status !== 'next')
-    .at(-1);
-  const nextBreakItem = getLatestTimelineItemByStatus(timeline, 'next');
-  const nextBreakDate = nextBreakItem
-    ? parseReminderTime(nextBreakItem.time, date)
-    : null;
+  const latestHistoryItem = state.timeline.at(-1);
+  const nextBreakDate = getNextReminderDate(state, date);
 
   return (
     latestHistoryItem?.labelKey === 'timeline.breakSkipped' &&
-    nextBreakDate !== null &&
     nextBreakDate.getTime() > date.getTime()
   );
 }
