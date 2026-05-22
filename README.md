@@ -111,6 +111,25 @@ Run on web:
 npm run web
 ```
 
+Check local Android and iOS device build setup:
+
+```bash
+npm run setup:android
+npm run setup:ios
+npm run setup:devices
+```
+
+Run a native development build on a connected device or emulator:
+
+```bash
+npm run device:android
+npm run device:ios
+```
+
+The `device:*` scripts run the matching `setup:*` preflight first. Android
+checks for the required SDK, Build Tools, NDK, CMake, Java, and ADB setup. iOS
+checks for macOS, Xcode command line tools, Simulator tools, and CocoaPods.
+
 Run lint:
 
 ```bash
@@ -122,6 +141,33 @@ Check formatting:
 ```bash
 npm run format:check
 ```
+
+## Builds
+
+Create preview builds with EAS:
+
+```bash
+npm run build:preview:android
+npm run build:preview:ios
+```
+
+Create production builds with EAS:
+
+```bash
+npm run build:production:android
+npm run build:production:ios
+```
+
+Create production builds locally with EAS local build:
+
+```bash
+npm run build:local:android
+npm run build:local:ios
+```
+
+The local build scripts run the matching `setup:*` preflight first. Android uses
+the EAS `production` profile and outputs an Android App Bundle (`.aab`). iOS
+local builds require macOS, Xcode, and valid iOS credentials.
 
 ## Supabase Setup
 
@@ -202,6 +248,15 @@ Release guidance is documented in:
 ```text
 docs/google-play-release.md
 ```
+
+Build the Android production App Bundle locally:
+
+```bash
+npm run build:local:android
+```
+
+This command uses the EAS `production` profile with `--local`. The production
+Android profile is configured to output an Android App Bundle (`.aab`).
 
 ## Development Plan
 
