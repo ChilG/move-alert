@@ -9,7 +9,7 @@ import {
 import { useAuth } from '@/components/move-alert/auth-state';
 import { useLanguagePreference } from '@/components/move-alert/language-state';
 import { supabase } from '@/lib/supabase';
-import { createNextReminderDateFromAnchor, getNextReminderDate } from './today/today-helpers';
+import { createNextReminderDateFromAnchor, getNextReminderDate, secondInMs } from './today/today-helpers';
 import {
   activityTemplateDescriptionKeys,
   activityTemplateDurationKeys,
@@ -194,6 +194,12 @@ function getLocalDateKey(date = new Date()) {
     String(date.getMonth() + 1).padStart(2, '0'),
     String(date.getDate()).padStart(2, '0'),
   ].join('-');
+}
+
+function getNextLocalDateKeyDelayMs(date = new Date()) {
+  const nextDate = new Date(date.getFullYear(), date.getMonth(), date.getDate() + 1);
+
+  return Math.max(nextDate.getTime() - date.getTime() + secondInMs, secondInMs);
 }
 
 function toSettingsRow(userId: string, state: MoveAlertState) {
@@ -581,6 +587,7 @@ export function MoveAlertProvider({ children }: PropsWithChildren) {
   const [stretchCooldown, setStretchCooldown] = useState<StretchCooldown | null>(null);
   const [syncStatus, setSyncStatus] = useState<SyncStatus>('idle');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [todayDateKey, setTodayDateKey] = useState(() => getLocalDateKey());
   const loadedUserIdRef = useRef<string | null>(null);
   const loadedDateKeyRef = useRef<string | null>(null);
   const lastSyncedStateRef = useRef<string | null>(null);
@@ -604,6 +611,29 @@ export function MoveAlertProvider({ children }: PropsWithChildren) {
       clearTimeout(saveTimeoutRef.current);
       saveTimeoutRef.current = null;
     }
+  }, []);
+
+  useEffect(() => {
+    let isMounted = true;
+    let timeout: ReturnType<typeof setTimeout> | null = null;
+
+    function scheduleDateKeyRefresh() {
+      timeout = setTimeout(() => {
+        if (!isMounted) return;
+
+        setTodayDateKey(getLocalDateKey());
+        scheduleDateKeyRefresh();
+      }, getNextLocalDateKeyDelayMs());
+    }
+
+    scheduleDateKeyRefresh();
+
+    return () => {
+      isMounted = false;
+      if (timeout) {
+        clearTimeout(timeout);
+      }
+    };
   }, []);
 
   const hasPendingLocalChanges = useCallback(() => {
@@ -701,7 +731,7 @@ export function MoveAlertProvider({ children }: PropsWithChildren) {
     }
 
     const activeUserId = userId;
-    const activeSummaryDate = getLocalDateKey();
+    const activeSummaryDate = todayDateKey;
 
     setSyncStatus('loading');
     setErrorMessage(null);
@@ -827,7 +857,7 @@ export function MoveAlertProvider({ children }: PropsWithChildren) {
       clearScheduledSave();
       void supabase.removeChannel(channel);
     };
-  }, [clearScheduledSave, hasPendingLocalChanges, updateStretchCooldown, user?.id]);
+  }, [clearScheduledSave, hasPendingLocalChanges, todayDateKey, updateStretchCooldown, user?.id]);
 
   useEffect(() => {
     currentStateRef.current = state;

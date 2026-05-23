@@ -82,6 +82,21 @@ test('buildReminderDates excludes reminders during quiet hours', () => {
   assert.ok(reminderDates.every((date) => !isQuietHoursActive(quietHoursState, date)));
 });
 
+test('getNextReminderDate does not loop forever when every day is quiet all day', () => {
+  const now = new Date('2026-05-21T00:01:00+07:00');
+  const nextReminderDate = getNextReminderDate(
+    createState({
+      nextReminderAt: '2026-05-20T16:30:00.000Z',
+      quietHoursEnabled: true,
+      quietHoursEndTime: '00:00',
+      quietHoursStartTime: '00:00',
+    }),
+    now,
+  );
+
+  assert.equal(nextReminderDate.toISOString(), new Date(now.getTime() + 45 * 60 * 1000).toISOString());
+});
+
 test('notification helpers target only real reminder notifications', () => {
   assert.equal(
     isReminderScheduledNotification({

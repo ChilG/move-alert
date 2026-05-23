@@ -86,6 +86,12 @@ function getReminderIntervalMs(intervalMinutes: number) {
   return Math.max(intervalMinutes, 1) * minuteInMs;
 }
 
+function getAdvanceReminderAttemptLimit(intervalMs: number) {
+  const oneWeekMs = 7 * 24 * 60 * minuteInMs;
+
+  return Math.ceil(oneWeekMs / intervalMs) + 1;
+}
+
 function advanceReminderDate(
   state: Pick<ReminderScheduleState, 'intervalMinutes'> & QuietHoursState,
   reminderDate: Date,
@@ -93,12 +99,20 @@ function advanceReminderDate(
 ) {
   const intervalMs = getReminderIntervalMs(state.intervalMinutes);
   let nextReminderDate = reminderDate;
+  let attempts = 0;
+  const attemptLimit = getAdvanceReminderAttemptLimit(intervalMs);
 
-  while (nextReminderDate.getTime() <= date.getTime() || isQuietHoursActive(state, nextReminderDate)) {
+  while (
+    attempts < attemptLimit &&
+    (nextReminderDate.getTime() <= date.getTime() || isQuietHoursActive(state, nextReminderDate))
+  ) {
     nextReminderDate = new Date(nextReminderDate.getTime() + intervalMs);
+    attempts += 1;
   }
 
-  return nextReminderDate;
+  return isQuietHoursActive(state, nextReminderDate)
+    ? new Date(Math.max(reminderDate.getTime(), date.getTime() + intervalMs))
+    : nextReminderDate;
 }
 
 export function createNextReminderDateFromAnchor(
