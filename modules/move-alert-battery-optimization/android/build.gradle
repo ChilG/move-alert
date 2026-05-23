@@ -3,14 +3,11 @@ plugins {
   id 'expo-module-gradle-plugin'
 }
 
-group = 'com.chilgoe.movealert'
-version = '1.0.0'
-
 android {
   namespace "com.chilgoe.movealert.batteryoptimization"
 
   defaultConfig {
     versionCode 1
-    versionName '1.0.0'
+    versionName "1.0.0"
   }
 }

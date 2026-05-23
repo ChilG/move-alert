@@ -54,3 +54,4 @@ app-example
 
 # generated Android module build outputs
 modules/*/android/build/
+build-*.aab
