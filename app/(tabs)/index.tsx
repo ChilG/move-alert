@@ -1,8 +1,11 @@
 import { Image } from 'react-native';
+import { useRouter } from 'expo-router';
 
 import { t, tf } from '@/components/move-alert/i18n';
 import { ScreenScrollView } from '@/components/move-alert/screen-scroll-view';
+import { useBatteryOptimizationStatus } from '@/components/move-alert/settings/use-battery-optimization-status';
 import { ScreenHeader } from '@/components/move-alert/shared/screen-header';
+import { TodayBatteryOptimizationSection } from '@/components/move-alert/today/today-battery-optimization-section';
 import { TodayMetricsSection } from '@/components/move-alert/today/today-metrics-section';
 import { TodayReminderSection } from '@/components/move-alert/today/today-reminder-section';
 import { TodayTimelineSection } from '@/components/move-alert/today/today-timeline-section';
@@ -11,6 +14,8 @@ import { Box } from '@/components/ui/box';
 import { VStack } from '@/components/ui/vstack';
 
 export default function TodayScreen() {
+  const router = useRouter();
+  const { status: batteryOptimizationStatus } = useBatteryOptimizationStatus();
   const { reminderSectionModel, skipBreak, state, toggleReminder } = useTodayScreenState();
 
   return (
@@ -27,6 +32,14 @@ export default function TodayScreen() {
       />
 
       <VStack className="mt-6" space="lg">
+        {batteryOptimizationStatus === 'optimized' ? (
+          <TodayBatteryOptimizationSection
+            onViewDetails={() => {
+              router.push('/battery-optimization');
+            }}
+          />
+        ) : null}
+
         <TodayReminderSection model={reminderSectionModel} onSkipBreak={skipBreak} onToggleReminder={toggleReminder} />
 
         <TodayMetricsSection

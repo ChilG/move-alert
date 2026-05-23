@@ -18,7 +18,10 @@
         "backgroundColor": "#FFFFFF",
         "foregroundImage": "./assets/images/icon.png"
       },
-      "permissions": ["android.permission.SCHEDULE_EXACT_ALARM"],
+      "permissions": [
+        "android.permission.SCHEDULE_EXACT_ALARM",
+        "android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS"
+      ],
       "package": "com.chilgoe.movealert",
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false

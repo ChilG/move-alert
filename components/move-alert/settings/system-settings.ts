@@ -2,6 +2,11 @@ import Constants from 'expo-constants';
 import * as Linking from 'expo-linking';
 import { Platform } from 'react-native';
 
+import {
+  openApplicationDetailsSettingsAsync,
+  requestIgnoreBatteryOptimizationsAsync,
+} from '@/components/move-alert/settings/battery-optimization-status';
+
 const APP_PACKAGE_NAME = Constants.expoConfig?.android?.package ?? 'com.chilgoe.movealert';
 
 async function openAppSettingsAsync() {
@@ -9,6 +14,10 @@ async function openAppSettingsAsync() {
 }
 
 export async function openReminderAppSettingsAsync() {
+  if (Platform.OS === 'android' && (await openApplicationDetailsSettingsAsync())) {
+    return;
+  }
+
   await openAppSettingsAsync();
 }
 
@@ -26,7 +35,7 @@ export async function openReminderNotificationSettingsAsync() {
       },
     ]);
   } catch {
-    await openAppSettingsAsync();
+    await openReminderAppSettingsAsync();
   }
 }
 
@@ -36,13 +45,17 @@ export async function openReminderBatterySettingsAsync() {
     return;
   }
 
-  try {
-    await Linking.sendIntent('android.settings.IGNORE_BATTERY_OPTIMIZATION_SETTINGS');
-  } catch {
-    try {
-      await Linking.sendIntent('android.settings.BATTERY_SAVER_SETTINGS');
-    } catch {
-      await openAppSettingsAsync();
-    }
+  const didOpenPackageRequest = await requestIgnoreBatteryOptimizationsAsync();
+
+  if (didOpenPackageRequest) {
+    return;
   }
+
+  const didOpenAppSettings = await openApplicationDetailsSettingsAsync();
+
+  if (didOpenAppSettings) {
+    return;
+  }
+
+  await openAppSettingsAsync();
 }
