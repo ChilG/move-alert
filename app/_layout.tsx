@@ -2,6 +2,7 @@ import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 
 import { AppLoadingScreen } from '@/components/move-alert/app-loading-screen';
+import { AppUpdateGate } from '@/components/move-alert/app-update/app-update-gate';
 import { AuthScreen } from '@/components/move-alert/auth-screen';
 import { LanguagePreferenceProvider } from '@/components/move-alert/language-state';
 import { AuthProvider, useAuth } from '@/components/move-alert/auth-state';
@@ -38,6 +39,7 @@ function RootLayoutContent() {
       <AuthProvider>
         <MoveAlertProvider>
           <AppStack />
+          <AppUpdateGate />
         </MoveAlertProvider>
       </AuthProvider>
       <StatusBar style={resolvedTheme === 'dark' ? 'light' : 'dark'} />

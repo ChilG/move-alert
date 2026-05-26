@@ -19,6 +19,14 @@ const th = {
     reminderTitle: 'ได้เวลาขยับร่างกาย',
     reminderBody: 'ลุกขึ้นยืดเส้น คลายตัว และรีเซ็ตท่าทางสักครู่',
   },
+  appUpdate: {
+    forcedTitle: 'ต้องอัปเดตแอป',
+    forcedDescription: 'Move Alert เวอร์ชันนี้ไม่รองรับแล้ว กรุณาอัปเดตเพื่อใช้งานต่อ',
+    optionalTitle: 'มีเวอร์ชันใหม่',
+    optionalDescription: 'อัปเดต Move Alert เพื่อรับการปรับปรุงล่าสุด',
+    update: 'อัปเดตแอป',
+    later: 'ไว้ทีหลัง',
+  },
   onboarding: {
     remindersTitle: 'ตั้งค่าการแจ้งเตือนครั้งแรก',
     remindersDescription: 'เลือกจังหวะเตือน ช่วงเวลางดแจ้งเตือน และวันที่อยากให้แอปเงียบไว้ก่อนเริ่มใช้งาน',
@@ -318,6 +326,14 @@ const en: Locale = {
     channelDescription: 'Timed movement reminders with a stronger signature vibration pattern.',
     reminderTitle: 'Time to move',
     reminderBody: 'Stand up, stretch, and reset your posture for a moment.',
+  },
+  appUpdate: {
+    forcedTitle: 'Update required',
+    forcedDescription: 'This version of Move Alert is no longer supported. Update to continue.',
+    optionalTitle: 'Update available',
+    optionalDescription: 'Update Move Alert to get the latest improvements.',
+    update: 'Update app',
+    later: 'Later',
   },
   onboarding: {
     remindersTitle: 'Set up reminders',
