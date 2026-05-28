@@ -2,7 +2,7 @@
   "expo": {
     "name": "Move Alert",
     "slug": "move-alert",
-    "version": "1.3.1",
+    "version": "1.4.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "movealert",
@@ -18,10 +18,9 @@
         "backgroundColor": "#FFFFFF",
         "foregroundImage": "./assets/images/icon.png"
       },
-      "permissions": [
-        "android.permission.SCHEDULE_EXACT_ALARM",
-        "android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS"
-      ],
+      "googleServicesFile": "./google-services.json",
+      "blockedPermissions": ["android.permission.SCHEDULE_EXACT_ALARM"],
+      "permissions": ["android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS"],
       "package": "com.chilgoe.movealert",
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false

@@ -3,7 +3,10 @@ import test from 'node:test';
 import { createRequire } from 'node:module';
 
 const require = createRequire(import.meta.url);
-const { compareAppVersions, determineAppUpdatePrompt } = require('../.tmp-test-build/app-update/app-update-decision.js');
+const {
+  compareAppVersions,
+  determineAppUpdatePrompt,
+} = require('../.tmp-test-build/app-update/app-update-decision.js');
 
 function createPolicy(overrides = {}) {
   return {

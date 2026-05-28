@@ -196,10 +196,21 @@ Review and confirm the answers against production behavior before submission.
   - reminder enabled state
   - stretch completion counts and movement history
 - Device interaction:
-  - notifications for local reminders
+  - notifications for server-side Expo push reminders
 - Infrastructure / processors:
   - Supabase Auth
   - Supabase Postgres
+  - Supabase Edge Functions
+  - Expo Push Service
+
+## Android push credential check
+
+Before creating a release build that needs Expo push reminders, download
+`google-services.json` from Firebase for package `com.chilgoe.movealert` and
+place it at the repository root. The Expo config reads it through
+`expo.android.googleServicesFile`. Rebuild the native app after changing this
+file; an existing APK/AAB will keep failing push-token registration until it is
+rebuilt.
 
 ## Health apps declaration note
 

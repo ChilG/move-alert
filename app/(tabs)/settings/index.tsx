@@ -90,15 +90,6 @@ export default function SettingsScreen() {
           }}
           title={t('settings.menuLegalTitle')}
         />
-
-        <SettingsMenuItem
-          description={t('settings.debugPageDescription')}
-          icon="flask-outline"
-          onPress={() => {
-            router.push('/(tabs)/settings/debug');
-          }}
-          title={t('settings.debugPageTitle')}
-        />
       </SettingsMenuSection>
     </ScreenScrollView>
   );

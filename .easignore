@@ -1,4 +1,4 @@
-# Learn more https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files
+# Keep EAS build archives small and free of local-only files.
 
 # dependencies
 node_modules/
@@ -13,8 +13,6 @@ legal/dist/
 # Native
 .kotlin/
 *.orig.*
-google-services.json
-GoogleService-Info.plist
 move-alert-ca714-firebase-adminsdk-fbsvc-0ee6b5d2e4.json
 *.jks
 *.p8

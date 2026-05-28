@@ -2,14 +2,17 @@ import { useEffect, useState } from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import { View } from 'react-native';
 
-import { t } from '@/components/move-alert/i18n';
+import { t, tf } from '@/components/move-alert/i18n';
+import { useLanguagePreference } from '@/components/move-alert/language-state';
 import { clearReminderOnboardingSeenAsync } from '@/components/move-alert/reminder-onboarding-storage';
 import {
-  getScheduledReminderNotificationsDebugAsync,
-  sendDebugReminderNotificationAsync,
+  getServerReminderDebugInfoAsync,
+  invokeServerReminderPushFunctionAsync,
+  syncServerReminderPushTokenAsync,
+  type ServerReminderDebugInfo,
+  type ServerReminderFunctionSummary,
+  type ServerReminderPushTokenResult,
 } from '@/components/move-alert/reminder-notifications';
-import type { ScheduledReminderNotificationDebugItem } from '@/components/move-alert/reminder-notification-helpers';
-import { SettingsNotificationDebugSection } from '@/components/move-alert/settings/settings-notification-debug-section';
 import { SettingsScreenShell } from '@/components/move-alert/settings/settings-screen-shell';
 import { SectionCard } from '@/components/move-alert/shared/section-card';
 import { getButtonForegroundColor, useThemeColors } from '@/components/move-alert/theme-colors';
@@ -18,75 +21,114 @@ import { Button, ButtonSpinner, ButtonText } from '@/components/ui/button';
 import { Text } from '@/components/ui/text';
 import { VStack } from '@/components/ui/vstack';
 
-function formatScheduledReminderTime(item: ScheduledReminderNotificationDebugItem) {
-  if (!item.scheduledAt) {
-    return t('settings.scheduledNotificationsUnknownTime');
+function getServerPushRegisterMessage(result: ServerReminderPushTokenResult) {
+  switch (result) {
+    case 'missing-project-id':
+      return t('settings.serverPushRegisterMissingProject');
+    case 'permission-denied':
+      return t('settings.serverPushRegisterPermissionDenied');
+    case 'registered':
+      return t('settings.serverPushRegisterRegistered');
+    case 'signed-out':
+      return t('settings.serverPushRegisterSignedOut');
+    case 'unsupported':
+      return t('settings.serverPushRegisterUnsupported');
+  }
+}
+
+function getErrorMessage(error: unknown) {
+  return error instanceof Error ? error.message : String(error);
+}
+
+function isMissingAndroidFcmConfigError(message: string) {
+  return message.includes('Default FirebaseApp is not initialized') || message.includes('/fcm-credentials/');
+}
+
+function getServerPushRegisterErrorMessage(error: unknown) {
+  const message = getErrorMessage(error);
+
+  if (isMissingAndroidFcmConfigError(message)) {
+    return `${t('settings.serverPushRegisterFailed')}: ${t('settings.serverPushRegisterFcmMissing')}`;
   }
 
-  const scheduledDate = new Date(item.scheduledAt);
+  return `${t('settings.serverPushRegisterFailed')}: ${message}`;
+}
 
-  if (Number.isNaN(scheduledDate.getTime())) {
-    return t('settings.scheduledNotificationsUnknownTime');
-  }
-
-  return scheduledDate.toLocaleString(undefined, {
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-    month: 'short',
-    weekday: 'short',
+function formatServerPushInvokeMessage(summary: ServerReminderFunctionSummary) {
+  return tf('settings.serverPushInvokeSuccess', {
+    failed: summary.failed,
+    sent: summary.sent,
+    skipped: summary.skipped,
   });
+}
+
+function formatDebugDateTime(value: string | null) {
+  if (!value) {
+    return t('settings.serverPushSettingsEmptyValue');
+  }
+
+  const date = new Date(value);
+
+  return Number.isNaN(date.getTime()) ? value : date.toLocaleString();
 }
 
 export default function SettingsDebugScreen() {
   const colors = useThemeColors();
-  const [isSendingDebugNotification, setIsSendingDebugNotification] = useState(false);
-  const [isLoadingScheduledNotifications, setIsLoadingScheduledNotifications] = useState(false);
+  const { resolvedLanguage } = useLanguagePreference();
+  const [isLoadingServerPushDebug, setIsLoadingServerPushDebug] = useState(false);
+  const [isInvokingServerPushFunction, setIsInvokingServerPushFunction] = useState(false);
+  const [isRegisteringServerPush, setIsRegisteringServerPush] = useState(false);
   const [isClearingOnboarding, setIsClearingOnboarding] = useState(false);
-  const [notificationDebugMessage, setNotificationDebugMessage] = useState<string | null>(null);
-  const [scheduledNotifications, setScheduledNotifications] = useState<ScheduledReminderNotificationDebugItem[] | null>(
-    null,
-  );
-  const [scheduledNotificationsMessage, setScheduledNotificationsMessage] = useState<string | null>(null);
+  const [serverPushDebugInfo, setServerPushDebugInfo] = useState<ServerReminderDebugInfo | null>(null);
+  const [serverPushDebugMessage, setServerPushDebugMessage] = useState<string | null>(null);
   const [onboardingDebugMessage, setOnboardingDebugMessage] = useState<string | null>(null);
 
-  async function refreshScheduledNotifications() {
-    setIsLoadingScheduledNotifications(true);
-    setScheduledNotificationsMessage(null);
+  async function refreshServerPushDebugInfo(options?: { preserveMessage?: boolean }) {
+    setIsLoadingServerPushDebug(true);
+
+    if (!options?.preserveMessage) {
+      setServerPushDebugMessage(null);
+    }
 
     try {
-      const result = await getScheduledReminderNotificationsDebugAsync();
-
-      if (!result) {
-        setScheduledNotifications(null);
-        setScheduledNotificationsMessage(t('settings.scheduledNotificationsUnsupported'));
-        return;
-      }
-
-      setScheduledNotifications(result);
-    } catch {
-      setScheduledNotifications(null);
-      setScheduledNotificationsMessage(t('settings.scheduledNotificationsLoadFailed'));
+      setServerPushDebugInfo(await getServerReminderDebugInfoAsync());
+    } catch (error) {
+      setServerPushDebugInfo(null);
+      setServerPushDebugMessage(`${t('settings.serverPushDebugLoadFailed')}: ${getErrorMessage(error)}`);
     } finally {
-      setIsLoadingScheduledNotifications(false);
+      setIsLoadingServerPushDebug(false);
     }
   }
 
-  async function sendDebugNotification() {
-    setIsSendingDebugNotification(true);
+  async function registerServerPushToken() {
+    setIsRegisteringServerPush(true);
+    setServerPushDebugMessage(null);
 
     try {
-      const result = await sendDebugReminderNotificationAsync();
+      const result = await syncServerReminderPushTokenAsync(resolvedLanguage);
 
-      setNotificationDebugMessage(
-        result === 'sent'
-          ? t('settings.notificationDebugSent')
-          : result === 'permission-denied'
-            ? t('settings.notificationDebugPermissionDenied')
-            : t('settings.notificationDebugUnsupported'),
-      );
+      setServerPushDebugMessage(getServerPushRegisterMessage(result));
+      await refreshServerPushDebugInfo({ preserveMessage: true });
+    } catch (error) {
+      setServerPushDebugMessage(getServerPushRegisterErrorMessage(error));
     } finally {
-      setIsSendingDebugNotification(false);
+      setIsRegisteringServerPush(false);
+    }
+  }
+
+  async function invokeServerPushFunction() {
+    setIsInvokingServerPushFunction(true);
+    setServerPushDebugMessage(null);
+
+    try {
+      const summary = await invokeServerReminderPushFunctionAsync();
+
+      setServerPushDebugMessage(formatServerPushInvokeMessage(summary));
+      await refreshServerPushDebugInfo({ preserveMessage: true });
+    } catch (error) {
+      setServerPushDebugMessage(`${t('settings.serverPushInvokeFailed')}: ${getErrorMessage(error)}`);
+    } finally {
+      setIsInvokingServerPushFunction(false);
     }
   }
 
@@ -102,73 +144,157 @@ export default function SettingsDebugScreen() {
   }
 
   useEffect(() => {
-    void refreshScheduledNotifications();
+    void refreshServerPushDebugInfo();
   }, []);
 
   return (
     <SettingsScreenShell description={t('settings.debugPageDescription')} title={t('settings.debugPageTitle')}>
-      <SettingsNotificationDebugSection
-        debugLabel={t('settings.notificationDebugSend')}
-        description={t('settings.notificationDebugDescription')}
-        isLoading={isSendingDebugNotification}
-        onSendDebugNotification={() => {
-          void sendDebugNotification();
-        }}
-        statusMessage={notificationDebugMessage}
-        title={t('settings.notificationDebugTitle')}
-      />
-
-      <SectionCard className="mt-5">
+      <SectionCard>
         <View>
-          <Text className="text-lg font-extrabold text-typography-900">
-            {t('settings.scheduledNotificationsTitle')}
-          </Text>
-          <Text className="mt-2 text-sm leading-6 text-typography-600">
-            {t('settings.scheduledNotificationsDescription')}
-          </Text>
+          <Text className="text-lg font-extrabold text-typography-900">{t('settings.serverPushDebugTitle')}</Text>
+          <Text className="mt-2 text-sm leading-6 text-typography-600">{t('settings.serverPushDebugDescription')}</Text>
         </View>
 
-        {scheduledNotificationsMessage ? (
+        {serverPushDebugMessage ? (
           <Alert action="info" className="mt-4 rounded-2xl">
-            <AlertText>{scheduledNotificationsMessage}</AlertText>
+            <AlertText>{serverPushDebugMessage}</AlertText>
           </Alert>
         ) : null}
 
         <Button
           action="secondary"
           className="mt-4 rounded-xl"
-          disabled={isLoadingScheduledNotifications}
+          disabled={isLoadingServerPushDebug}
           onPress={() => {
-            void refreshScheduledNotifications();
+            void refreshServerPushDebugInfo();
           }}
           size="lg"
         >
-          {isLoadingScheduledNotifications ? (
+          {isLoadingServerPushDebug ? (
             <ButtonSpinner />
           ) : (
-            <Ionicons color={getButtonForegroundColor(colors, 'secondary', 'solid')} name="refresh-outline" size={18} />
+            <Ionicons color={getButtonForegroundColor(colors, 'secondary', 'solid')} name="cloud-outline" size={18} />
           )}
-          <ButtonText>{t('settings.scheduledNotificationsRefresh')}</ButtonText>
+          <ButtonText>{t('settings.serverPushDebugRefresh')}</ButtonText>
         </Button>
 
-        {scheduledNotifications ? (
-          <VStack className="mt-4" space="sm">
-            {scheduledNotifications.length === 0 ? (
-              <Text className="rounded-xl bg-background-50 p-4 text-sm leading-5 text-typography-600">
-                {t('settings.scheduledNotificationsEmpty')}
+        <Button
+          className="mt-3 rounded-xl"
+          disabled={isRegisteringServerPush}
+          onPress={() => {
+            void registerServerPushToken();
+          }}
+          size="lg"
+        >
+          {isRegisteringServerPush ? (
+            <ButtonSpinner />
+          ) : (
+            <Ionicons color={getButtonForegroundColor(colors, 'primary', 'solid')} name="key-outline" size={18} />
+          )}
+          <ButtonText>{t('settings.serverPushRegister')}</ButtonText>
+        </Button>
+
+        <Button
+          action="secondary"
+          className="mt-3 rounded-xl"
+          disabled={isInvokingServerPushFunction}
+          onPress={() => {
+            void invokeServerPushFunction();
+          }}
+          size="lg"
+        >
+          {isInvokingServerPushFunction ? (
+            <ButtonSpinner />
+          ) : (
+            <Ionicons color={getButtonForegroundColor(colors, 'secondary', 'solid')} name="flash-outline" size={18} />
+          )}
+          <ButtonText>{t('settings.serverPushInvoke')}</ButtonText>
+        </Button>
+
+        {serverPushDebugInfo ? (
+          <VStack className="mt-4" space="md">
+            <View>
+              <Text className="text-sm font-extrabold text-typography-800">
+                {t('settings.serverPushSettingsTitle')}
               </Text>
-            ) : (
-              scheduledNotifications.map((item) => (
-                <View className="rounded-xl border border-outline-100 bg-background-50 p-4" key={item.identifier}>
-                  <Text className="text-base font-extrabold text-typography-900">
-                    {formatScheduledReminderTime(item)}
+              {serverPushDebugInfo.settings ? (
+                <View className="mt-2 rounded-xl border border-outline-100 bg-background-50 p-4">
+                  <Text className="text-sm font-extrabold text-typography-900">
+                    {serverPushDebugInfo.settings.reminderEnabled
+                      ? t('settings.serverPushSettingsEnabled')
+                      : t('settings.serverPushSettingsDisabled')}{' '}
+                    · {serverPushDebugInfo.settings.timezone}
                   </Text>
-                  <Text className="mt-2 text-xs font-semibold text-typography-500" isTruncated>
-                    {t('settings.scheduledNotificationsIdentifier')}: {item.identifier}
+                  <Text className="mt-2 text-xs font-semibold text-typography-500">
+                    {t('settings.serverPushSettingsNextReminder')}:&nbsp;
+                    {formatDebugDateTime(serverPushDebugInfo.settings.nextReminderAt)}
                   </Text>
+                  <Text className="mt-1 text-xs font-semibold text-typography-500">
+                    {t('settings.serverPushSettingsLastSent')}:&nbsp;
+                    {formatDebugDateTime(serverPushDebugInfo.settings.lastReminderSentAt)}
+                  </Text>
+                  {serverPushDebugInfo.settings.reminderProcessingAt ? (
+                    <Text className="mt-1 text-xs font-semibold text-warning-700">
+                      {t('settings.serverPushSettingsProcessing')}:&nbsp;
+                      {formatDebugDateTime(serverPushDebugInfo.settings.reminderProcessingAt)}
+                    </Text>
+                  ) : null}
                 </View>
-              ))
-            )}
+              ) : (
+                <Text className="mt-2 rounded-xl bg-background-50 p-4 text-sm leading-5 text-typography-600">
+                  {t('settings.serverPushSettingsEmpty')}
+                </Text>
+              )}
+            </View>
+
+            <View>
+              <Text className="text-sm font-extrabold text-typography-800">{t('settings.serverPushTokensTitle')}</Text>
+              <VStack className="mt-2" space="sm">
+                {serverPushDebugInfo.tokens.length === 0 ? (
+                  <Text className="rounded-xl bg-background-50 p-4 text-sm leading-5 text-typography-600">
+                    {t('settings.serverPushTokensEmpty')}
+                  </Text>
+                ) : (
+                  serverPushDebugInfo.tokens.map((token) => (
+                    <View className="rounded-xl border border-outline-100 bg-background-50 p-4" key={token.id}>
+                      <Text className="text-sm font-extrabold text-typography-900">
+                        {token.platform} · {token.timezone} · {token.language}
+                      </Text>
+                      <Text className="mt-1 text-xs font-semibold text-typography-500">
+                        {token.isActive ? t('settings.serverPushTokenActive') : t('settings.serverPushTokenInactive')} ·{' '}
+                        {new Date(token.lastSeenAt).toLocaleString()}
+                      </Text>
+                    </View>
+                  ))
+                )}
+              </VStack>
+            </View>
+
+            <View>
+              <Text className="text-sm font-extrabold text-typography-800">{t('settings.serverPushLogsTitle')}</Text>
+              <VStack className="mt-2" space="sm">
+                {serverPushDebugInfo.logs.length === 0 ? (
+                  <Text className="rounded-xl bg-background-50 p-4 text-sm leading-5 text-typography-600">
+                    {t('settings.serverPushLogsEmpty')}
+                  </Text>
+                ) : (
+                  serverPushDebugInfo.logs.map((log) => (
+                    <View
+                      className="rounded-xl border border-outline-100 bg-background-50 p-4"
+                      key={`${log.createdAt}:${log.status}`}
+                    >
+                      <Text className="text-sm font-extrabold text-typography-900">{log.status}</Text>
+                      <Text className="mt-1 text-xs font-semibold text-typography-500">
+                        {new Date(log.createdAt).toLocaleString()}
+                      </Text>
+                      {log.errorMessage ? (
+                        <Text className="mt-2 text-xs leading-4 text-error-700">{log.errorMessage}</Text>
+                      ) : null}
+                    </View>
+                  ))
+                )}
+              </VStack>
+            </View>
           </VStack>
         ) : null}
       </SectionCard>

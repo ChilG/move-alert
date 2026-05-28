@@ -3,8 +3,9 @@ import { createContext, PropsWithChildren, useCallback, useEffect, useContext, u
 import { z } from 'zod';
 
 import {
+  clearLocalReminderNotificationsOnceAsync,
+  syncServerReminderPushTokenAsync,
   subscribeToReminderNotificationResponsesAsync,
-  syncReminderNotificationsAsync,
 } from '@/components/move-alert/reminder-notifications';
 import { getReminderNotificationSyncAction } from '@/components/move-alert/reminder-sync-helpers';
 import { useAuth } from '@/components/move-alert/auth-state';
@@ -898,7 +899,7 @@ export function MoveAlertProvider({ children }: PropsWithChildren) {
 
     if (syncAction === 'clear') {
       const clearTimeoutId = setTimeout(() => {
-        void syncReminderNotificationsAsync(null);
+        void clearLocalReminderNotificationsOnceAsync();
       }, CLEAR_REMINDER_NOTIFICATIONS_DELAY_MS);
 
       return () => {
@@ -906,29 +907,11 @@ export function MoveAlertProvider({ children }: PropsWithChildren) {
       };
     }
 
-    void syncReminderNotificationsAsync({
-      intervalMinutes: state.intervalMinutes,
-      nextReminderAt: state.nextReminderAt,
-      quietHoursDays: state.quietHoursDays,
-      quietHoursEnabled: state.quietHoursEnabled,
-      quietHoursEndTime: state.quietHoursEndTime,
-      quietHoursStartTime: state.quietHoursStartTime,
-      reminderEnabled: state.reminderEnabled,
-      timeline: state.timeline,
+    void clearLocalReminderNotificationsOnceAsync();
+    void syncServerReminderPushTokenAsync(resolvedLanguage).catch((error) => {
+      setErrorMessage(getErrorMessage(error));
     });
-  }, [
-    authStatus,
-    resolvedLanguage,
-    state.intervalMinutes,
-    state.nextReminderAt,
-    state.quietHoursDays,
-    state.quietHoursEnabled,
-    state.quietHoursEndTime,
-    state.quietHoursStartTime,
-    state.reminderEnabled,
-    state.timeline,
-    user?.id,
-  ]);
+  }, [authStatus, resolvedLanguage, user?.id]);
 
   const completeReminderBreak = useCallback(() => {
     const date = new Date();

@@ -39,7 +39,7 @@ This project supports **SDG 3: Good Health and Well-being** by promoting healthi
 
 ## Current Project Status
 
-This repository contains the Expo/React Native Move Alert app, with authenticated movement state synced to normalized Supabase tables, Android local reminder scheduling, and Google Play release preparation work.
+This repository contains the Expo/React Native Move Alert app, with authenticated movement state synced to normalized Supabase tables, server-side Expo push reminders, and Google Play release preparation work.
 
 Current setup includes:
 
@@ -50,7 +50,7 @@ Current setup includes:
 - Bottom tab navigation
 - Shared movement state provider
 - Supabase Auth and per-user state sync
-- Android local reminder scheduling with `expo-notifications`
+- Server-side Expo push reminders through Supabase Edge Functions
 - Account deletion support and public legal page generation
 - Gluestack MCP server configuration for component guidance
 
@@ -217,10 +217,59 @@ The MCP server is intended to help reference Gluestack component patterns while 
 
 ## Notification Note
 
-Move Alert now includes Android local reminder scheduling with
-`expo-notifications`. For reliable release-like behavior, test notifications in
-a development build or production build. Expo Go support is limited compared to
-native builds.
+Move Alert uses server-side Expo push notifications for real reminders.
+`expo-notifications` is still required in the app for notification permission,
+Expo push-token registration, channel setup, and response handling. Expo Go
+support is limited compared to development and production builds.
+
+## Server-Side Reminders
+
+Move Alert uses Expo push notifications for production reminders. The mobile app
+registers an Expo push token in Supabase, then a scheduled Supabase Edge
+Function sends due reminders through the Expo Push API.
+
+Android builds must include Firebase Cloud Messaging configuration before Expo
+can create an Expo push token. Download `google-services.json` from the
+Firebase console for the Android package `com.chilgoe.movealert`, place it at
+the repository root, and rebuild the native app. `app.json` already points Expo
+at `./google-services.json`. A JavaScript reload is not enough because the file
+is bundled into the Android binary during the native build.
+
+Apply the latest Supabase migrations. Move Alert sends through Expo Push Service
+with the registered Expo push token and does not require an Expo access token in
+v1.
+
+The cron migration expects these Vault secrets for invoking the Edge Function:
+
+```sql
+select vault.create_secret('https://your-project-ref.supabase.co', 'project_url');
+select vault.create_secret('your-supabase-secret-key', 'secret_key');
+```
+
+Deploy the reminder function:
+
+```bash
+supabase functions deploy send-reminder-push
+supabase functions deploy run-reminder-scheduler
+```
+
+The functions are configured with `verify_jwt = false` in `supabase/config.toml`
+so they can use explicit authorization checks internally:
+`send-reminder-push` is cron-only and requires the configured `secret_key`;
+`run-reminder-scheduler` is the in-app manual debug trigger, requires the public
+Supabase key in the `apikey` header, verifies the current user session from the
+`Authorization` bearer token, and sends only to that session user's active Expo
+push tokens. It does not claim due reminders or advance `next_reminder_at`.
+
+The scheduled job runs every minute with `pg_cron` and invokes:
+
+```text
+/functions/v1/send-reminder-push
+```
+
+Legacy local scheduled reminders are cleared on app startup after authentication
+is ready. The real reminder flow is server-only; local scheduling is no longer
+used for reminders or debug sends.
 
 ## Legal Pages
 
@@ -261,7 +310,7 @@ Android profile is configured to output an Android App Bundle (`.aab`).
 ## Development Plan
 
 1. Persist movement state with Supabase.
-2. Add local notification scheduling with a development build.
+2. Operate server-side Expo push reminders with Supabase cron.
 3. Add real reminder history by date.
 4. Expand the stretch library with categories and images.
 5. Add charts for weekly movement trends.

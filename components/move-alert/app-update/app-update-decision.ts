@@ -54,7 +54,7 @@ export function compareAppVersions(leftVersion: string, rightVersion: string) {
 }
 
 function getLocalizedPolicyMessage(policy: AppUpdatePolicy, language: 'en' | 'th') {
-  return language === 'en' ? policy.messageEn ?? policy.messageTh : policy.messageTh ?? policy.messageEn;
+  return language === 'en' ? (policy.messageEn ?? policy.messageTh) : (policy.messageTh ?? policy.messageEn);
 }
 
 export function determineAppUpdatePrompt({

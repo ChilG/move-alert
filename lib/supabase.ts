@@ -10,13 +10,16 @@ type SupabaseAuthStorage = {
   setItem: (key: string, value: string) => Promise<void> | void;
 };
 
-const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL;
-const supabasePublishableKey =
+const resolvedSupabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL;
+const resolvedSupabasePublishableKey =
   process.env.EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY ?? process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
 
-if (!supabaseUrl || !supabasePublishableKey) {
+if (!resolvedSupabaseUrl || !resolvedSupabasePublishableKey) {
   throw new Error('Missing EXPO_PUBLIC_SUPABASE_URL or EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY.');
 }
+
+export const supabaseUrl = resolvedSupabaseUrl;
+export const supabasePublishableKey = resolvedSupabasePublishableKey;
 
 function createMemoryStorage(): SupabaseAuthStorage {
   const store = new Map<string, string>();
