@@ -17,7 +17,13 @@ export type ReminderNotificationState = {
 
 type ReminderNotificationData = {
   isDebug?: boolean;
+  scheduledAt?: unknown;
   scope?: unknown;
+};
+
+export type ScheduledReminderNotificationDebugItem = {
+  identifier: string;
+  scheduledAt: string | null;
 };
 
 export type ScheduledReminderNotificationLike = {
@@ -76,6 +82,48 @@ export function getPresentedReminderNotificationIds(notifications: PresentedRemi
 
 export function getReminderNotificationIdentifier(date: Date) {
   return `${REMINDER_NOTIFICATION_SCOPE}:${date.getTime()}`;
+}
+
+function parseReminderNotificationIdentifierDate(identifier: string) {
+  const prefix = `${REMINDER_NOTIFICATION_SCOPE}:`;
+
+  if (!identifier.startsWith(prefix)) return null;
+
+  const timestamp = Number(identifier.slice(prefix.length));
+  const parsedDate = new Date(timestamp);
+
+  return Number.isNaN(parsedDate.getTime()) ? null : parsedDate;
+}
+
+function getScheduledReminderDate(request: ScheduledReminderNotificationLike) {
+  const scheduledAt = request.content.data?.scheduledAt;
+  const parsedScheduledAt = typeof scheduledAt === 'string' ? new Date(scheduledAt) : null;
+
+  if (parsedScheduledAt && !Number.isNaN(parsedScheduledAt.getTime())) {
+    return parsedScheduledAt;
+  }
+
+  return parseReminderNotificationIdentifierDate(request.identifier);
+}
+
+export function getScheduledReminderNotificationDebugItems(requests: ScheduledReminderNotificationLike[]) {
+  return requests
+    .filter((request) => isReminderNotificationData(request.content.data))
+    .map((request) => {
+      const scheduledDate = getScheduledReminderDate(request);
+
+      return {
+        identifier: request.identifier,
+        scheduledAt: scheduledDate ? scheduledDate.toISOString() : null,
+      } satisfies ScheduledReminderNotificationDebugItem;
+    })
+    .sort((a, b) => {
+      if (!a.scheduledAt && !b.scheduledAt) return a.identifier.localeCompare(b.identifier);
+      if (!a.scheduledAt) return 1;
+      if (!b.scheduledAt) return -1;
+
+      return new Date(a.scheduledAt).getTime() - new Date(b.scheduledAt).getTime();
+    });
 }
 
 export function buildReminderDates(state: ReminderNotificationState, now: Date) {

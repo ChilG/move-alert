@@ -11,6 +11,7 @@
   "include": [
     "components/move-alert/app-update/app-update-decision.ts",
     "components/move-alert/move-alert-data.ts",
+    "components/move-alert/reminder-sync-helpers.ts",
     "components/move-alert/today/today-helpers.ts",
     "components/move-alert/reminder-notification-helpers.ts"
   ]

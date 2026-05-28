@@ -6,6 +6,7 @@ import {
   subscribeToReminderNotificationResponsesAsync,
   syncReminderNotificationsAsync,
 } from '@/components/move-alert/reminder-notifications';
+import { getReminderNotificationSyncAction } from '@/components/move-alert/reminder-sync-helpers';
 import { useAuth } from '@/components/move-alert/auth-state';
 import { useLanguagePreference } from '@/components/move-alert/language-state';
 import { supabase } from '@/lib/supabase';
@@ -145,6 +146,7 @@ const timelineItemRowSchema = z.object({
 
 const MoveAlertContext = createContext<MoveAlertContextValue | null>(null);
 const SAVE_DEBOUNCE_MS = 400;
+const CLEAR_REMINDER_NOTIFICATIONS_DELAY_MS = 1500;
 
 function tapFeedback() {
   Haptics.selectionAsync().catch(() => {});
@@ -580,7 +582,7 @@ async function saveMoveAlertState(userId: string, summaryDate: string, state: Mo
 }
 
 export function MoveAlertProvider({ children }: PropsWithChildren) {
-  const { user } = useAuth();
+  const { status: authStatus, user } = useAuth();
   const { resolvedLanguage } = useLanguagePreference();
   const [state, setState] = useState(initialState);
   const [activityTemplates, setActivityTemplates] = useState<StretchItem[]>(defaultActivityTemplates);
@@ -885,9 +887,23 @@ export function MoveAlertProvider({ children }: PropsWithChildren) {
   }, [clearScheduledSave, flushStateToDatabase, state, user?.id]);
 
   useEffect(() => {
-    if (!user?.id) {
-      void syncReminderNotificationsAsync(null);
+    const syncAction = getReminderNotificationSyncAction({
+      authStatus,
+      userId: user?.id,
+    });
+
+    if (syncAction === 'wait') {
       return;
+    }
+
+    if (syncAction === 'clear') {
+      const clearTimeoutId = setTimeout(() => {
+        void syncReminderNotificationsAsync(null);
+      }, CLEAR_REMINDER_NOTIFICATIONS_DELAY_MS);
+
+      return () => {
+        clearTimeout(clearTimeoutId);
+      };
     }
 
     void syncReminderNotificationsAsync({
@@ -901,6 +917,7 @@ export function MoveAlertProvider({ children }: PropsWithChildren) {
       timeline: state.timeline,
     });
   }, [
+    authStatus,
     resolvedLanguage,
     state.intervalMinutes,
     state.nextReminderAt,

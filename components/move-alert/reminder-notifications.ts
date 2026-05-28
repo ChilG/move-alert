@@ -3,11 +3,13 @@ import { Platform } from 'react-native';
 import { t } from '@/components/move-alert/i18n';
 import {
   buildReminderDates,
+  getScheduledReminderNotificationDebugItems,
   getPresentedReminderNotificationIds,
   getReminderNotificationIdentifier,
   isReminderNotificationResponse,
   isReminderScheduledNotification,
   REMINDER_NOTIFICATION_SCOPE,
+  type ScheduledReminderNotificationDebugItem,
   type ReminderNotificationState,
 } from '@/components/move-alert/reminder-notification-helpers';
 
@@ -194,6 +196,20 @@ export function syncReminderNotificationsAsync(state: ReminderNotificationState 
   reminderSyncPromise = reminderSyncPromise.catch(() => {}).then(() => runReminderNotificationsSyncAsync(state));
 
   return reminderSyncPromise;
+}
+
+export async function getScheduledReminderNotificationsDebugAsync(): Promise<
+  ScheduledReminderNotificationDebugItem[] | null
+> {
+  const notificationsModule = await loadNotificationsAsync();
+
+  if (!notificationsModule) {
+    return null;
+  }
+
+  const scheduledNotifications = await notificationsModule.getAllScheduledNotificationsAsync();
+
+  return getScheduledReminderNotificationDebugItems(scheduledNotifications);
 }
 
 export async function subscribeToReminderNotificationResponsesAsync(onReminderPress: () => void) {

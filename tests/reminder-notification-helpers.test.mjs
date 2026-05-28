@@ -5,6 +5,7 @@ import { createRequire } from 'node:module';
 const require = createRequire(import.meta.url);
 const {
   buildReminderDates,
+  getScheduledReminderNotificationDebugItems,
   getPresentedReminderNotificationIds,
   getReminderNotificationIdentifier,
   isReminderNotificationResponse,
@@ -162,5 +163,58 @@ test('notification helpers target only real reminder notifications', () => {
       },
     ]),
     ['real-reminder'],
+  );
+});
+
+test('getScheduledReminderNotificationDebugItems lists reminder notifications in trigger order', () => {
+  assert.deepEqual(
+    getScheduledReminderNotificationDebugItems([
+      {
+        content: {
+          data: {
+            scope: 'other-scope',
+            scheduledAt: '2026-05-20T09:00:00.000Z',
+          },
+        },
+        identifier: 'other-notification',
+      },
+      {
+        content: {
+          data: {
+            isDebug: true,
+            scope: REMINDER_NOTIFICATION_SCOPE,
+            scheduledAt: '2026-05-20T08:00:00.000Z',
+          },
+        },
+        identifier: 'debug-reminder',
+      },
+      {
+        content: {
+          data: {
+            scope: REMINDER_NOTIFICATION_SCOPE,
+            scheduledAt: '2026-05-20T10:00:00.000Z',
+          },
+        },
+        identifier: getReminderNotificationIdentifier(new Date('2026-05-20T10:00:00.000Z')),
+      },
+      {
+        content: {
+          data: {
+            scope: REMINDER_NOTIFICATION_SCOPE,
+          },
+        },
+        identifier: getReminderNotificationIdentifier(new Date('2026-05-20T09:00:00.000Z')),
+      },
+    ]),
+    [
+      {
+        identifier: getReminderNotificationIdentifier(new Date('2026-05-20T09:00:00.000Z')),
+        scheduledAt: '2026-05-20T09:00:00.000Z',
+      },
+      {
+        identifier: getReminderNotificationIdentifier(new Date('2026-05-20T10:00:00.000Z')),
+        scheduledAt: '2026-05-20T10:00:00.000Z',
+      },
+    ],
   );
 });
