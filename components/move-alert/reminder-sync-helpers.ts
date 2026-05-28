@@ -15,3 +15,7 @@ export function getReminderNotificationSyncAction({
 
   return userId ? 'sync' : 'clear';
 }
+
+export function shouldRequestReminderNotificationPermissionAfterToggle(currentReminderEnabled: boolean) {
+  return !currentReminderEnabled;
+}

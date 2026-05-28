@@ -8,12 +8,14 @@ import {
   type DebugLogoTapState,
 } from '@/components/move-alert/debug-logo-gesture';
 import { t, tf } from '@/components/move-alert/i18n';
+import { getRequiredFeatureIssues } from '@/components/move-alert/required-feature-helpers';
 import { ScreenScrollView } from '@/components/move-alert/screen-scroll-view';
+import { useNotificationPermissionStatus } from '@/components/move-alert/settings/use-notification-permission-status';
 import { useBatteryOptimizationStatus } from '@/components/move-alert/settings/use-battery-optimization-status';
 import { ScreenHeader } from '@/components/move-alert/shared/screen-header';
-import { TodayBatteryOptimizationSection } from '@/components/move-alert/today/today-battery-optimization-section';
 import { TodayMetricsSection } from '@/components/move-alert/today/today-metrics-section';
 import { TodayReminderSection } from '@/components/move-alert/today/today-reminder-section';
+import { TodayRequiredFeatureSection } from '@/components/move-alert/today/today-required-feature-section';
 import { TodayTimelineSection } from '@/components/move-alert/today/today-timeline-section';
 import { useTodayScreenState } from '@/components/move-alert/today/use-today-screen-state';
 import { Pressable } from '@/components/ui/pressable';
@@ -22,15 +24,20 @@ import { VStack } from '@/components/ui/vstack';
 export default function TodayScreen() {
   const router = useRouter();
   const { status: batteryOptimizationStatus } = useBatteryOptimizationStatus();
+  const { status: notificationPermissionStatus } = useNotificationPermissionStatus();
   const { reminderSectionModel, skipBreak, state, toggleReminder } = useTodayScreenState();
   const [debugLogoTapState, setDebugLogoTapState] = useState<DebugLogoTapState>(initialDebugLogoTapState);
+  const requiredFeatureIssues = getRequiredFeatureIssues({
+    batteryOptimizationStatus,
+    notificationPermissionStatus,
+  });
 
   const handleLogoPress = useCallback(() => {
     const nextTapState = getNextDebugLogoTapState(debugLogoTapState, Date.now());
 
     if (nextTapState.isUnlocked) {
       setDebugLogoTapState(initialDebugLogoTapState);
-      router.push('/(tabs)/settings/debug');
+      router.push('/debug' as never);
       return;
     }
 
@@ -58,10 +65,11 @@ export default function TodayScreen() {
       />
 
       <VStack className="mt-6" space="lg">
-        {batteryOptimizationStatus === 'optimized' ? (
-          <TodayBatteryOptimizationSection
+        {requiredFeatureIssues.length > 0 ? (
+          <TodayRequiredFeatureSection
+            issues={requiredFeatureIssues}
             onViewDetails={() => {
-              router.push('/battery-optimization');
+              router.push('/required-feature' as never);
             }}
           />
         ) : null}

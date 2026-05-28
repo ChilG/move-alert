@@ -3,7 +3,10 @@ import assert from 'node:assert/strict';
 import { createRequire } from 'node:module';
 
 const require = createRequire(import.meta.url);
-const { getReminderNotificationSyncAction } = require('../.tmp-test-build/reminder-sync-helpers.js');
+const {
+  getReminderNotificationSyncAction,
+  shouldRequestReminderNotificationPermissionAfterToggle,
+} = require('../.tmp-test-build/reminder-sync-helpers.js');
 
 test('getReminderNotificationSyncAction waits while auth is loading', () => {
   assert.equal(
@@ -33,4 +36,9 @@ test('getReminderNotificationSyncAction clears only after auth is signed out', (
     }),
     'clear',
   );
+});
+
+test('shouldRequestReminderNotificationPermissionAfterToggle requests only when enabling reminders', () => {
+  assert.equal(shouldRequestReminderNotificationPermissionAfterToggle(false), true);
+  assert.equal(shouldRequestReminderNotificationPermissionAfterToggle(true), false);
 });

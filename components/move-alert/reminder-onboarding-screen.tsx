@@ -1,3 +1,4 @@
+import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { View } from 'react-native';
@@ -5,19 +6,23 @@ import { View } from 'react-native';
 import { t, tf } from '@/components/move-alert/i18n';
 import { reminderIntervals, weekDays, type WeekDay } from '@/components/move-alert/move-alert-data';
 import { useMoveAlert } from '@/components/move-alert/move-alert-state';
+import { requestReminderNotificationPermissionsAsync } from '@/components/move-alert/reminder-notifications';
 import { markReminderOnboardingSeenAsync } from '@/components/move-alert/reminder-onboarding-storage';
 import { ScreenScrollView } from '@/components/move-alert/screen-scroll-view';
+import { useNotificationPermissionStatus } from '@/components/move-alert/settings/use-notification-permission-status';
 import { QuietHoursControls } from '@/components/move-alert/settings/quiet-hours-controls';
 import { ReminderIntervalPicker } from '@/components/move-alert/settings/reminder-interval-picker';
 import { weekDayLabelKey } from '@/components/move-alert/settings/settings-constants';
 import { ScreenHeader } from '@/components/move-alert/shared/screen-header';
+import { useThemeColors } from '@/components/move-alert/theme-colors';
+import { Badge, BadgeText } from '@/components/ui/badge';
 import { Button, ButtonText } from '@/components/ui/button';
 import { HStack } from '@/components/ui/hstack';
 import { Switch } from '@/components/ui/switch';
 import { Text } from '@/components/ui/text';
 import { VStack } from '@/components/ui/vstack';
 
-const onboardingSteps = ['welcome', 'interval', 'quiet-hours', 'done'] as const;
+const onboardingSteps = ['welcome', 'required-feature', 'interval', 'quiet-hours', 'done'] as const;
 const onboardingCardClassName = 'rounded-2xl border border-outline-200 bg-background-0 p-4 shadow-soft-1';
 
 type OnboardingStep = (typeof onboardingSteps)[number];
@@ -34,6 +39,8 @@ function getStepTitle(step: OnboardingStep) {
   switch (step) {
     case 'welcome':
       return t('onboarding.welcomeTitle');
+    case 'required-feature':
+      return t('onboarding.requiredFeatureTitle');
     case 'interval':
       return t('onboarding.intervalTitle');
     case 'quiet-hours':
@@ -47,6 +54,8 @@ function getStepDescription(step: OnboardingStep) {
   switch (step) {
     case 'welcome':
       return t('onboarding.welcomeDescription');
+    case 'required-feature':
+      return t('onboarding.requiredFeatureDescription');
     case 'interval':
       return t('onboarding.intervalDescription');
     case 'quiet-hours':
@@ -59,6 +68,8 @@ function getStepDescription(step: OnboardingStep) {
 export function ReminderOnboardingScreen() {
   const { configureReminderPreferences, state } = useMoveAlert();
   const router = useRouter();
+  const colors = useThemeColors();
+  const { refresh: refreshNotificationStatus, status: notificationStatus } = useNotificationPermissionStatus();
   const [stepIndex, setStepIndex] = useState(0);
   const [draftInterval, setDraftInterval] = useState(state.intervalMinutes);
   const [quietHoursEnabled, setQuietHoursEnabled] = useState(state.quietHoursEnabled);
@@ -78,8 +89,14 @@ export function ReminderOnboardingScreen() {
   }
 
   async function finishWithCurrentSettings() {
+    await requestReminderNotificationPermissionsAsync();
     await markReminderOnboardingSeenAsync();
     router.replace('/');
+  }
+
+  async function requestNotificationAccess() {
+    await requestReminderNotificationPermissionsAsync();
+    await refreshNotificationStatus();
   }
 
   async function savePreferences() {
@@ -121,6 +138,69 @@ export function ReminderOnboardingScreen() {
           presetButtonSize="lg"
           selectedInterval={draftInterval}
         />
+      );
+    }
+
+    if (activeStep === 'required-feature') {
+      const isNotificationConfigured = notificationStatus === 'granted' || notificationStatus === 'unsupported';
+
+      return (
+        <VStack space="md">
+          <View className={onboardingCardClassName}>
+            <HStack className="items-center justify-between" space="md">
+              <HStack className="flex-1 items-center" space="md">
+                <View className="h-10 w-10 items-center justify-center rounded-2xl bg-primary-50">
+                  <Ionicons color={colors.primary} name="notifications-outline" size={21} />
+                </View>
+                <View className="flex-1">
+                  <Text className="text-sm font-bold text-typography-900">
+                    {t('onboarding.requiredFeatureNotificationTitle')}
+                  </Text>
+                  <Text className="mt-1 text-xs leading-4 text-typography-500">
+                    {t('onboarding.requiredFeatureNotificationDescription')}
+                  </Text>
+                </View>
+              </HStack>
+              <Badge action={isNotificationConfigured ? 'success' : 'warning'} className="px-3 py-1">
+                <BadgeText>
+                  {isNotificationConfigured ? t('onboarding.requiredFeatureConfigured') : t('common.paused')}
+                </BadgeText>
+              </Badge>
+            </HStack>
+
+            <Button
+              className="mt-4 rounded-xl"
+              isDisabled={isNotificationConfigured}
+              onPress={() => {
+                void requestNotificationAccess();
+              }}
+              size="md"
+            >
+              <Ionicons color={colors.textInverse} name="notifications-outline" size={18} />
+              <ButtonText>
+                {isNotificationConfigured
+                  ? t('onboarding.requiredFeatureConfigured')
+                  : t('onboarding.requiredFeatureAction')}
+              </ButtonText>
+            </Button>
+          </View>
+
+          <View className={onboardingCardClassName}>
+            <HStack className="items-center" space="md">
+              <View className="h-10 w-10 items-center justify-center rounded-2xl bg-warning-50">
+                <Ionicons color={colors.warning} name="battery-charging-outline" size={21} />
+              </View>
+              <View className="flex-1">
+                <Text className="text-sm font-bold text-typography-900">
+                  {t('onboarding.requiredFeatureBatteryTitle')}
+                </Text>
+                <Text className="mt-1 text-xs leading-4 text-typography-500">
+                  {t('onboarding.requiredFeatureBatteryDescription')}
+                </Text>
+              </View>
+            </HStack>
+          </View>
+        </VStack>
       );
     }
 
@@ -236,6 +316,11 @@ export function ReminderOnboardingScreen() {
           onPress={() => {
             if (isDoneStep) {
               void savePreferences();
+              return;
+            }
+
+            if (activeStep === 'required-feature') {
+              void requestNotificationAccess().finally(goNext);
               return;
             }
 

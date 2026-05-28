@@ -10,6 +10,7 @@ import {
   isReminderNotificationResponse,
   REMINDER_NOTIFICATION_SCOPE,
 } from '@/components/move-alert/reminder-notification-helpers';
+import type { ReminderNotificationPermissionStatus } from '@/components/move-alert/required-feature-helpers';
 import { supabase, supabasePublishableKey, supabaseUrl } from '@/lib/supabase';
 
 const REMINDER_NOTIFICATION_CHANNEL_ID = 'move-reminders-signature-v2';
@@ -156,6 +157,24 @@ async function ensureReminderPermissionsAsync() {
   return requestedPermissions.granted;
 }
 
+export async function getReminderNotificationPermissionStatusAsync(): Promise<ReminderNotificationPermissionStatus> {
+  const notificationsModule = await loadNativeNotificationsAsync();
+
+  if (!notificationsModule) return 'unsupported';
+
+  const permissions = await notificationsModule.getPermissionsAsync();
+
+  return permissions.granted ? 'granted' : 'denied';
+}
+
+export async function requestReminderNotificationPermissionsAsync(): Promise<ReminderNotificationPermissionStatus> {
+  const channelReady = await ensureReminderChannelAsync();
+
+  if (!channelReady) return 'unsupported';
+
+  return (await ensureReminderPermissionsAsync()) ? 'granted' : 'denied';
+}
+
 function isLegacyLocalReminderNotification(request: {
   content: {
     data?: {
@@ -215,15 +234,13 @@ export async function syncServerReminderPushTokenAsync(
     return 'unsupported';
   }
 
-  const channelReady = await ensureReminderChannelAsync();
+  const permissionStatus = await requestReminderNotificationPermissionsAsync();
 
-  if (!channelReady) {
+  if (permissionStatus === 'unsupported') {
     return 'unsupported';
   }
 
-  const hasPermission = await ensureReminderPermissionsAsync();
-
-  if (!hasPermission) {
+  if (permissionStatus !== 'granted') {
     return 'permission-denied';
   }
 

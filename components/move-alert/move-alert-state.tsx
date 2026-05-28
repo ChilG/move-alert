@@ -7,7 +7,10 @@ import {
   syncServerReminderPushTokenAsync,
   subscribeToReminderNotificationResponsesAsync,
 } from '@/components/move-alert/reminder-notifications';
-import { getReminderNotificationSyncAction } from '@/components/move-alert/reminder-sync-helpers';
+import {
+  getReminderNotificationSyncAction,
+  shouldRequestReminderNotificationPermissionAfterToggle,
+} from '@/components/move-alert/reminder-sync-helpers';
 import { useAuth } from '@/components/move-alert/auth-state';
 import { useLanguagePreference } from '@/components/move-alert/language-state';
 import { supabase } from '@/lib/supabase';
@@ -1111,6 +1114,9 @@ export function MoveAlertProvider({ children }: PropsWithChildren) {
         );
       },
       toggleReminder: () => {
+        const shouldRequestNotificationPermission =
+          shouldRequestReminderNotificationPermissionAfterToggle(state.reminderEnabled);
+
         tapFeedback();
         setState((current) =>
           normalizeReminderScheduleState(
@@ -1121,6 +1127,12 @@ export function MoveAlertProvider({ children }: PropsWithChildren) {
             new Date(),
           ),
         );
+
+        if (shouldRequestNotificationPermission) {
+          void syncServerReminderPushTokenAsync(resolvedLanguage).catch((error) => {
+            setErrorMessage(getErrorMessage(error));
+          });
+        }
       },
       stretchCooldown,
       syncStatus,
@@ -1161,6 +1173,7 @@ export function MoveAlertProvider({ children }: PropsWithChildren) {
       dailyGoal,
       errorMessage,
       progressPercent,
+      resolvedLanguage,
       state,
       stretchCooldown,
       syncStatus,
