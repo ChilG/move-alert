@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { View } from 'react-native';
 
 import { t, tf } from '@/components/move-alert/i18n';
@@ -8,7 +8,15 @@ import { reminderIntervals, weekDays, type WeekDay } from '@/components/move-ale
 import { useMoveAlert } from '@/components/move-alert/move-alert-state';
 import { requestReminderNotificationPermissionsAsync } from '@/components/move-alert/reminder-notifications';
 import { markReminderOnboardingSeenAsync } from '@/components/move-alert/reminder-onboarding-storage';
+import {
+  RequiredFeatureIconFrame,
+  requiredFeatureActionButtonClassName,
+  requiredFeatureActionButtonTextClassName,
+  requiredFeatureNoticeCardClassName,
+} from '@/components/move-alert/required-feature-styles';
 import { ScreenScrollView } from '@/components/move-alert/screen-scroll-view';
+import { openReminderBatterySettingsAsync } from '@/components/move-alert/settings/system-settings';
+import { useBatteryOptimizationStatus } from '@/components/move-alert/settings/use-battery-optimization-status';
 import { useNotificationPermissionStatus } from '@/components/move-alert/settings/use-notification-permission-status';
 import { QuietHoursControls } from '@/components/move-alert/settings/quiet-hours-controls';
 import { ReminderIntervalPicker } from '@/components/move-alert/settings/reminder-interval-picker';
@@ -24,6 +32,7 @@ import { VStack } from '@/components/ui/vstack';
 
 const onboardingSteps = ['welcome', 'required-feature', 'interval', 'quiet-hours', 'done'] as const;
 const onboardingCardClassName = 'rounded-2xl border border-outline-200 bg-background-0 p-4 shadow-soft-1';
+const requiredFeatureOnboardingCardClassName = `rounded-2xl p-4 shadow-soft-1 ${requiredFeatureNoticeCardClassName}`;
 
 type OnboardingStep = (typeof onboardingSteps)[number];
 
@@ -69,6 +78,8 @@ export function ReminderOnboardingScreen() {
   const { configureReminderPreferences, state } = useMoveAlert();
   const router = useRouter();
   const colors = useThemeColors();
+  const { refreshStatus: refreshBatteryOptimizationStatus, status: batteryOptimizationStatus } =
+    useBatteryOptimizationStatus();
   const { refresh: refreshNotificationStatus, status: notificationStatus } = useNotificationPermissionStatus();
   const [stepIndex, setStepIndex] = useState(0);
   const [draftInterval, setDraftInterval] = useState(state.intervalMinutes);
@@ -76,9 +87,25 @@ export function ReminderOnboardingScreen() {
   const [quietHoursStartTime, setQuietHoursStartTime] = useState(state.quietHoursStartTime);
   const [quietHoursEndTime, setQuietHoursEndTime] = useState(state.quietHoursEndTime);
   const [quietHoursDays, setQuietHoursDays] = useState<WeekDay[]>(state.quietHoursDays);
+  const hasAutoRequestedNotificationRef = useRef(false);
   const activeStep = onboardingSteps[stepIndex];
   const isDoneStep = activeStep === 'done';
   const quietDayLabels = quietHoursDays.map((day) => t(weekDayLabelKey[day])).join(', ');
+
+  useEffect(() => {
+    if (hasAutoRequestedNotificationRef.current || notificationStatus !== 'denied') {
+      return;
+    }
+
+    hasAutoRequestedNotificationRef.current = true;
+    const timeoutId = setTimeout(() => {
+      void requestReminderNotificationPermissionsAsync().finally(refreshNotificationStatus);
+    }, 600);
+
+    return () => {
+      clearTimeout(timeoutId);
+    };
+  }, [notificationStatus, refreshNotificationStatus]);
 
   function goBack() {
     setStepIndex((currentStepIndex) => Math.max(currentStepIndex - 1, 0));
@@ -142,63 +169,113 @@ export function ReminderOnboardingScreen() {
     }
 
     if (activeStep === 'required-feature') {
-      const isNotificationConfigured = notificationStatus === 'granted' || notificationStatus === 'unsupported';
+      const isNotificationConfigured = notificationStatus === 'granted';
+      const isNotificationUnavailable = notificationStatus === 'unsupported';
+      const isNotificationLoading = notificationStatus === 'loading';
+      const isNotificationButtonDisabled =
+        isNotificationConfigured || isNotificationUnavailable || isNotificationLoading;
+      const isBatteryOptimizationConfigured = batteryOptimizationStatus === 'ignored';
+      const isBatteryOptimizationUnavailable = batteryOptimizationStatus === 'unsupported';
+      const isBatteryOptimizationLoading = batteryOptimizationStatus === 'loading';
+      const isBatteryOptimizationButtonDisabled =
+        isBatteryOptimizationConfigured || isBatteryOptimizationUnavailable || isBatteryOptimizationLoading;
 
       return (
         <VStack space="md">
-          <View className={onboardingCardClassName}>
+          <View className={requiredFeatureOnboardingCardClassName}>
             <HStack className="items-center justify-between" space="md">
               <HStack className="flex-1 items-center" space="md">
-                <View className="h-10 w-10 items-center justify-center rounded-2xl bg-primary-50">
-                  <Ionicons color={colors.primary} name="notifications-outline" size={21} />
-                </View>
+                <RequiredFeatureIconFrame color={colors.warning} name="notifications-outline" />
                 <View className="flex-1">
-                  <Text className="text-sm font-bold text-typography-900">
+                  <Text className="text-sm font-bold text-warning-900">
                     {t('onboarding.requiredFeatureNotificationTitle')}
                   </Text>
-                  <Text className="mt-1 text-xs leading-4 text-typography-500">
+                  <Text className="mt-1 text-xs leading-4 text-warning-800">
                     {t('onboarding.requiredFeatureNotificationDescription')}
                   </Text>
                 </View>
               </HStack>
-              <Badge action={isNotificationConfigured ? 'success' : 'warning'} className="px-3 py-1">
+              <Badge
+                action={isNotificationConfigured || isNotificationUnavailable ? 'success' : 'warning'}
+                className="px-3 py-1"
+              >
                 <BadgeText>
-                  {isNotificationConfigured ? t('onboarding.requiredFeatureConfigured') : t('common.paused')}
+                  {isNotificationConfigured || isNotificationUnavailable
+                    ? t('onboarding.requiredFeatureConfigured')
+                    : t('common.paused')}
                 </BadgeText>
               </Badge>
             </HStack>
 
             <Button
-              className="mt-4 rounded-xl"
-              isDisabled={isNotificationConfigured}
+              action="default"
+              className={`mt-4 ${requiredFeatureActionButtonClassName}`}
+              isDisabled={isNotificationButtonDisabled}
               onPress={() => {
                 void requestNotificationAccess();
               }}
               size="md"
+              variant="outline"
             >
-              <Ionicons color={colors.textInverse} name="notifications-outline" size={18} />
-              <ButtonText>
-                {isNotificationConfigured
-                  ? t('onboarding.requiredFeatureConfigured')
-                  : t('onboarding.requiredFeatureAction')}
+              <Ionicons color={colors.warning} name="notifications-outline" size={18} />
+              <ButtonText className={requiredFeatureActionButtonTextClassName}>
+                {isNotificationLoading
+                  ? t('common.loading')
+                  : isNotificationUnavailable
+                    ? t('settings.batteryOptimizationUnsupported')
+                    : isNotificationConfigured
+                      ? t('onboarding.requiredFeatureConfigured')
+                      : t('onboarding.requiredFeatureAction')}
               </ButtonText>
             </Button>
           </View>
 
-          <View className={onboardingCardClassName}>
-            <HStack className="items-center" space="md">
-              <View className="h-10 w-10 items-center justify-center rounded-2xl bg-warning-50">
-                <Ionicons color={colors.warning} name="battery-charging-outline" size={21} />
-              </View>
-              <View className="flex-1">
-                <Text className="text-sm font-bold text-typography-900">
-                  {t('onboarding.requiredFeatureBatteryTitle')}
-                </Text>
-                <Text className="mt-1 text-xs leading-4 text-typography-500">
-                  {t('onboarding.requiredFeatureBatteryDescription')}
-                </Text>
-              </View>
+          <View className={requiredFeatureOnboardingCardClassName}>
+            <HStack className="items-center justify-between" space="md">
+              <HStack className="flex-1 items-center" space="md">
+                <RequiredFeatureIconFrame color={colors.warning} name="battery-charging-outline" />
+                <View className="flex-1">
+                  <Text className="text-sm font-bold text-warning-900">
+                    {t('onboarding.requiredFeatureBatteryTitle')}
+                  </Text>
+                  <Text className="mt-1 text-xs leading-4 text-warning-800">
+                    {t('onboarding.requiredFeatureBatteryDescription')}
+                  </Text>
+                </View>
+              </HStack>
+              <Badge
+                action={isBatteryOptimizationConfigured || isBatteryOptimizationUnavailable ? 'success' : 'warning'}
+                className="px-3 py-1"
+              >
+                <BadgeText>
+                  {isBatteryOptimizationConfigured || isBatteryOptimizationUnavailable
+                    ? t('onboarding.requiredFeatureConfigured')
+                    : t('common.paused')}
+                </BadgeText>
+              </Badge>
             </HStack>
+
+            <Button
+              action="default"
+              className={`mt-4 ${requiredFeatureActionButtonClassName}`}
+              isDisabled={isBatteryOptimizationButtonDisabled}
+              onPress={() => {
+                void openReminderBatterySettingsAsync().finally(refreshBatteryOptimizationStatus);
+              }}
+              size="md"
+              variant="outline"
+            >
+              <Ionicons color={colors.warning} name="settings-outline" size={18} />
+              <ButtonText className={requiredFeatureActionButtonTextClassName}>
+                {isBatteryOptimizationLoading
+                  ? t('common.loading')
+                  : isBatteryOptimizationUnavailable
+                    ? t('settings.batteryOptimizationUnsupported')
+                    : isBatteryOptimizationConfigured
+                      ? t('batteryOptimization.configuredAction')
+                      : t('batteryOptimization.action')}
+              </ButtonText>
+            </Button>
           </View>
         </VStack>
       );

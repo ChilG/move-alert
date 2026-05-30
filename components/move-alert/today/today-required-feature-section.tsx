@@ -3,6 +3,12 @@ import { View } from 'react-native';
 
 import { t } from '@/components/move-alert/i18n';
 import type { RequiredFeatureIssue } from '@/components/move-alert/required-feature-helpers';
+import {
+  RequiredFeatureIconFrame,
+  requiredFeatureActionButtonClassName,
+  requiredFeatureActionButtonTextClassName,
+  requiredFeatureNoticeCardClassName,
+} from '@/components/move-alert/required-feature-styles';
 import { SectionCard } from '@/components/move-alert/shared/section-card';
 import { useThemeColors } from '@/components/move-alert/theme-colors';
 import { Button, ButtonText } from '@/components/ui/button';
@@ -30,11 +36,9 @@ export function TodayRequiredFeatureSection({ issues, onViewDetails }: TodayRequ
   const colors = useThemeColors();
 
   return (
-    <SectionCard className="border border-warning-200 bg-background-warning p-4">
+    <SectionCard className={`${requiredFeatureNoticeCardClassName} p-4`}>
       <HStack className="items-start" space="md">
-        <View className="h-10 w-10 items-center justify-center rounded-2xl bg-background-0">
-          <Ionicons color={colors.warning} name="warning-outline" size={21} />
-        </View>
+        <RequiredFeatureIconFrame color={colors.warning} name="warning-outline" />
 
         <View className="flex-1">
           <Text className="text-base font-extrabold text-warning-900">{t('today.requiredFeatureTitle')}</Text>
@@ -46,13 +50,13 @@ export function TodayRequiredFeatureSection({ issues, onViewDetails }: TodayRequ
 
       <Button
         action="default"
-        className="mt-4 rounded-xl border-warning-300 bg-background-0"
+        className={`mt-4 ${requiredFeatureActionButtonClassName}`}
         onPress={onViewDetails}
         size="md"
         variant="outline"
       >
         <Ionicons color={colors.warning} name="settings-outline" size={18} />
-        <ButtonText className="text-warning-800">{t('today.requiredFeatureAction')}</ButtonText>
+        <ButtonText className={requiredFeatureActionButtonTextClassName}>{t('today.requiredFeatureAction')}</ButtonText>
       </Button>
     </SectionCard>
   );

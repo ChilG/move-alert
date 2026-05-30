@@ -11,6 +11,12 @@ import {
   openReminderBatterySettingsAsync,
   openReminderNotificationSettingsAsync,
 } from '@/components/move-alert/settings/system-settings';
+import {
+  RequiredFeatureIconFrame,
+  requiredFeatureActionButtonClassName,
+  requiredFeatureActionButtonTextClassName,
+  requiredFeatureNoticeCardClassName,
+} from '@/components/move-alert/required-feature-styles';
 import { ScreenHeader } from '@/components/move-alert/shared/screen-header';
 import { SectionCard } from '@/components/move-alert/shared/section-card';
 import { useThemeColors } from '@/components/move-alert/theme-colors';
@@ -50,9 +56,15 @@ export default function RequiredFeatureScreen() {
   const router = useRouter();
   const colors = useThemeColors();
   const { refresh: refreshNotificationStatus, status: notificationStatus } = useNotificationPermissionStatus();
-  const { status: batteryStatus } = useBatteryOptimizationStatus();
-  const isNotificationConfigured = notificationStatus === 'granted' || notificationStatus === 'unsupported';
-  const isBatteryConfigured = batteryStatus === 'ignored' || batteryStatus === 'unsupported';
+  const { refreshStatus: refreshBatteryStatus, status: batteryStatus } = useBatteryOptimizationStatus();
+  const isNotificationConfigured = notificationStatus === 'granted';
+  const isNotificationUnavailable = notificationStatus === 'unsupported';
+  const isNotificationLoading = notificationStatus === 'loading';
+  const isNotificationButtonDisabled = isNotificationConfigured || isNotificationUnavailable || isNotificationLoading;
+  const isBatteryConfigured = batteryStatus === 'ignored';
+  const isBatteryUnavailable = batteryStatus === 'unsupported';
+  const isBatteryLoading = batteryStatus === 'loading';
+  const isBatteryButtonDisabled = isBatteryConfigured || isBatteryUnavailable || isBatteryLoading;
 
   async function requestNotificationPermission() {
     const nextStatus = await requestReminderNotificationPermissionsAsync();
@@ -86,12 +98,10 @@ export default function RequiredFeatureScreen() {
       />
 
       <VStack className="mt-6" space="lg">
-        <SectionCard className="border border-warning-200 bg-background-warning">
+        <SectionCard className={requiredFeatureNoticeCardClassName}>
           <HStack className="items-center justify-between" space="md">
             <HStack className="flex-1 items-center" space="md">
-              <View className="h-12 w-12 items-center justify-center rounded-2xl bg-background-0">
-                <Ionicons color={colors.warning} name="notifications-outline" size={24} />
-              </View>
+              <RequiredFeatureIconFrame color={colors.warning} name="notifications-outline" size={24} />
               <View className="flex-1">
                 <Text className="text-sm font-semibold text-warning-800">
                   {t('requiredFeature.notificationStatusLabel')}
@@ -101,8 +111,13 @@ export default function RequiredFeatureScreen() {
                 </Text>
               </View>
             </HStack>
-            <Badge action={isNotificationConfigured ? 'success' : 'warning'} className="px-3 py-1">
-              <BadgeText>{isNotificationConfigured ? t('common.active') : t('common.paused')}</BadgeText>
+            <Badge
+              action={isNotificationConfigured || isNotificationUnavailable ? 'success' : 'warning'}
+              className="px-3 py-1"
+            >
+              <BadgeText>
+                {isNotificationConfigured || isNotificationUnavailable ? t('common.active') : t('common.paused')}
+              </BadgeText>
             </Badge>
           </HStack>
 
@@ -111,55 +126,69 @@ export default function RequiredFeatureScreen() {
           </Text>
 
           <Button
-            className="mt-4 rounded-xl"
-            isDisabled={isNotificationConfigured}
+            action="default"
+            className={`mt-4 ${requiredFeatureActionButtonClassName}`}
+            isDisabled={isNotificationButtonDisabled}
             onPress={() => {
               void requestNotificationPermission();
             }}
             size="lg"
+            variant="outline"
           >
-            <Ionicons color={colors.textInverse} name="notifications-outline" size={18} />
-            <ButtonText>
-              {isNotificationConfigured
-                ? t('requiredFeature.notificationConfiguredAction')
-                : t('requiredFeature.notificationAction')}
+            <Ionicons color={colors.warning} name="notifications-outline" size={18} />
+            <ButtonText className={requiredFeatureActionButtonTextClassName}>
+              {isNotificationLoading
+                ? t('common.loading')
+                : isNotificationUnavailable
+                  ? t('settings.batteryOptimizationUnsupported')
+                  : isNotificationConfigured
+                    ? t('requiredFeature.notificationConfiguredAction')
+                    : t('requiredFeature.notificationAction')}
             </ButtonText>
           </Button>
         </SectionCard>
 
-        <SectionCard>
+        <SectionCard className={requiredFeatureNoticeCardClassName}>
           <HStack className="items-center justify-between" space="md">
             <HStack className="flex-1 items-center" space="md">
-              <View className="h-12 w-12 items-center justify-center rounded-2xl bg-warning-50">
-                <Ionicons color={colors.warning} name="battery-charging-outline" size={24} />
-              </View>
+              <RequiredFeatureIconFrame color={colors.warning} name="battery-charging-outline" size={24} />
               <View className="flex-1">
-                <Text className="text-sm font-semibold text-typography-600">
+                <Text className="text-sm font-semibold text-warning-800">
                   {t('requiredFeature.batteryStatusLabel')}
                 </Text>
-                <Text className="mt-1 text-lg font-extrabold text-typography-950">
+                <Text className="mt-1 text-lg font-extrabold text-warning-950">
                   {getBatteryStatusLabel(batteryStatus)}
                 </Text>
               </View>
             </HStack>
-            <Badge action={isBatteryConfigured ? 'success' : 'warning'} className="px-3 py-1">
-              <BadgeText>{isBatteryConfigured ? t('common.active') : t('common.paused')}</BadgeText>
+            <Badge action={isBatteryConfigured || isBatteryUnavailable ? 'success' : 'warning'} className="px-3 py-1">
+              <BadgeText>
+                {isBatteryConfigured || isBatteryUnavailable ? t('common.active') : t('common.paused')}
+              </BadgeText>
             </Badge>
           </HStack>
 
-          <Text className="mt-4 text-sm leading-5 text-typography-600">{t('requiredFeature.batteryDescription')}</Text>
+          <Text className="mt-4 text-sm leading-5 text-warning-800">{t('requiredFeature.batteryDescription')}</Text>
 
           <Button
-            className="mt-4 rounded-xl"
-            isDisabled={isBatteryConfigured}
+            action="default"
+            className={`mt-4 ${requiredFeatureActionButtonClassName}`}
+            isDisabled={isBatteryButtonDisabled}
             onPress={() => {
-              void openReminderBatterySettingsAsync();
+              void openReminderBatterySettingsAsync().finally(refreshBatteryStatus);
             }}
             size="lg"
+            variant="outline"
           >
-            <Ionicons color={colors.textInverse} name="settings-outline" size={18} />
-            <ButtonText>
-              {isBatteryConfigured ? t('batteryOptimization.configuredAction') : t('batteryOptimization.action')}
+            <Ionicons color={colors.warning} name="settings-outline" size={18} />
+            <ButtonText className={requiredFeatureActionButtonTextClassName}>
+              {isBatteryLoading
+                ? t('common.loading')
+                : isBatteryUnavailable
+                  ? t('settings.batteryOptimizationUnsupported')
+                  : isBatteryConfigured
+                    ? t('batteryOptimization.configuredAction')
+                    : t('batteryOptimization.action')}
             </ButtonText>
           </Button>
         </SectionCard>
