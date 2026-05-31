@@ -4,6 +4,7 @@ import { z } from 'zod';
 
 import {
   clearLocalReminderNotificationsOnceAsync,
+  requestReminderNotificationPermissionsAsync,
   syncServerReminderPushTokenAsync,
   subscribeToReminderNotificationResponsesAsync,
 } from '@/components/move-alert/reminder-notifications';
@@ -1114,8 +1115,9 @@ export function MoveAlertProvider({ children }: PropsWithChildren) {
         );
       },
       toggleReminder: () => {
-        const shouldRequestNotificationPermission =
-          shouldRequestReminderNotificationPermissionAfterToggle(state.reminderEnabled);
+        const shouldRequestNotificationPermission = shouldRequestReminderNotificationPermissionAfterToggle(
+          state.reminderEnabled,
+        );
 
         tapFeedback();
         setState((current) =>
@@ -1129,9 +1131,15 @@ export function MoveAlertProvider({ children }: PropsWithChildren) {
         );
 
         if (shouldRequestNotificationPermission) {
-          void syncServerReminderPushTokenAsync(resolvedLanguage).catch((error) => {
-            setErrorMessage(getErrorMessage(error));
-          });
+          void requestReminderNotificationPermissionsAsync()
+            .then((permissionStatus) => {
+              if (permissionStatus !== 'granted') return null;
+
+              return syncServerReminderPushTokenAsync(resolvedLanguage);
+            })
+            .catch((error) => {
+              setErrorMessage(getErrorMessage(error));
+            });
         }
       },
       stretchCooldown,

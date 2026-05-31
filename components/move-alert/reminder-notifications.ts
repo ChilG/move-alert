@@ -157,6 +157,16 @@ async function ensureReminderPermissionsAsync() {
   return requestedPermissions.granted;
 }
 
+async function hasGrantedReminderPermissionsAsync() {
+  const notificationsModule = await loadNativeNotificationsAsync();
+
+  if (!notificationsModule) return false;
+
+  const permissions = await notificationsModule.getPermissionsAsync();
+
+  return permissions.granted;
+}
+
 export async function getReminderNotificationPermissionStatusAsync(): Promise<ReminderNotificationPermissionStatus> {
   const notificationsModule = await loadNativeNotificationsAsync();
 
@@ -234,13 +244,15 @@ export async function syncServerReminderPushTokenAsync(
     return 'unsupported';
   }
 
-  const permissionStatus = await requestReminderNotificationPermissionsAsync();
+  const channelReady = await ensureReminderChannelAsync();
 
-  if (permissionStatus === 'unsupported') {
+  if (!channelReady) {
     return 'unsupported';
   }
 
-  if (permissionStatus !== 'granted') {
+  const hasPermission = await hasGrantedReminderPermissionsAsync();
+
+  if (!hasPermission) {
     return 'permission-denied';
   }
 

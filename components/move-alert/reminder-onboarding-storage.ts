@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const REMINDER_ONBOARDING_STORAGE_KEY = 'move-alert:reminder-onboarding:v1';
+const REMINDER_ONBOARDING_STORAGE_KEY = 'move-alert:reminder-onboarding:v2';
 
 export async function hasSeenReminderOnboardingAsync() {
   return (await AsyncStorage.getItem(REMINDER_ONBOARDING_STORAGE_KEY)) === 'seen';

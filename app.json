@@ -2,7 +2,7 @@
   "expo": {
     "name": "Move Alert",
     "slug": "move-alert",
-    "version": "1.4.2",
+    "version": "1.4.3",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "movealert",
@@ -23,6 +23,7 @@
         "android.permission.SCHEDULE_EXACT_ALARM"
       ],
       "permissions": [
+        "android.permission.POST_NOTIFICATIONS",
         "android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS"
       ],
       "package": "com.chilgoe.movealert",

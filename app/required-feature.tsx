@@ -3,7 +3,11 @@ import { useRouter } from 'expo-router';
 import { View } from 'react-native';
 
 import { t } from '@/components/move-alert/i18n';
-import { requestReminderNotificationPermissionsAsync } from '@/components/move-alert/reminder-notifications';
+import { useLanguagePreference } from '@/components/move-alert/language-state';
+import {
+  requestReminderNotificationPermissionsAsync,
+  syncServerReminderPushTokenAsync,
+} from '@/components/move-alert/reminder-notifications';
 import { ScreenScrollView } from '@/components/move-alert/screen-scroll-view';
 import { useBatteryOptimizationStatus } from '@/components/move-alert/settings/use-battery-optimization-status';
 import { useNotificationPermissionStatus } from '@/components/move-alert/settings/use-notification-permission-status';
@@ -55,6 +59,7 @@ function getBatteryStatusLabel(status: ReturnType<typeof useBatteryOptimizationS
 export default function RequiredFeatureScreen() {
   const router = useRouter();
   const colors = useThemeColors();
+  const { resolvedLanguage } = useLanguagePreference();
   const { refresh: refreshNotificationStatus, status: notificationStatus } = useNotificationPermissionStatus();
   const { refreshStatus: refreshBatteryStatus, status: batteryStatus } = useBatteryOptimizationStatus();
   const isNotificationConfigured = notificationStatus === 'granted';
@@ -68,6 +73,10 @@ export default function RequiredFeatureScreen() {
 
   async function requestNotificationPermission() {
     const nextStatus = await requestReminderNotificationPermissionsAsync();
+
+    if (nextStatus === 'granted') {
+      await syncServerReminderPushTokenAsync(resolvedLanguage);
+    }
 
     if (nextStatus !== 'granted') {
       await openReminderNotificationSettingsAsync();

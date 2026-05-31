@@ -1,12 +1,16 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { View } from 'react-native';
 
 import { t, tf } from '@/components/move-alert/i18n';
+import { useLanguagePreference } from '@/components/move-alert/language-state';
 import { reminderIntervals, weekDays, type WeekDay } from '@/components/move-alert/move-alert-data';
 import { useMoveAlert } from '@/components/move-alert/move-alert-state';
-import { requestReminderNotificationPermissionsAsync } from '@/components/move-alert/reminder-notifications';
+import {
+  requestReminderNotificationPermissionsAsync,
+  syncServerReminderPushTokenAsync,
+} from '@/components/move-alert/reminder-notifications';
 import { markReminderOnboardingSeenAsync } from '@/components/move-alert/reminder-onboarding-storage';
 import {
   RequiredFeatureIconFrame,
@@ -76,6 +80,7 @@ function getStepDescription(step: OnboardingStep) {
 
 export function ReminderOnboardingScreen() {
   const { configureReminderPreferences, state } = useMoveAlert();
+  const { resolvedLanguage } = useLanguagePreference();
   const router = useRouter();
   const colors = useThemeColors();
   const { refreshStatus: refreshBatteryOptimizationStatus, status: batteryOptimizationStatus } =
@@ -92,6 +97,16 @@ export function ReminderOnboardingScreen() {
   const isDoneStep = activeStep === 'done';
   const quietDayLabels = quietHoursDays.map((day) => t(weekDayLabelKey[day])).join(', ');
 
+  const requestNotificationAccess = useCallback(async () => {
+    const nextStatus = await requestReminderNotificationPermissionsAsync();
+
+    if (nextStatus === 'granted') {
+      await syncServerReminderPushTokenAsync(resolvedLanguage);
+    }
+
+    await refreshNotificationStatus();
+  }, [refreshNotificationStatus, resolvedLanguage]);
+
   useEffect(() => {
     if (hasAutoRequestedNotificationRef.current || notificationStatus !== 'denied') {
       return;
@@ -99,13 +114,13 @@ export function ReminderOnboardingScreen() {
 
     hasAutoRequestedNotificationRef.current = true;
     const timeoutId = setTimeout(() => {
-      void requestReminderNotificationPermissionsAsync().finally(refreshNotificationStatus);
+      void requestNotificationAccess();
     }, 600);
 
     return () => {
       clearTimeout(timeoutId);
     };
-  }, [notificationStatus, refreshNotificationStatus]);
+  }, [notificationStatus, requestNotificationAccess]);
 
   function goBack() {
     setStepIndex((currentStepIndex) => Math.max(currentStepIndex - 1, 0));
@@ -116,14 +131,9 @@ export function ReminderOnboardingScreen() {
   }
 
   async function finishWithCurrentSettings() {
-    await requestReminderNotificationPermissionsAsync();
+    await requestNotificationAccess();
     await markReminderOnboardingSeenAsync();
     router.replace('/');
-  }
-
-  async function requestNotificationAccess() {
-    await requestReminderNotificationPermissionsAsync();
-    await refreshNotificationStatus();
   }
 
   async function savePreferences() {
